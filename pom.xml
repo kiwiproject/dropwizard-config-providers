@@ -69,7 +69,6 @@
 
         <!-- Versions for provided dependencies -->
         <dropwizard.version>2.0.12</dropwizard.version>
-        <jersey-bean-validation.version>2.31</jersey-bean-validation.version>
         <lombok.version>1.18.12</lombok.version>
 
         <!-- Versions for optional dependencies -->
@@ -131,19 +130,6 @@
         <!-- provided dependencies -->
 
         <dependency>
-            <groupId>org.glassfish.jersey.ext</groupId>
-            <artifactId>jersey-bean-validation</artifactId>
-            <version>${jersey-bean-validation.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hibernate.validator</groupId>
-                    <artifactId>hibernate-validator</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
@@ -178,6 +164,10 @@
                 <exclusion>
                     <groupId>org.apache.commons</groupId>
                     <artifactId>commons-lang3</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.hibernate.validator</groupId>
+                    <artifactId>hibernate-validator</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>jakarta.annotation</groupId>
