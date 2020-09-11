@@ -14,6 +14,11 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+/**
+ * Property provider that looks up configuration values from a known properties file. This provider loads the properties
+ * so that other providers can access the values. The default config file is {@code .config.properties} in the executing
+ * user's home directory.
+ */
 @Slf4j
 public class ExternalPropertyProvider implements ConfigProvider {
 
@@ -25,14 +30,26 @@ public class ExternalPropertyProvider implements ConfigProvider {
 
     private Properties properties;
 
+    /**
+     * Creates the provider with the default config path
+     */
     public ExternalPropertyProvider() {
         this(DEFAULT_CONFIG_PATH);
     }
 
+    /**
+     * Creates the provider with a given config path
+     * @param configPath the path to a properties file with the config values
+     */
     public ExternalPropertyProvider(Path configPath) {
         setPropertiesPath(configPath);
     }
 
+    /**
+     * This provider can provide if the properties have been loaded from the given file
+     *
+     * @return {@code true} if properties are loaded, {@code false} otherwise.
+     */
     @Override
     public boolean canProvide() {
         return isNotNullOrEmpty(properties);
@@ -56,10 +73,23 @@ public class ExternalPropertyProvider implements ConfigProvider {
         }
     }
 
+    /**
+     * Returns a property for a given key if it exists otherwise an {@link Optional#empty()}.
+     *
+     * @param propertyKey the key of the property to look up
+     * @return An {@link Optional} with the requested property or empty if not found
+     */
     public Optional<String> getProperty(String propertyKey) {
         return canProvide() ? Optional.ofNullable(properties.getProperty(propertyKey)) : Optional.empty();
     }
 
+    /**
+     * Executes given consumer if the requested property is found, otherwise runs the {@code orElse} function.
+     *
+     * @param propertyKey           the key of the property to look up
+     * @param propertyValueConsumer a consumer to process the value of the property if found
+     * @param orElse                a runnable to execute if the property is not found
+     */
     public void usePropertyIfPresent(String propertyKey, Consumer<String> propertyValueConsumer, Runnable orElse) {
         var propertyValue = getProperty(propertyKey);
         propertyValue.ifPresentOrElse(propertyValueConsumer, orElse);
