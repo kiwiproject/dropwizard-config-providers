@@ -48,6 +48,7 @@ public class ExternalPropertyProvider implements ConfigProvider {
 
         if (Files.isReadable(propertiesPath)) {
             try {
+                LOG.debug("Looking up configuration values from file {}", propertiesPath);
                 properties.load(Files.newBufferedReader(propertiesPath));
             } catch (IOException e) {
                 LOG.error("Unable to load properties from file: {}", propertiesPath, e);
