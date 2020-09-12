@@ -21,12 +21,23 @@ public class NetworkIdentityProvider implements ConfigProvider {
 
     protected KiwiEnvironment environment;
     protected String network;
+    protected ResolvedBy networkResolvedBy = ResolvedBy.NONE;
 
     /**
      * Creates the provider with the default {@link ExternalPropertyProvider} and {@link DefaultEnvironment}
      */
     public NetworkIdentityProvider() {
         this(new ExternalPropertyProvider(), new DefaultEnvironment());
+    }
+
+    /**
+     * Creates the provider with the provided explicit network
+     *
+     * @param network The explicit network to set
+     */
+    public NetworkIdentityProvider(String network) {
+        this.network = network;
+        this.networkResolvedBy = ResolvedBy.EXPLICIT_VALUE;
     }
 
     /**
@@ -38,8 +49,13 @@ public class NetworkIdentityProvider implements ConfigProvider {
     public NetworkIdentityProvider(ExternalPropertyProvider propertyProvider, KiwiEnvironment environment) {
         this.environment = environment;
         propertyProvider.usePropertyIfPresent(PROPERTY_KEY,
-                value -> network = value,
+                this::setNetworkFromExternal,
                 this::setNetworkFromEnv);
+    }
+
+    private void setNetworkFromExternal(String network) {
+        this.network = network;
+        this.networkResolvedBy = ResolvedBy.EXTERNAL_PROPERTY;
     }
 
     /**
@@ -52,6 +68,7 @@ public class NetworkIdentityProvider implements ConfigProvider {
             LOG.warn("No KIWI_ENV_NETWORK environment variable is present.  Unable to default.");
         } else {
             network = networkEnv;
+            networkResolvedBy = ResolvedBy.SYSTEM_ENV;
         }
     }
 
