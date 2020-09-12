@@ -27,10 +27,21 @@ class ExternalPropertyProviderTest {
     class Construct {
 
         @Test
-        void shouldCreateDefault() {
+        void shouldCreateDefault_WithoutSystemProperty() {
             var provider = new ExternalPropertyProvider();
             assertThat(provider.canProvide()).isFalse();
             assertThat(provider.getPropertiesPath()).isEqualTo(ExternalPropertyProvider.DEFAULT_CONFIG_PATH);
+        }
+
+        @Test
+        void shouldCreateDefault_WithSystemProperty() {
+            System.setProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, "/foo");
+
+            var provider = new ExternalPropertyProvider();
+            assertThat(provider.canProvide()).isFalse();
+            assertThat(provider.getPropertiesPath()).isEqualTo(Path.of("/foo"));
+
+            System.clearProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY);
         }
 
         @Test
@@ -68,6 +79,7 @@ class ExternalPropertyProviderTest {
         }
 
         @Test
+        @SuppressWarnings("java:S3415")
         void shouldCallOrElse_WhenNotFound() {
             provider.usePropertyIfPresent("unit.test.baz",
                     value -> fail("Test should have called the else not the consumer"),
