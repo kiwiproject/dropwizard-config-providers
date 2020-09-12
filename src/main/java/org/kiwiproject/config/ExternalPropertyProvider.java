@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 public class ExternalPropertyProvider implements ConfigProvider {
 
     @VisibleForTesting
-    static final Path DEFAULT_CONFIG_PATH = Paths.get(System.getProperty("user.home"), ".config.properties");
+    static final Path DEFAULT_CONFIG_PATH = Paths.get(System.getProperty("user.home"), ".kiwi.external.config.properties");
 
     @Getter
     private Path propertiesPath;
@@ -34,7 +34,7 @@ public class ExternalPropertyProvider implements ConfigProvider {
      * Creates the provider with the default config path
      */
     public ExternalPropertyProvider() {
-        this(DEFAULT_CONFIG_PATH);
+        setPropertiesPath(getDefaultConfigPath());
     }
 
     /**
@@ -93,5 +93,17 @@ public class ExternalPropertyProvider implements ConfigProvider {
     public void usePropertyIfPresent(String propertyKey, Consumer<String> propertyValueConsumer, Runnable orElse) {
         var propertyValue = getProperty(propertyKey);
         propertyValue.ifPresentOrElse(propertyValueConsumer, orElse);
+    }
+
+    /**
+     * Return the default path for the config properties file.
+     * <p>
+     * The easiest way to change the default file path without explicitly passing it into the constructor is to extend
+     * this class and override this method.
+     *
+     * @return The path to the config properties file.
+     */
+    protected Path getDefaultConfigPath() {
+        return DEFAULT_CONFIG_PATH;
     }
 }
