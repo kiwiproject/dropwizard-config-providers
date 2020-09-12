@@ -1,8 +1,10 @@
 package org.kiwiproject.config;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.kiwiproject.collect.KiwiMaps.isNotNullOrEmpty;
 
 import com.google.common.annotations.VisibleForTesting;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,18 +25,29 @@ import java.util.function.Consumer;
 public class ExternalPropertyProvider implements ConfigProvider {
 
     @VisibleForTesting
-    static final Path DEFAULT_CONFIG_PATH = Paths.get(System.getProperty("user.home"), ".config.properties");
+    static final Path DEFAULT_CONFIG_PATH = Paths.get(System.getProperty("user.home"), ".kiwi.external.config.properties");
 
-    @Getter
+    @VisibleForTesting
+    static final String DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY = "kiwi-external-config-path";
+
+    @Getter(AccessLevel.PACKAGE)
     private Path propertiesPath;
 
     private Properties properties;
 
     /**
-     * Creates the provider with the default config path
+     * Creates the provider with the default config path.
+     * <p>
+     * This default will first look to see if there is a system property set with the full path, if not then the path
+     * will be set to the {@link ExternalPropertyProvider#DEFAULT_CONFIG_PATH}.
      */
     public ExternalPropertyProvider() {
-        this(DEFAULT_CONFIG_PATH);
+        var pathFromProps = System.getProperty(DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY);
+        if (isNotBlank(pathFromProps)) {
+            setPropertiesPath(Path.of(pathFromProps));
+        } else {
+            setPropertiesPath(DEFAULT_CONFIG_PATH);
+        }
     }
 
     /**
