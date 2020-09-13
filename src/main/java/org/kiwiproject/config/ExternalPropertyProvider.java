@@ -81,7 +81,6 @@ public class ExternalPropertyProvider implements ConfigProvider {
                 LOG.debug("Looking up configuration values from file {}", propertiesPath);
                 properties.load(reader);
             } catch (IOException e) {
-                // TODO Should this fail-fast right here??? Same question if file not readable.
                 LOG.error("Unable to load properties from file: {}", propertiesPath, e);
             }
         }

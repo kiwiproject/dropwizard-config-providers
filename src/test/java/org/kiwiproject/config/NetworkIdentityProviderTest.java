@@ -1,6 +1,7 @@
 package org.kiwiproject.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -33,6 +34,7 @@ class NetworkIdentityProviderTest {
             var provider = new NetworkIdentityProvider();
             assertThat(provider.canProvide()).isFalse();
             assertThat(provider.network).isBlank();
+            assertThat(provider.networkResolvedBy).isEqualTo(ResolvedBy.NONE);
         }
 
         @Test
@@ -42,6 +44,7 @@ class NetworkIdentityProviderTest {
             var provider = new NetworkIdentityProvider(externalPropertyProvider, environment);
             assertThat(provider.canProvide()).isTrue();
             assertThat(provider.network).isEqualTo("MY-VPC");
+            assertThat(provider.networkResolvedBy).isEqualTo(ResolvedBy.EXTERNAL_PROPERTY);
         }
 
         @Test
@@ -51,6 +54,24 @@ class NetworkIdentityProviderTest {
             var provider = new NetworkIdentityProvider(externalPropertyProvider, environment);
             assertThat(provider.canProvide()).isTrue();
             assertThat(provider.network).isEqualTo("MY-VPC-2");
+            assertThat(provider.networkResolvedBy).isEqualTo(ResolvedBy.SYSTEM_ENV);
+        }
+
+        @Test
+        void shouldCreateProviderThatCanProvide_WhenExplicitNetworkIsGiven() {
+            var provider = new NetworkIdentityProvider("MY-SUBNET");
+            assertThat(provider.canProvide()).isTrue();
+            assertThat(provider.network).isEqualTo("MY-SUBNET");
+            assertThat(provider.networkResolvedBy).isEqualTo(ResolvedBy.EXPLICIT_VALUE);
+        }
+    }
+
+    @Nested
+    class GetResolvedBy {
+        @Test
+        void shouldReturnMapWithNetwork () {
+            var provider = new NetworkIdentityProvider();
+            assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.NONE));
         }
     }
 }

@@ -1,5 +1,7 @@
 package org.kiwiproject.config;
 
+import java.util.Map;
+
 /**
  * Base definition of a config provider used to assist in providing defaults for a Dropwizard service.
  */
@@ -20,5 +22,15 @@ public interface ConfigProvider {
      */
     default boolean canNotProvide() {
         return !canProvide();
+    }
+
+    /**
+     * Returns a mapping of config fields to how the field was resolved.
+     *
+     * @return a mapping of config fields to how the field was resolved
+     * @see ResolvedBy
+     */
+    default Map<String, ResolvedBy> getResolvedBy() {
+        return Map.of();
     }
 }

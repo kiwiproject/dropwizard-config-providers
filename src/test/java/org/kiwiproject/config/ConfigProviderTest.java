@@ -38,4 +38,13 @@ class ConfigProviderTest {
             assertThat(provider.canNotProvide()).isTrue();
         }
     }
+
+    @Nested
+    class GetResolvedBy {
+        @Test
+        void shouldReturnAnEmptyMapByDefault() {
+            ConfigProvider provider = () -> true;
+            assertThat(provider.getResolvedBy()).isEmpty();
+        }
+    }
 }
