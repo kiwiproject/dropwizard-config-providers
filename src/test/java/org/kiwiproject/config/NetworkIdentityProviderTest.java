@@ -1,6 +1,7 @@
 package org.kiwiproject.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -62,6 +63,15 @@ class NetworkIdentityProviderTest {
             assertThat(provider.canProvide()).isTrue();
             assertThat(provider.network).isEqualTo("MY-SUBNET");
             assertThat(provider.networkResolvedBy).isEqualTo(ResolvedBy.EXPLICIT_VALUE);
+        }
+    }
+
+    @Nested
+    class GetResolvedBy {
+        @Test
+        void shouldReturnMapWithNetwork () {
+            var provider = new NetworkIdentityProvider();
+            assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.NONE));
         }
     }
 }

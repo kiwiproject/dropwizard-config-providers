@@ -8,6 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.base.DefaultEnvironment;
 import org.kiwiproject.base.KiwiEnvironment;
 
+import java.util.Map;
+
 /**
  * Property provider that determines the named network on which the service is running.
  * <p>
@@ -80,5 +82,10 @@ public class NetworkIdentityProvider implements ConfigProvider {
     @Override
     public boolean canProvide() {
         return isNotBlank(network);
+    }
+
+    @Override
+    public Map<String, ResolvedBy> getResolvedBy() {
+        return Map.of(PROPERTY_KEY, networkResolvedBy);
     }
 }
