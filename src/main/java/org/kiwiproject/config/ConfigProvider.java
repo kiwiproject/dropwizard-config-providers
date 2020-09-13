@@ -1,6 +1,5 @@
 package org.kiwiproject.config;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,6 +31,6 @@ public interface ConfigProvider {
      * @see ResolvedBy
      */
     default Map<String, ResolvedBy> getResolvedBy() {
-        return new HashMap<>();
+        return Map.of();
     }
 }
