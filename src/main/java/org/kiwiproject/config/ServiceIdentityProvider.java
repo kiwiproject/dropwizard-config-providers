@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 /**
  * Property provider that determines the identity of the service that is running.  Identity is defined by the service
- * name, service version, and environment.
+ * name, service version, and deployment environment.
  * <p>
  * The provider will look for the identity fields in the following order:
  * <ol>
