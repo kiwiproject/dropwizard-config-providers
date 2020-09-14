@@ -61,7 +61,7 @@ class NetworkIdentityProviderTest {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv(NetworkIdentityProvider.DEFAULT_NETWORK_ENV_VARIABLE)).thenReturn("VPC-Env-Default");
 
-                var provider = NetworkIdentityProvider.builder().environment(env).build();
+                var provider = NetworkIdentityProvider.builder().kiwiEnvironment(env).build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-Env-Default");
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_ENV));
@@ -73,7 +73,7 @@ class NetworkIdentityProviderTest {
                 when(env.getenv("baz")).thenReturn("VPC-Env-Provided");
 
                 var provider = NetworkIdentityProvider.builder()
-                        .environment(env)
+                        .kiwiEnvironment(env)
                         .envVariable("baz")
                         .build();
 
@@ -91,7 +91,7 @@ class NetworkIdentityProviderTest {
 
             @BeforeEach
             void setUp() {
-                var propertyPath = Path.of(ResourceHelpers.resourceFilePath("NetworkPropertyProvider/config.properties"));
+                var propertyPath = Path.of(ResourceHelpers.resourceFilePath("NetworkIdentityPropertyProvider/config.properties"));
                 externalPropertyProvider = ExternalPropertyProvider.builder().explicitPath(propertyPath).build();
             }
 
