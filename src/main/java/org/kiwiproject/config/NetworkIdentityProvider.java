@@ -55,13 +55,13 @@ public class NetworkIdentityProvider implements ConfigProvider {
                                     String envVariable,
                                     String externalProperty,
                                     ExternalPropertyProvider externalPropertyProvider,
-                                    KiwiEnvironment environment,
+                                    KiwiEnvironment kiwiEnvironment,
                                     Supplier<String> networkSupplier) {
 
         var networkFromSystemProperties = System.getProperty(getSystemPropertyOrDefault(systemPropertyKey));
 
-        var kiwiEnvironment = isNull(environment) ? new DefaultEnvironment() : environment;
-        var networkFromEnv = kiwiEnvironment.getenv(getEnvironmentVariableOrDefault(envVariable));
+        var resolvedEnvironment = isNull(kiwiEnvironment) ? new DefaultEnvironment() : kiwiEnvironment;
+        var networkFromEnv = resolvedEnvironment.getenv(getEnvironmentVariableOrDefault(envVariable));
 
         if (isNotBlank(networkFromSystemProperties)) {
             this.network = networkFromSystemProperties;
