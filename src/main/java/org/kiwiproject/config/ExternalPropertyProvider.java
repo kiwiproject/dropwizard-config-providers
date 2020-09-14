@@ -1,12 +1,18 @@
 package org.kiwiproject.config;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.kiwiproject.collect.KiwiMaps.isNotNullOrEmpty;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.kiwiproject.base.DefaultEnvironment;
+import org.kiwiproject.base.KiwiEnvironment;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,8 +24,17 @@ import java.util.function.Consumer;
 
 /**
  * Property provider that looks up configuration values from a known properties file. This provider loads the properties
- * so that other providers can access the values. The default config file is {@code .config.properties} in the executing
- * user's home directory.
+ * so that other providers can access the values.
+ * <p>
+ * The provider will look for the external config file in the following order:
+ * <ol>
+ *     <li>System property with the given system property key</li>
+ *     <li>System property with the default system property key (kiwi.external.config.path)</li>
+ *     <li>Environment variable with the given variable name</li>
+ *     <li>Environment variable with the default variable name (KIWI_EXTERNAL_CONFIG_PATH)</li>
+ *     <li>The given properties path</li>
+ *     <li>The default properties path (~/.kiwi.external.config.properties)</li>
+ * </ol>
  */
 @Slf4j
 public class ExternalPropertyProvider implements ConfigProvider {
@@ -28,7 +43,10 @@ public class ExternalPropertyProvider implements ConfigProvider {
     static final Path DEFAULT_CONFIG_PATH = Paths.get(System.getProperty("user.home"), ".kiwi.external.config.properties");
 
     @VisibleForTesting
-    static final String DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY = "kiwi-external-config-path";
+    static final String DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY = "kiwi.external.config.path";
+
+    @VisibleForTesting
+    static final String DEFAULT_CONFIG_PATH_ENV_VARIABLE = "KIWI_EXTERNAL_CONFIG_PATH";
 
     @Getter(AccessLevel.PACKAGE)
     private Path propertiesPath;
@@ -36,26 +54,35 @@ public class ExternalPropertyProvider implements ConfigProvider {
     private Properties properties;
 
     /**
-     * Creates the provider with the default config path.
-     * <p>
-     * This default will first look to see if there is a system property set with the full path, if not then the path
-     * will be set to the {@link ExternalPropertyProvider#DEFAULT_CONFIG_PATH}.
+     * Builds a new ExternalPropertyProvider
+     *
+     * @param explicitPath        An explicit path to the external properties file
+     * @param systemPropertyKey   A System property key that resolves the path to the external properties file
+     * @param envVariable         A variable name that resolves the path to the external properties file from the system environment
+     * @param environment         The {@link KiwiEnvironment} to use for resolving environment variables
+     *
+     * @see ExternalPropertyProvider#DEFAULT_CONFIG_PATH
+     * @see ExternalPropertyProvider#DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY
+     * @see ExternalPropertyProvider#DEFAULT_CONFIG_PATH_ENV_VARIABLE
      */
-    public ExternalPropertyProvider() {
-        var pathFromProps = System.getProperty(DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY);
-        if (isNotBlank(pathFromProps)) {
-            setPropertiesPath(Path.of(pathFromProps));
+    @Builder
+    private ExternalPropertyProvider(Path explicitPath, String systemPropertyKey, String envVariable, KiwiEnvironment environment) {
+        var kiwiEnvironment = isNull(environment) ? new DefaultEnvironment() : environment;
+        var configPathEnvVariable = isBlank(envVariable) ? DEFAULT_CONFIG_PATH_ENV_VARIABLE : envVariable;
+        var configPathSystemPropertyKey = isBlank(systemPropertyKey) ? DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY : systemPropertyKey;
+
+        var pathFromSystemProperties = System.getProperty(configPathSystemPropertyKey);
+        var pathFromEnv = kiwiEnvironment.getenv(configPathEnvVariable);
+
+        if (isNotBlank(pathFromSystemProperties)) {
+            setPropertiesPath(Path.of(pathFromSystemProperties));
+        } else if (isNotBlank(pathFromEnv)) {
+            setPropertiesPath(Path.of(pathFromEnv));
+        } else if (nonNull(explicitPath)) {
+            setPropertiesPath(explicitPath);
         } else {
             setPropertiesPath(DEFAULT_CONFIG_PATH);
         }
-    }
-
-    /**
-     * Creates the provider with a given config path
-     * @param configPath the path to a properties file with the config values
-     */
-    public ExternalPropertyProvider(Path configPath) {
-        setPropertiesPath(configPath);
     }
 
     /**
