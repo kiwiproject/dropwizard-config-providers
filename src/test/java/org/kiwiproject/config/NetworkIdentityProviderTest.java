@@ -2,11 +2,13 @@ package org.kiwiproject.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.kiwiproject.config.util.SystemPropertyHelper.addSystemProperty;
+import static org.kiwiproject.config.util.SystemPropertyHelper.clearAllSystemProperties;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import io.dropwizard.testing.ResourceHelpers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,43 +20,35 @@ import java.nio.file.Path;
 @DisplayName("NetworkIdentityProvider")
 class NetworkIdentityProviderTest {
 
-    private KiwiEnvironment environment;
-    private ExternalPropertyProvider externalPropertyProvider;
-
-    @BeforeEach
-    void setUp() {
-        environment = mock(KiwiEnvironment.class);
-        externalPropertyProvider = spy(ExternalPropertyProvider.builder().build());
-    }
-
     @Nested
     class Construct {
 
         @Nested
         class WithSystemProperty {
 
+            @AfterEach
+            void tearDown() {
+                clearAllSystemProperties();
+            }
+
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                System.setProperty(NetworkIdentityProvider.DEFAULT_NETWORK_SYSTEM_PROPERTY, "VPC-SystemProp-Default");
+                addSystemProperty(NetworkIdentityProvider.DEFAULT_NETWORK_SYSTEM_PROPERTY, "VPC-SystemProp-Default");
 
                 var provider = NetworkIdentityProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-SystemProp-Default");
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_PROPERTY));
-
-                System.clearProperty(NetworkIdentityProvider.DEFAULT_NETWORK_SYSTEM_PROPERTY);
             }
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-                System.setProperty("bar", "VPC-SystemProp-Provided");
+                addSystemProperty("bar", "VPC-SystemProp-Provided");
 
                 var provider = NetworkIdentityProvider.builder().systemPropertyKey("bar").build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-SystemProp-Provided");
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_PROPERTY));
-
-                System.clearProperty("bar");
             }
 
         }

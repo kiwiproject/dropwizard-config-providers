@@ -2,10 +2,13 @@ package org.kiwiproject.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
+import static org.kiwiproject.config.util.SystemPropertyHelper.addSystemProperty;
+import static org.kiwiproject.config.util.SystemPropertyHelper.clearAllSystemProperties;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import io.dropwizard.testing.ResourceHelpers;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -32,26 +35,27 @@ class ExternalPropertyProviderTest {
         @Nested
         class WithSystemProperty {
 
+            @AfterEach
+            void tearDown() {
+                clearAllSystemProperties();
+            }
+
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                System.setProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, propertyPath.toString());
+                addSystemProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, propertyPath.toString());
 
                 var provider = ExternalPropertyProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
-
-                System.clearProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY);
             }
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-                System.setProperty("bar", propertyPath.toString());
+                addSystemProperty("bar", propertyPath.toString());
 
                 var provider = ExternalPropertyProvider.builder().systemPropertyKey("bar").build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
-
-                System.clearProperty("bar");
             }
 
         }
