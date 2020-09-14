@@ -33,7 +33,7 @@ class ExternalPropertyProviderTest {
         class WithSystemProperty {
 
             @Test
-            void shouldBuildUsingProvidedSystemPropertyKey() {
+            void shouldBuildUsingDefaultSystemPropertyKey() {
                 System.setProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, propertyPath.toString());
 
                 var provider = ExternalPropertyProvider.builder().build();
@@ -44,7 +44,7 @@ class ExternalPropertyProviderTest {
             }
 
             @Test
-            void shouldBuildUsingDefaultSystemPropertyKey() {
+            void shouldBuildUsingProvidedSystemPropertyKey() {
                 System.setProperty("bar", propertyPath.toString());
 
                 var provider = ExternalPropertyProvider.builder().systemPropertyKey("bar").build();
@@ -60,7 +60,7 @@ class ExternalPropertyProviderTest {
         class WithEnvironmentVariable {
 
             @Test
-            void shouldBuildUsingProvidedEnvVariable() {
+            void shouldBuildUsingDefaultEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_ENV_VARIABLE)).thenReturn(propertyPath.toString());
 
@@ -70,7 +70,7 @@ class ExternalPropertyProviderTest {
             }
 
             @Test
-            void shouldBuildUsingDefaultEnvVariable() {
+            void shouldBuildUsingProvidedEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv("baz")).thenReturn(propertyPath.toString());
 

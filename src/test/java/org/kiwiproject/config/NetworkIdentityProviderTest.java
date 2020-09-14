@@ -6,13 +6,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import io.dropwizard.testing.ResourceHelpers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.base.KiwiEnvironment;
 
-import java.util.Optional;
+import java.nio.file.Path;
 
 @DisplayName("NetworkIdentityProvider")
 class NetworkIdentityProviderTest {
@@ -29,49 +30,133 @@ class NetworkIdentityProviderTest {
     @Nested
     class Construct {
 
-        @Test
-        void shouldCreateProviderThatCanNotProvide_ByDefaultWithoutAConfigFile() {
-            var provider = new NetworkIdentityProvider();
-            assertThat(provider.canProvide()).isFalse();
-            assertThat(provider.network).isBlank();
-            assertThat(provider.networkResolvedBy).isEqualTo(ResolvedBy.NONE);
+        @Nested
+        class WithSystemProperty {
+
+            @Test
+            void shouldBuildUsingDefaultSystemPropertyKey() {
+                System.setProperty(NetworkIdentityProvider.DEFAULT_NETWORK_SYSTEM_PROPERTY, "VPC-SystemProp-Default");
+
+                var provider = NetworkIdentityProvider.builder().build();
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getNetwork()).isEqualTo("VPC-SystemProp-Default");
+                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_PROPERTY));
+
+                System.clearProperty(NetworkIdentityProvider.DEFAULT_NETWORK_SYSTEM_PROPERTY);
+            }
+
+            @Test
+            void shouldBuildUsingProvidedSystemPropertyKey() {
+                System.setProperty("bar", "VPC-SystemProp-Provided");
+
+                var provider = NetworkIdentityProvider.builder().systemPropertyKey("bar").build();
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getNetwork()).isEqualTo("VPC-SystemProp-Provided");
+                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_PROPERTY));
+
+                System.clearProperty("bar");
+            }
+
         }
 
-        @Test
-        void shouldCreateProviderThatCanProvide_WhenConfigFileContainsNetwork() {
-            when(externalPropertyProvider.getProperty(NetworkIdentityProvider.PROPERTY_KEY)).thenReturn(Optional.of("MY-VPC"));
+        @Nested
+        class WithEnvironmentVariable {
 
-            var provider = new NetworkIdentityProvider(externalPropertyProvider, environment);
-            assertThat(provider.canProvide()).isTrue();
-            assertThat(provider.network).isEqualTo("MY-VPC");
-            assertThat(provider.networkResolvedBy).isEqualTo(ResolvedBy.EXTERNAL_PROPERTY);
+            @Test
+            void shouldBuildUsingDefaultEnvVariable() {
+                var env = mock(KiwiEnvironment.class);
+                when(env.getenv(NetworkIdentityProvider.DEFAULT_NETWORK_ENV_VARIABLE)).thenReturn("VPC-Env-Default");
+
+                var provider = NetworkIdentityProvider.builder().environment(env).build();
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getNetwork()).isEqualTo("VPC-Env-Default");
+                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_ENV));
+            }
+
+            @Test
+            void shouldBuildUsingProvidedEnvVariable() {
+                var env = mock(KiwiEnvironment.class);
+                when(env.getenv("baz")).thenReturn("VPC-Env-Provided");
+
+                var provider = NetworkIdentityProvider.builder()
+                        .environment(env)
+                        .envVariable("baz")
+                        .build();
+
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getNetwork()).isEqualTo("VPC-Env-Provided");
+                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_ENV));
+            }
+
         }
 
-        @Test
-        void shouldCreateProviderThatCanProvide_WhenEnvironmentVariableExists() {
-            when(environment.getenv("KIWI_ENV_NETWORK")).thenReturn("MY-VPC-2");
+        @Nested
+        class WithExternalProperty {
 
-            var provider = new NetworkIdentityProvider(externalPropertyProvider, environment);
-            assertThat(provider.canProvide()).isTrue();
-            assertThat(provider.network).isEqualTo("MY-VPC-2");
-            assertThat(provider.networkResolvedBy).isEqualTo(ResolvedBy.SYSTEM_ENV);
+            private ExternalPropertyProvider externalPropertyProvider;
+
+            @BeforeEach
+            void setUp() {
+                var propertyPath = Path.of(ResourceHelpers.resourceFilePath("NetworkPropertyProvider/config.properties"));
+                externalPropertyProvider = ExternalPropertyProvider.builder().explicitPath(propertyPath).build();
+            }
+
+            @Test
+            void shouldBuildUsingDefaultExternalProperty() {
+                var provider = NetworkIdentityProvider.builder().externalPropertyProvider(externalPropertyProvider).build();
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getNetwork()).isEqualTo("VPC-External-Default");
+                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.EXTERNAL_PROPERTY));
+            }
+
+            @Test
+            void shouldBuildUsingProvidedExternalProperty() {
+                var provider = NetworkIdentityProvider.builder()
+                        .externalPropertyProvider(externalPropertyProvider)
+                        .externalProperty("network.provided")
+                        .build();
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getNetwork()).isEqualTo("VPC-External-Provided");
+                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.EXTERNAL_PROPERTY));
+            }
         }
 
-        @Test
-        void shouldCreateProviderThatCanProvide_WhenExplicitNetworkIsGiven() {
-            var provider = new NetworkIdentityProvider("MY-SUBNET");
-            assertThat(provider.canProvide()).isTrue();
-            assertThat(provider.network).isEqualTo("MY-SUBNET");
-            assertThat(provider.networkResolvedBy).isEqualTo(ResolvedBy.EXPLICIT_VALUE);
-        }
-    }
+        @Nested
+        class WithExplicitNetwork {
 
-    @Nested
-    class GetResolvedBy {
-        @Test
-        void shouldReturnMapWithNetwork () {
-            var provider = new NetworkIdentityProvider();
-            assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.NONE));
+            @Test
+            void shouldBuildUsingProvidedNetwork() {
+                var provider = NetworkIdentityProvider.builder().namedNetwork("VPC-Explicit").build();
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getNetwork()).isEqualTo("VPC-Explicit");
+                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.EXPLICIT_VALUE));
+            }
+
         }
+
+        @Nested
+        class WithSupplier {
+
+            @Test
+            void shouldBuildUsingProvidedSupplier() {
+                var provider = NetworkIdentityProvider.builder()
+                        .networkSupplier(() -> "VPC-Supplier")
+                        .build();
+
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getNetwork()).isEqualTo("VPC-Supplier");
+                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.DEFAULT));
+            }
+
+            @Test
+            void shouldBuildUsingDefaultSupplierAndCannotProvide() {
+                var provider = NetworkIdentityProvider.builder().build();
+                assertThat(provider.canProvide()).isFalse();
+                assertThat(provider.getNetwork()).isEmpty();
+                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.NONE));
+            }
+
+        }
+
     }
 }
