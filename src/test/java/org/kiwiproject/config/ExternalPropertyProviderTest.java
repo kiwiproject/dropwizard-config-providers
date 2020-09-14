@@ -2,12 +2,15 @@ package org.kiwiproject.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import io.dropwizard.testing.ResourceHelpers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.kiwiproject.base.KiwiEnvironment;
 
 import java.nio.file.Path;
 
@@ -20,34 +23,90 @@ class ExternalPropertyProviderTest {
     @BeforeEach
     void setUp() {
         propertyPath = Path.of(ResourceHelpers.resourceFilePath("ExternalPropertyProvider/config.properties"));
-        provider = new ExternalPropertyProvider(propertyPath);
+        provider = ExternalPropertyProvider.builder().explicitPath(propertyPath).build();
     }
 
     @Nested
     class Construct {
 
-        @Test
-        void shouldCreateDefault_WithoutSystemProperty() {
-            var provider = new ExternalPropertyProvider();
-            assertThat(provider.canProvide()).isFalse();
-            assertThat(provider.getPropertiesPath()).isEqualTo(ExternalPropertyProvider.DEFAULT_CONFIG_PATH);
+        @Nested
+        class WithSystemProperty {
+
+            @Test
+            void shouldBuildUsingProvidedSystemPropertyKey() {
+                System.setProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, propertyPath.toString());
+
+                var provider = ExternalPropertyProvider.builder().build();
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
+
+                System.clearProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY);
+            }
+
+            @Test
+            void shouldBuildUsingDefaultSystemPropertyKey() {
+                System.setProperty("bar", propertyPath.toString());
+
+                var provider = ExternalPropertyProvider.builder().systemPropertyKey("bar").build();
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
+
+                System.clearProperty("bar");
+            }
+
         }
 
-        @Test
-        void shouldCreateDefault_WithSystemProperty() {
-            System.setProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, "/foo");
+        @Nested
+        class WithEnvironmentVariable {
 
-            var provider = new ExternalPropertyProvider();
-            assertThat(provider.canProvide()).isFalse();
-            assertThat(provider.getPropertiesPath()).isEqualTo(Path.of("/foo"));
+            @Test
+            void shouldBuildUsingProvidedEnvVariable() {
+                var env = mock(KiwiEnvironment.class);
+                when(env.getenv(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_ENV_VARIABLE)).thenReturn(propertyPath.toString());
 
-            System.clearProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY);
+                var provider = ExternalPropertyProvider.builder().environment(env).build();
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
+            }
+
+            @Test
+            void shouldBuildUsingDefaultEnvVariable() {
+                var env = mock(KiwiEnvironment.class);
+                when(env.getenv("baz")).thenReturn(propertyPath.toString());
+
+                var provider = ExternalPropertyProvider.builder()
+                        .environment(env)
+                        .envVariable("baz")
+                        .build();
+
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
+            }
+
         }
 
-        @Test
-        void shouldCreateFromResourcePath() {
-            assertThat(provider.canProvide()).isTrue();
-            assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
+        @Nested
+        class WithExplicitPath {
+
+            @Test
+            void shouldBuildUsingProvidedPath() {
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
+            }
+
+        }
+
+        @Nested
+        class WithDefaultPath {
+
+            @Test
+            void shouldBuildUsingDefaultPath() {
+                var provider = ExternalPropertyProvider.builder().build();
+
+                assertThat(provider.canProvide()).isFalse();
+                assertThat(provider.getPropertiesPath()).isEqualTo(ExternalPropertyProvider.DEFAULT_CONFIG_PATH);
+            }
+
         }
 
     }

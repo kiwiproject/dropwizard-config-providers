@@ -29,7 +29,7 @@ public class NetworkIdentityProvider implements ConfigProvider {
      * Creates the provider with the default {@link ExternalPropertyProvider} and {@link DefaultEnvironment}
      */
     public NetworkIdentityProvider() {
-        this(new ExternalPropertyProvider(), new DefaultEnvironment());
+        this(ExternalPropertyProvider.builder().build(), new DefaultEnvironment());
     }
 
     /**

@@ -23,7 +23,7 @@ class NetworkIdentityProviderTest {
     @BeforeEach
     void setUp() {
         environment = mock(KiwiEnvironment.class);
-        externalPropertyProvider = spy(new ExternalPropertyProvider());
+        externalPropertyProvider = spy(ExternalPropertyProvider.builder().build());
     }
 
     @Nested
