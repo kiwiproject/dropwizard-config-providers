@@ -43,7 +43,7 @@ public class ServiceIdentityProvider implements ConfigProvider {
     static final String DEFAULT_NAME_SYSTEM_PROPERTY = "kiwi.service.name";
 
     @VisibleForTesting
-    static final String DEFAULT_NAME_ENV_VARIABLE = "KIW_SERVICE_NAME";
+    static final String DEFAULT_NAME_ENV_VARIABLE = "KIWI_SERVICE_NAME";
 
     @VisibleForTesting
     static final String DEFAULT_NAME_EXTERNAL_PROPERTY_KEY = "service.name";
@@ -52,7 +52,7 @@ public class ServiceIdentityProvider implements ConfigProvider {
     static final String DEFAULT_VERSION_SYSTEM_PROPERTY = "kiwi.service.version";
 
     @VisibleForTesting
-    static final String DEFAULT_VERSION_ENV_VARIABLE = "KIW_SERVICE_VERSION";
+    static final String DEFAULT_VERSION_ENV_VARIABLE = "KIWI_SERVICE_VERSION";
 
     @VisibleForTesting
     static final String DEFAULT_VERSION_EXTERNAL_PROPERTY_KEY = "service.version";
@@ -61,7 +61,7 @@ public class ServiceIdentityProvider implements ConfigProvider {
     static final String DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY = "kiwi.service.env";
 
     @VisibleForTesting
-    static final String DEFAULT_ENVIRONMENT_ENV_VARIABLE = "KIW_SERVICE_ENV";
+    static final String DEFAULT_ENVIRONMENT_ENV_VARIABLE = "KIWI_SERVICE_ENV";
 
     @VisibleForTesting
     static final String DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY = "service.env";
