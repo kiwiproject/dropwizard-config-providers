@@ -67,83 +67,88 @@ public class ServiceIdentityProvider implements ConfigProvider {
     static final String DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY = "service.env";
 
     @Getter
-    private final String name;
+    private String name;
 
-    private final ResolvedBy nameResolvedBy;
-
-    @Getter
-    private final String version;
-
-    private final ResolvedBy versionResolvedBy;
+    private ResolvedBy nameResolvedBy;
 
     @Getter
-    private final String environment;
+    private String version;
 
-    private final ResolvedBy environmentResolvedBy;
+    private ResolvedBy versionResolvedBy;
 
-    @SuppressWarnings("java:S107")
+    @Getter
+    private String environment;
+
+    private ResolvedBy environmentResolvedBy;
+
     @Builder
-    private ServiceIdentityProvider(String serviceName,
-                                    String serviceVersion,
-                                    String serviceEnvironment,
-                                    String nameSystemPropertyKey,
-                                    String nameEnvVariable,
-                                    String nameExternalProperty,
-                                    String versionSystemPropertyKey,
-                                    String versionEnvVariable,
-                                    String versionExternalProperty,
-                                    String environmentSystemPropertyKey,
-                                    String environmentEnvVariable,
-                                    String environmentExternalProperty,
-                                    ExternalPropertyProvider externalPropertyProvider,
+    private ServiceIdentityProvider(ExternalPropertyProvider externalPropertyProvider,
                                     KiwiEnvironment kiwiEnvironment,
-                                    Supplier<String> nameSupplier,
-                                    Supplier<String> versionSupplier,
-                                    Supplier<String> environmentSupplier) {
-
-        var nameFromSystemProperties = System.getProperty(getSystemPropertyOrDefault(nameSystemPropertyKey, DEFAULT_NAME_SYSTEM_PROPERTY));
-        var versionFromSystemProperties = System.getProperty(getSystemPropertyOrDefault(versionSystemPropertyKey, DEFAULT_VERSION_SYSTEM_PROPERTY));
-        var environmentFromSystemProperties = System.getProperty(getSystemPropertyOrDefault(environmentSystemPropertyKey, DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY));
+                                    FieldResolverStrategy<String> nameResolverStrategy,
+                                    FieldResolverStrategy<String> versionResolverStrategy,
+                                    FieldResolverStrategy<String> environmentResolverStrategy) {
 
         var resolvedKiwiEnvironment = isNull(kiwiEnvironment) ? new DefaultEnvironment() : kiwiEnvironment;
-        var nameFromEnv = resolvedKiwiEnvironment.getenv(getEnvironmentVariableOrDefault(nameEnvVariable, DEFAULT_NAME_ENV_VARIABLE));
-        var versionFromEnv = resolvedKiwiEnvironment.getenv(getEnvironmentVariableOrDefault(versionEnvVariable, DEFAULT_VERSION_ENV_VARIABLE));
-        var environmentFromEnv = resolvedKiwiEnvironment.getenv(getEnvironmentVariableOrDefault(environmentEnvVariable, DEFAULT_ENVIRONMENT_ENV_VARIABLE));
-
         var extProvider = getExternalPropertyProviderOrDefault(externalPropertyProvider);
 
-        var nameResolution = resolveField(nameFromSystemProperties, nameFromEnv, serviceName,
-                extProvider, nameExternalProperty, DEFAULT_NAME_EXTERNAL_PROPERTY_KEY, nameSupplier);
+        resolveName(getResolverOrDefault(nameResolverStrategy), extProvider, resolvedKiwiEnvironment);
+        resolveVersion(getResolverOrDefault(versionResolverStrategy), extProvider, resolvedKiwiEnvironment);
+        resolveEnvironment(getResolverOrDefault(environmentResolverStrategy), extProvider, resolvedKiwiEnvironment);
+    }
+
+    private FieldResolverStrategy<String> getResolverOrDefault(FieldResolverStrategy<String> providedStrategy) {
+        return isNull(providedStrategy) ? FieldResolverStrategy.<String>builder().build() : providedStrategy;
+    }
+
+    private void resolveName(FieldResolverStrategy<String> resolverStrategy,
+                             ExternalPropertyProvider externalPropertyProvider,
+                             KiwiEnvironment kiwiEnvironment) {
+
+        var nameResolution = resolveField(resolverStrategy.getSystemPropertyKeyOrDefault(DEFAULT_NAME_SYSTEM_PROPERTY),
+                resolverStrategy.getEnvVariableOrDefault(DEFAULT_NAME_ENV_VARIABLE),
+                resolverStrategy.getExplicitValue(), resolverStrategy.getExternalPropertyOrDefault(DEFAULT_NAME_EXTERNAL_PROPERTY_KEY),
+                resolverStrategy.getValueSupplierOrDefault(""), externalPropertyProvider, kiwiEnvironment);
+
         this.name = nameResolution.getLeft();
         this.nameResolvedBy = nameResolution.getRight();
+    }
 
-        var versionResolution = resolveField(versionFromSystemProperties, versionFromEnv, serviceVersion,
-                extProvider, versionExternalProperty, DEFAULT_VERSION_EXTERNAL_PROPERTY_KEY, versionSupplier);
+    private void resolveVersion(FieldResolverStrategy<String> resolverStrategy,
+                             ExternalPropertyProvider externalPropertyProvider,
+                             KiwiEnvironment kiwiEnvironment) {
+
+        var versionResolution = resolveField(resolverStrategy.getSystemPropertyKeyOrDefault(DEFAULT_VERSION_SYSTEM_PROPERTY),
+                resolverStrategy.getEnvVariableOrDefault(DEFAULT_VERSION_ENV_VARIABLE),
+                resolverStrategy.getExplicitValue(), resolverStrategy.getExternalPropertyOrDefault(DEFAULT_VERSION_EXTERNAL_PROPERTY_KEY),
+                resolverStrategy.getValueSupplierOrDefault(""), externalPropertyProvider, kiwiEnvironment);
+
         this.version = versionResolution.getLeft();
         this.versionResolvedBy = versionResolution.getRight();
-
-        var environmentResolution = resolveField(environmentFromSystemProperties, environmentFromEnv,
-                serviceEnvironment, extProvider, environmentExternalProperty, DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY,
-                environmentSupplier);
-        this.environment = environmentResolution.getLeft();
-        this.environmentResolvedBy = environmentResolution.getRight();
     }
 
-    private String getSystemPropertyOrDefault(String providedPropertyName, String defaultPropertyName) {
-        return isBlank(providedPropertyName) ? defaultPropertyName : providedPropertyName;
+    private void resolveEnvironment(FieldResolverStrategy<String> resolverStrategy,
+                                ExternalPropertyProvider externalPropertyProvider,
+                                KiwiEnvironment kiwiEnvironment) {
+
+        var envResolution = resolveField(resolverStrategy.getSystemPropertyKeyOrDefault(DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY),
+                resolverStrategy.getEnvVariableOrDefault(DEFAULT_ENVIRONMENT_ENV_VARIABLE),
+                resolverStrategy.getExplicitValue(), resolverStrategy.getExternalPropertyOrDefault(DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY),
+                resolverStrategy.getValueSupplierOrDefault(""), externalPropertyProvider, kiwiEnvironment);
+
+        this.environment = envResolution.getLeft();
+        this.environmentResolvedBy = envResolution.getRight();
     }
 
-    private String getEnvironmentVariableOrDefault(String providedEnvironmentVariable, String defaultVariable) {
-        return isBlank(providedEnvironmentVariable) ? defaultVariable : providedEnvironmentVariable;
-    }
-
-    private Pair<String, ResolvedBy> resolveField(String fromSystemProperties,
-                                                  String fromEnv,
+    private Pair<String, ResolvedBy> resolveField(String systemPropertyKey,
+                                                  String envVariable,
                                                   String explicit,
-                                                  ExternalPropertyProvider externalPropertyProvider,
                                                   String externalPropertyKey,
-                                                  String defaultExternalPropertyKey,
-                                                  Supplier<String> supplier) {
+                                                  Supplier<String> supplier,
+                                                  ExternalPropertyProvider externalPropertyProvider,
+                                                  KiwiEnvironment kiwiEnvironment) {
+
+        var fromSystemProperties = System.getProperty(systemPropertyKey);
+        var fromEnv = kiwiEnvironment.getenv(envVariable);
 
         if (isNotBlank(fromSystemProperties)) {
             return Pair.of(fromSystemProperties, ResolvedBy.SYSTEM_PROPERTY);
@@ -153,30 +158,20 @@ public class ServiceIdentityProvider implements ConfigProvider {
             return Pair.of(explicit, ResolvedBy.EXPLICIT_VALUE);
         }
 
-        var externalPropKey = isBlank(externalPropertyKey) ? defaultExternalPropertyKey : externalPropertyKey;
-
         var returnVal = new HashMap<String, Object>();
-        externalPropertyProvider.usePropertyIfPresent(externalPropKey,
+        externalPropertyProvider.usePropertyIfPresent(externalPropertyKey,
                 value -> {
                     returnVal.put(RESOLUTION_VALUE_KEY, value);
                     returnVal.put(RESOLUTION_METHOD_KEY, ResolvedBy.EXTERNAL_PROPERTY);
                 },
                 () -> {
-                    var value = getFieldSupplierOrDefault(supplier).get();
+                    var value = supplier.get();
                     returnVal.put(RESOLUTION_VALUE_KEY, value);
                     returnVal.put(RESOLUTION_METHOD_KEY, isBlank(value) ? ResolvedBy.NONE : ResolvedBy.DEFAULT);
                 });
 
         return Pair.of((String) returnVal.get(RESOLUTION_VALUE_KEY), (ResolvedBy) returnVal.get(RESOLUTION_METHOD_KEY));
 
-    }
-
-    private Supplier<String> getFieldSupplierOrDefault(Supplier<String> supplier) {
-        if (isNull(supplier)) {
-            return () -> "";
-        }
-
-        return supplier;
     }
 
     private ExternalPropertyProvider getExternalPropertyProviderOrDefault(ExternalPropertyProvider providedProvider) {
