@@ -13,7 +13,6 @@ import org.kiwiproject.base.DefaultEnvironment;
 import org.kiwiproject.base.KiwiEnvironment;
 
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * Property provider that determines the named network on which the service is running.
@@ -50,18 +49,17 @@ public class NetworkIdentityProvider implements ConfigProvider {
 
 
     @Builder
-    private NetworkIdentityProvider(String namedNetwork,
-                                    String systemPropertyKey,
-                                    String envVariable,
-                                    String externalProperty,
-                                    ExternalPropertyProvider externalPropertyProvider,
+    private NetworkIdentityProvider(ExternalPropertyProvider externalPropertyProvider,
                                     KiwiEnvironment kiwiEnvironment,
-                                    Supplier<String> networkSupplier) {
+                                    FieldResolverStrategy<String> resolverStrategy) {
 
-        var networkFromSystemProperties = System.getProperty(getSystemPropertyOrDefault(systemPropertyKey));
+        var networkResolver = isNull(resolverStrategy)
+                ? FieldResolverStrategy.<String>builder().build() : resolverStrategy;
+
+        var networkFromSystemProperties = System.getProperty(networkResolver.getSystemPropertyKeyOrDefault(DEFAULT_NETWORK_SYSTEM_PROPERTY));
 
         var resolvedEnvironment = isNull(kiwiEnvironment) ? new DefaultEnvironment() : kiwiEnvironment;
-        var networkFromEnv = resolvedEnvironment.getenv(getEnvironmentVariableOrDefault(envVariable));
+        var networkFromEnv = resolvedEnvironment.getenv(networkResolver.getEnvVariableOrDefault(DEFAULT_NETWORK_ENV_VARIABLE));
 
         if (isNotBlank(networkFromSystemProperties)) {
             this.network = networkFromSystemProperties;
@@ -69,41 +67,25 @@ public class NetworkIdentityProvider implements ConfigProvider {
         } else if (isNotBlank(networkFromEnv)) {
             this.network = networkFromEnv;
             this.networkResolvedBy = ResolvedBy.SYSTEM_ENV;
-        } else if (nonNull(namedNetwork)) {
-            this.network = namedNetwork;
+        } else if (nonNull(networkResolver.getExplicitValue())) {
+            this.network = networkResolver.getExplicitValue();
             this.networkResolvedBy = ResolvedBy.EXPLICIT_VALUE;
         } else {
-            var externalPropertyKey = isBlank(externalProperty) ? DEFAULT_EXTERNAL_PROPERTY_KEY : externalProperty;
-            getExternalPropertyProviderOrDefault(externalPropertyProvider).usePropertyIfPresent(externalPropertyKey,
-                    value -> {
-                        this.network = value;
-                        this.networkResolvedBy = ResolvedBy.EXTERNAL_PROPERTY;
-                    },
-                    () -> {
-                        this.network = getNamedNetworkSupplierOrDefault(networkSupplier).get();
-                        this.networkResolvedBy = isBlank(this.network) ? ResolvedBy.NONE : ResolvedBy.DEFAULT;
-                    });
+            getExternalPropertyProviderOrDefault(externalPropertyProvider)
+                    .usePropertyIfPresent(networkResolver.getExternalPropertyOrDefault(DEFAULT_EXTERNAL_PROPERTY_KEY),
+                        value -> {
+                            this.network = value;
+                            this.networkResolvedBy = ResolvedBy.EXTERNAL_PROPERTY;
+                        },
+                        () -> {
+                            this.network = networkResolver.getValueSupplierOrDefault("").get();
+                            this.networkResolvedBy = isBlank(this.network) ? ResolvedBy.NONE : ResolvedBy.DEFAULT;
+                        });
         }
-    }
-
-    private String getSystemPropertyOrDefault(String providedPropertyName) {
-        return isBlank(providedPropertyName) ? DEFAULT_NETWORK_SYSTEM_PROPERTY : providedPropertyName;
-    }
-
-    private String getEnvironmentVariableOrDefault(String providedEnvironmentVariable) {
-        return isBlank(providedEnvironmentVariable) ? DEFAULT_NETWORK_ENV_VARIABLE : providedEnvironmentVariable;
     }
 
     private ExternalPropertyProvider getExternalPropertyProviderOrDefault(ExternalPropertyProvider providedProvider) {
         return nonNull(providedProvider) ? providedProvider : ExternalPropertyProvider.builder().build();
-    }
-
-    private Supplier<String> getNamedNetworkSupplierOrDefault(Supplier<String> providedSupplier) {
-        if (isNull(providedSupplier)) {
-            return () -> "";
-        }
-
-        return providedSupplier;
     }
 
     @Override
