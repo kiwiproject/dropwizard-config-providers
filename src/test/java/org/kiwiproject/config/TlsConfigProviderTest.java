@@ -18,8 +18,8 @@ import org.kiwiproject.base.KiwiEnvironment;
 import java.nio.file.Path;
 import java.util.List;
 
-@DisplayName("TlsPropertyProvider")
-class TlsPropertyProviderTest {
+@DisplayName("TlsConfigProvider")
+class TlsConfigProviderTest {
 
     private static final String STORE_PATH = "/keystore/path.jks";
     private static final String STORE_PASSWORD = "keystore-pass";
@@ -41,17 +41,17 @@ class TlsPropertyProviderTest {
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                addSystemProperty(TlsPropertyProvider.DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY, STORE_PATH);
-                addSystemProperty(TlsPropertyProvider.DEFAULT_KEYSTORE_PASSWORD_SYSTEM_PROPERTY, STORE_PASSWORD);
-                addSystemProperty(TlsPropertyProvider.DEFAULT_KEYSTORE_TYPE_SYSTEM_PROPERTY, STORE_TYPE);
-                addSystemProperty(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PATH_SYSTEM_PROPERTY, STORE_PATH);
-                addSystemProperty(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY, STORE_PASSWORD);
-                addSystemProperty(TlsPropertyProvider.DEFAULT_TRUSTSTORE_TYPE_SYSTEM_PROPERTY, STORE_TYPE);
-                addSystemProperty(TlsPropertyProvider.DEFAULT_VERIFY_HOSTNAME_SYSTEM_PROPERTY, "false");
-                addSystemProperty(TlsPropertyProvider.DEFAULT_PROTOCOL_SYSTEM_PROPERTY, PROTOCOL);
-                addSystemProperty(TlsPropertyProvider.DEFAULT_SUPPORTED_PROTOCOLS_SYSTEM_PROPERTY, SUPPORTED_PROTOCOLS);
+                addSystemProperty(TlsConfigProvider.DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY, STORE_PATH);
+                addSystemProperty(TlsConfigProvider.DEFAULT_KEYSTORE_PASSWORD_SYSTEM_PROPERTY, STORE_PASSWORD);
+                addSystemProperty(TlsConfigProvider.DEFAULT_KEYSTORE_TYPE_SYSTEM_PROPERTY, STORE_TYPE);
+                addSystemProperty(TlsConfigProvider.DEFAULT_TRUSTSTORE_PATH_SYSTEM_PROPERTY, STORE_PATH);
+                addSystemProperty(TlsConfigProvider.DEFAULT_TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY, STORE_PASSWORD);
+                addSystemProperty(TlsConfigProvider.DEFAULT_TRUSTSTORE_TYPE_SYSTEM_PROPERTY, STORE_TYPE);
+                addSystemProperty(TlsConfigProvider.DEFAULT_VERIFY_HOSTNAME_SYSTEM_PROPERTY, "false");
+                addSystemProperty(TlsConfigProvider.DEFAULT_PROTOCOL_SYSTEM_PROPERTY, PROTOCOL);
+                addSystemProperty(TlsConfigProvider.DEFAULT_SUPPORTED_PROTOCOLS_SYSTEM_PROPERTY, SUPPORTED_PROTOCOLS);
 
-                var provider = TlsPropertyProvider.builder().build();
+                var provider = TlsConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
 
                 var config = provider.getTlsContextConfiguration();
@@ -89,7 +89,7 @@ class TlsPropertyProviderTest {
                 addSystemProperty("h", PROTOCOL);
                 addSystemProperty("i", SUPPORTED_PROTOCOLS);
 
-                var provider = TlsPropertyProvider.builder()
+                var provider = TlsConfigProvider.builder()
                         .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("a").build())
                         .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("b").build())
                         .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("c").build())
@@ -136,17 +136,17 @@ class TlsPropertyProviderTest {
             @Test
             void shouldBuildUsingDefaultEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
-                when(env.getenv(TlsPropertyProvider.DEFAULT_KEYSTORE_PATH_ENV_VARIABLE)).thenReturn(STORE_PATH);
-                when(env.getenv(TlsPropertyProvider.DEFAULT_KEYSTORE_PASSWORD_ENV_VARIABLE)).thenReturn(STORE_PASSWORD);
-                when(env.getenv(TlsPropertyProvider.DEFAULT_KEYSTORE_TYPE_ENV_VARIABLE)).thenReturn(STORE_TYPE);
-                when(env.getenv(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PATH_ENV_VARIABLE)).thenReturn(STORE_PATH);
-                when(env.getenv(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PASSWORD_ENV_VARIABLE)).thenReturn(STORE_PASSWORD);
-                when(env.getenv(TlsPropertyProvider.DEFAULT_TRUSTSTORE_TYPE_ENV_VARIABLE)).thenReturn(STORE_TYPE);
-                when(env.getenv(TlsPropertyProvider.DEFAULT_VERIFY_HOSTNAME_ENV_VARIABLE)).thenReturn("false");
-                when(env.getenv(TlsPropertyProvider.DEFAULT_PROTOCOL_ENV_VARIABLE)).thenReturn(PROTOCOL);
-                when(env.getenv(TlsPropertyProvider.DEFAULT_SUPPORTED_PROTOCOLS_ENV_VARIABLE)).thenReturn(SUPPORTED_PROTOCOLS);
+                when(env.getenv(TlsConfigProvider.DEFAULT_KEYSTORE_PATH_ENV_VARIABLE)).thenReturn(STORE_PATH);
+                when(env.getenv(TlsConfigProvider.DEFAULT_KEYSTORE_PASSWORD_ENV_VARIABLE)).thenReturn(STORE_PASSWORD);
+                when(env.getenv(TlsConfigProvider.DEFAULT_KEYSTORE_TYPE_ENV_VARIABLE)).thenReturn(STORE_TYPE);
+                when(env.getenv(TlsConfigProvider.DEFAULT_TRUSTSTORE_PATH_ENV_VARIABLE)).thenReturn(STORE_PATH);
+                when(env.getenv(TlsConfigProvider.DEFAULT_TRUSTSTORE_PASSWORD_ENV_VARIABLE)).thenReturn(STORE_PASSWORD);
+                when(env.getenv(TlsConfigProvider.DEFAULT_TRUSTSTORE_TYPE_ENV_VARIABLE)).thenReturn(STORE_TYPE);
+                when(env.getenv(TlsConfigProvider.DEFAULT_VERIFY_HOSTNAME_ENV_VARIABLE)).thenReturn("false");
+                when(env.getenv(TlsConfigProvider.DEFAULT_PROTOCOL_ENV_VARIABLE)).thenReturn(PROTOCOL);
+                when(env.getenv(TlsConfigProvider.DEFAULT_SUPPORTED_PROTOCOLS_ENV_VARIABLE)).thenReturn(SUPPORTED_PROTOCOLS);
 
-                var provider = TlsPropertyProvider.builder()
+                var provider = TlsConfigProvider.builder()
                         .kiwiEnvironment(env)
                         .build();
 
@@ -188,7 +188,7 @@ class TlsPropertyProviderTest {
                 when(env.getenv("h")).thenReturn(PROTOCOL);
                 when(env.getenv("i")).thenReturn(SUPPORTED_PROTOCOLS);
 
-                var provider = TlsPropertyProvider.builder()
+                var provider = TlsConfigProvider.builder()
                         .kiwiEnvironment(env)
                         .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("a").build())
                         .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("b").build())
@@ -231,17 +231,17 @@ class TlsPropertyProviderTest {
         @Nested
         class WithExternalProperty {
 
-            private ExternalPropertyProvider externalPropertyProvider;
+            private ExternalConfigProvider externalConfigProvider;
 
             @BeforeEach
             void setUp() {
-                var propertyPath = Path.of(ResourceHelpers.resourceFilePath("TlsPropertyProvider/config.properties"));
-                externalPropertyProvider = ExternalPropertyProvider.builder().explicitPath(propertyPath).build();
+                var propertyPath = Path.of(ResourceHelpers.resourceFilePath("TlsConfigProvider/config.properties"));
+                externalConfigProvider = ExternalConfigProvider.builder().explicitPath(propertyPath).build();
             }
 
             @Test
             void shouldBuildUsingDefaultExternalProperty() {
-                var provider = TlsPropertyProvider.builder().externalPropertyProvider(externalPropertyProvider).build();
+                var provider = TlsConfigProvider.builder().externalConfigProvider(externalConfigProvider).build();
                 assertThat(provider.canProvide()).isTrue();
                 var config = provider.getTlsContextConfiguration();
 
@@ -269,8 +269,8 @@ class TlsPropertyProviderTest {
 
             @Test
             void shouldBuildUsingProvidedExternalProperty() {
-                var provider = TlsPropertyProvider.builder()
-                        .externalPropertyProvider(externalPropertyProvider)
+                var provider = TlsConfigProvider.builder()
+                        .externalConfigProvider(externalConfigProvider)
                         .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("a").build())
                         .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("b").build())
                         .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("c").build())
@@ -312,7 +312,7 @@ class TlsPropertyProviderTest {
 
             @Test
             void shouldBuildUsingProvidedValues() {
-                var provider = TlsPropertyProvider.builder()
+                var provider = TlsConfigProvider.builder()
                         .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_PATH).build())
                         .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_PASSWORD).build())
                         .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_TYPE).build())
@@ -357,7 +357,7 @@ class TlsPropertyProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSupplier() {
-                var provider = TlsPropertyProvider.builder()
+                var provider = TlsConfigProvider.builder()
                         .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_PATH).build())
                         .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_PASSWORD).build())
                         .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_TYPE).build())
@@ -397,7 +397,7 @@ class TlsPropertyProviderTest {
 
             @Test
             void shouldBuildUsingDefaultSupplierAndCanProvide() {
-                var provider = TlsPropertyProvider.builder().build();
+                var provider = TlsConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
                 var config = provider.getTlsContextConfiguration();
 
@@ -432,7 +432,7 @@ class TlsPropertyProviderTest {
             void shouldBuildUsingTheProvidedContextAsDefault() {
                 var context = TlsContextConfiguration.builder().keyStorePath("my-secret-key").build();
 
-                var provider = TlsPropertyProvider.builder().tlsContextConfigurationSupplier(() -> context).build();
+                var provider = TlsConfigProvider.builder().tlsContextConfigurationSupplier(() -> context).build();
 
                 assertThat(provider.canProvide()).isTrue();
                 var config = provider.getTlsContextConfiguration();

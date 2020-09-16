@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 
 /**
- * Property provider that determines the identity of the service that is running.  Identity is defined by the service
+ * Config provider that determines the identity of the service that is running.  Identity is defined by the service
  * name, service version, and deployment environment.
  * <p>
  * The provider will look for the identity fields in the following order:
@@ -34,7 +34,7 @@ import java.util.function.Supplier;
  * </ol>
  */
 @Slf4j
-public class ServiceIdentityProvider implements ConfigProvider {
+public class ServiceIdentityConfigProvider implements ConfigProvider {
 
     private static final String RESOLUTION_VALUE_KEY = "value";
     private static final String RESOLUTION_METHOD_KEY = "method";
@@ -82,14 +82,14 @@ public class ServiceIdentityProvider implements ConfigProvider {
     private ResolvedBy environmentResolvedBy;
 
     @Builder
-    private ServiceIdentityProvider(ExternalPropertyProvider externalPropertyProvider,
-                                    KiwiEnvironment kiwiEnvironment,
-                                    FieldResolverStrategy<String> nameResolverStrategy,
-                                    FieldResolverStrategy<String> versionResolverStrategy,
-                                    FieldResolverStrategy<String> environmentResolverStrategy) {
+    private ServiceIdentityConfigProvider(ExternalConfigProvider externalConfigProvider,
+                                          KiwiEnvironment kiwiEnvironment,
+                                          FieldResolverStrategy<String> nameResolverStrategy,
+                                          FieldResolverStrategy<String> versionResolverStrategy,
+                                          FieldResolverStrategy<String> environmentResolverStrategy) {
 
         var resolvedKiwiEnvironment = isNull(kiwiEnvironment) ? new DefaultEnvironment() : kiwiEnvironment;
-        var extProvider = getExternalPropertyProviderOrDefault(externalPropertyProvider);
+        var extProvider = getExternalPropertyProviderOrDefault(externalConfigProvider);
 
         resolveName(getResolverOrDefault(nameResolverStrategy), extProvider, resolvedKiwiEnvironment);
         resolveVersion(getResolverOrDefault(versionResolverStrategy), extProvider, resolvedKiwiEnvironment);
@@ -101,39 +101,39 @@ public class ServiceIdentityProvider implements ConfigProvider {
     }
 
     private void resolveName(FieldResolverStrategy<String> resolverStrategy,
-                             ExternalPropertyProvider externalPropertyProvider,
+                             ExternalConfigProvider externalConfigProvider,
                              KiwiEnvironment kiwiEnvironment) {
 
         var nameResolution = resolveField(resolverStrategy.getSystemPropertyKeyOrDefault(DEFAULT_NAME_SYSTEM_PROPERTY),
                 resolverStrategy.getEnvVariableOrDefault(DEFAULT_NAME_ENV_VARIABLE),
                 resolverStrategy.getExplicitValue(), resolverStrategy.getExternalPropertyOrDefault(DEFAULT_NAME_EXTERNAL_PROPERTY_KEY),
-                resolverStrategy.getValueSupplierOrDefault(""), externalPropertyProvider, kiwiEnvironment);
+                resolverStrategy.getValueSupplierOrDefault(""), externalConfigProvider, kiwiEnvironment);
 
         this.name = nameResolution.getLeft();
         this.nameResolvedBy = nameResolution.getRight();
     }
 
     private void resolveVersion(FieldResolverStrategy<String> resolverStrategy,
-                             ExternalPropertyProvider externalPropertyProvider,
+                             ExternalConfigProvider externalConfigProvider,
                              KiwiEnvironment kiwiEnvironment) {
 
         var versionResolution = resolveField(resolverStrategy.getSystemPropertyKeyOrDefault(DEFAULT_VERSION_SYSTEM_PROPERTY),
                 resolverStrategy.getEnvVariableOrDefault(DEFAULT_VERSION_ENV_VARIABLE),
                 resolverStrategy.getExplicitValue(), resolverStrategy.getExternalPropertyOrDefault(DEFAULT_VERSION_EXTERNAL_PROPERTY_KEY),
-                resolverStrategy.getValueSupplierOrDefault(""), externalPropertyProvider, kiwiEnvironment);
+                resolverStrategy.getValueSupplierOrDefault(""), externalConfigProvider, kiwiEnvironment);
 
         this.version = versionResolution.getLeft();
         this.versionResolvedBy = versionResolution.getRight();
     }
 
     private void resolveEnvironment(FieldResolverStrategy<String> resolverStrategy,
-                                ExternalPropertyProvider externalPropertyProvider,
+                                ExternalConfigProvider externalConfigProvider,
                                 KiwiEnvironment kiwiEnvironment) {
 
         var envResolution = resolveField(resolverStrategy.getSystemPropertyKeyOrDefault(DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY),
                 resolverStrategy.getEnvVariableOrDefault(DEFAULT_ENVIRONMENT_ENV_VARIABLE),
                 resolverStrategy.getExplicitValue(), resolverStrategy.getExternalPropertyOrDefault(DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY),
-                resolverStrategy.getValueSupplierOrDefault(""), externalPropertyProvider, kiwiEnvironment);
+                resolverStrategy.getValueSupplierOrDefault(""), externalConfigProvider, kiwiEnvironment);
 
         this.environment = envResolution.getLeft();
         this.environmentResolvedBy = envResolution.getRight();
@@ -144,7 +144,7 @@ public class ServiceIdentityProvider implements ConfigProvider {
                                                   String explicit,
                                                   String externalPropertyKey,
                                                   Supplier<String> supplier,
-                                                  ExternalPropertyProvider externalPropertyProvider,
+                                                  ExternalConfigProvider externalConfigProvider,
                                                   KiwiEnvironment kiwiEnvironment) {
 
         var fromSystemProperties = System.getProperty(systemPropertyKey);
@@ -159,7 +159,7 @@ public class ServiceIdentityProvider implements ConfigProvider {
         }
 
         var returnVal = new HashMap<String, Object>();
-        externalPropertyProvider.usePropertyIfPresent(externalPropertyKey,
+        externalConfigProvider.usePropertyIfPresent(externalPropertyKey,
                 value -> {
                     returnVal.put(RESOLUTION_VALUE_KEY, value);
                     returnVal.put(RESOLUTION_METHOD_KEY, ResolvedBy.EXTERNAL_PROPERTY);
@@ -174,8 +174,8 @@ public class ServiceIdentityProvider implements ConfigProvider {
 
     }
 
-    private ExternalPropertyProvider getExternalPropertyProviderOrDefault(ExternalPropertyProvider providedProvider) {
-        return nonNull(providedProvider) ? providedProvider : ExternalPropertyProvider.builder().build();
+    private ExternalConfigProvider getExternalPropertyProviderOrDefault(ExternalConfigProvider providedProvider) {
+        return nonNull(providedProvider) ? providedProvider : ExternalConfigProvider.builder().build();
     }
 
     @Override

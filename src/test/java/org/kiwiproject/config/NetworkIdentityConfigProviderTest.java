@@ -17,8 +17,8 @@ import org.kiwiproject.base.KiwiEnvironment;
 
 import java.nio.file.Path;
 
-@DisplayName("NetworkIdentityProvider")
-class NetworkIdentityProviderTest {
+@DisplayName("NetworkIdentityConfigProvider")
+class NetworkIdentityConfigProviderTest {
 
     @Nested
     class Construct {
@@ -33,9 +33,9 @@ class NetworkIdentityProviderTest {
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                addSystemProperty(NetworkIdentityProvider.DEFAULT_NETWORK_SYSTEM_PROPERTY, "VPC-SystemProp-Default");
+                addSystemProperty(NetworkIdentityConfigProvider.DEFAULT_NETWORK_SYSTEM_PROPERTY, "VPC-SystemProp-Default");
 
-                var provider = NetworkIdentityProvider.builder().build();
+                var provider = NetworkIdentityConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-SystemProp-Default");
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_PROPERTY));
@@ -46,7 +46,7 @@ class NetworkIdentityProviderTest {
                 addSystemProperty("bar", "VPC-SystemProp-Provided");
 
                 var resolver = FieldResolverStrategy.<String>builder().systemPropertyKey("bar").build();
-                var provider = NetworkIdentityProvider.builder().resolverStrategy(resolver).build();
+                var provider = NetworkIdentityConfigProvider.builder().resolverStrategy(resolver).build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-SystemProp-Provided");
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_PROPERTY));
@@ -60,9 +60,9 @@ class NetworkIdentityProviderTest {
             @Test
             void shouldBuildUsingDefaultEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
-                when(env.getenv(NetworkIdentityProvider.DEFAULT_NETWORK_ENV_VARIABLE)).thenReturn("VPC-Env-Default");
+                when(env.getenv(NetworkIdentityConfigProvider.DEFAULT_NETWORK_ENV_VARIABLE)).thenReturn("VPC-Env-Default");
 
-                var provider = NetworkIdentityProvider.builder().kiwiEnvironment(env).build();
+                var provider = NetworkIdentityConfigProvider.builder().kiwiEnvironment(env).build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-Env-Default");
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_ENV));
@@ -74,7 +74,7 @@ class NetworkIdentityProviderTest {
                 when(env.getenv("baz")).thenReturn("VPC-Env-Provided");
 
                 var resolver = FieldResolverStrategy.<String>builder().envVariable("baz").build();
-                var provider = NetworkIdentityProvider.builder()
+                var provider = NetworkIdentityConfigProvider.builder()
                         .kiwiEnvironment(env)
                         .resolverStrategy(resolver)
                         .build();
@@ -89,20 +89,20 @@ class NetworkIdentityProviderTest {
         @Nested
         class WithExternalProperty {
 
-            private ExternalPropertyProvider externalPropertyProvider;
+            private ExternalConfigProvider externalConfigProvider;
 
             @BeforeEach
             void setUp() {
                 var propertyPath = Path.of(ResourceHelpers
-                        .resourceFilePath("NetworkIdentityPropertyProvider/config.properties"));
+                        .resourceFilePath("NetworkIdentityConfigProvider/config.properties"));
 
-                externalPropertyProvider = ExternalPropertyProvider.builder().explicitPath(propertyPath).build();
+                externalConfigProvider = ExternalConfigProvider.builder().explicitPath(propertyPath).build();
             }
 
             @Test
             void shouldBuildUsingDefaultExternalProperty() {
-                var provider = NetworkIdentityProvider.builder()
-                        .externalPropertyProvider(externalPropertyProvider)
+                var provider = NetworkIdentityConfigProvider.builder()
+                        .externalConfigProvider(externalConfigProvider)
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -113,8 +113,8 @@ class NetworkIdentityProviderTest {
             @Test
             void shouldBuildUsingProvidedExternalProperty() {
                 var resolver = FieldResolverStrategy.<String>builder().externalProperty("network.provided").build();
-                var provider = NetworkIdentityProvider.builder()
-                        .externalPropertyProvider(externalPropertyProvider)
+                var provider = NetworkIdentityConfigProvider.builder()
+                        .externalConfigProvider(externalConfigProvider)
                         .resolverStrategy(resolver)
                         .build();
                 assertThat(provider.canProvide()).isTrue();
@@ -129,7 +129,7 @@ class NetworkIdentityProviderTest {
             @Test
             void shouldBuildUsingProvidedNetwork() {
                 var resolver = FieldResolverStrategy.<String>builder().explicitValue("VPC-Explicit").build();
-                var provider = NetworkIdentityProvider.builder().resolverStrategy(resolver).build();
+                var provider = NetworkIdentityConfigProvider.builder().resolverStrategy(resolver).build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-Explicit");
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.EXPLICIT_VALUE));
@@ -146,7 +146,7 @@ class NetworkIdentityProviderTest {
                         .valueSupplier(() -> "VPC-Supplier")
                         .build();
 
-                var provider = NetworkIdentityProvider.builder()
+                var provider = NetworkIdentityConfigProvider.builder()
                         .resolverStrategy(resolver)
                         .build();
 
@@ -157,7 +157,7 @@ class NetworkIdentityProviderTest {
 
             @Test
             void shouldBuildUsingDefaultSupplierAndCannotProvide() {
-                var provider = NetworkIdentityProvider.builder().build();
+                var provider = NetworkIdentityConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isFalse();
                 assertThat(provider.getNetwork()).isEmpty();
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.NONE));

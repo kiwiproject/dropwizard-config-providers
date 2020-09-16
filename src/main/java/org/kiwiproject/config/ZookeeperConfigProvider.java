@@ -15,7 +15,7 @@ import org.kiwiproject.base.KiwiEnvironment;
 import java.util.Map;
 
 /**
- * Property provider that determines the connect string to use for a Zookeeper connection.
+ * Config provider that determines the connect string to use for a Zookeeper connection.
  * <p>
  * This is useful when a system of services are deployed in multiple locations like separate AWS VPCs or subnets.
  * <p>
@@ -32,7 +32,7 @@ import java.util.Map;
  * </ol>
  */
 @Slf4j
-public class ZookeeperPropertyProvider implements ConfigProvider {
+public class ZookeeperConfigProvider implements ConfigProvider {
 
     @VisibleForTesting
     static final String DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY = "kiwi.zookeeper.connection";
@@ -50,9 +50,9 @@ public class ZookeeperPropertyProvider implements ConfigProvider {
 
 
     @Builder
-    private ZookeeperPropertyProvider(ExternalPropertyProvider externalPropertyProvider,
-                                      KiwiEnvironment kiwiEnvironment,
-                                      FieldResolverStrategy<String> resolverStrategy) {
+    private ZookeeperConfigProvider(ExternalConfigProvider externalConfigProvider,
+                                    KiwiEnvironment kiwiEnvironment,
+                                    FieldResolverStrategy<String> resolverStrategy) {
 
         var connectStrResolver = isNull(resolverStrategy)
                 ? FieldResolverStrategy.<String>builder().build() : resolverStrategy;
@@ -73,7 +73,7 @@ public class ZookeeperPropertyProvider implements ConfigProvider {
             this.connectString = connectStrResolver.getExplicitValue();
             this.connectStrResolvedBy = ResolvedBy.EXPLICIT_VALUE;
         } else {
-            getExternalPropertyProviderOrDefault(externalPropertyProvider)
+            getExternalPropertyProviderOrDefault(externalConfigProvider)
                     .usePropertyIfPresent(connectStrResolver.getExternalPropertyOrDefault(DEFAULT_EXTERNAL_PROPERTY_KEY),
                         value -> {
                             this.connectString = value;
@@ -86,8 +86,8 @@ public class ZookeeperPropertyProvider implements ConfigProvider {
         }
     }
 
-    private ExternalPropertyProvider getExternalPropertyProviderOrDefault(ExternalPropertyProvider providedProvider) {
-        return nonNull(providedProvider) ? providedProvider : ExternalPropertyProvider.builder().build();
+    private ExternalConfigProvider getExternalPropertyProviderOrDefault(ExternalConfigProvider providedProvider) {
+        return nonNull(providedProvider) ? providedProvider : ExternalConfigProvider.builder().build();
     }
 
     @Override

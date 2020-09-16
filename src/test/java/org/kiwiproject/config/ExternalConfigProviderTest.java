@@ -17,16 +17,16 @@ import org.kiwiproject.base.KiwiEnvironment;
 
 import java.nio.file.Path;
 
-@DisplayName("ExternalPropertyProvider")
-class ExternalPropertyProviderTest {
+@DisplayName("ExternalConfigProvider")
+class ExternalConfigProviderTest {
 
-    private ExternalPropertyProvider provider;
+    private ExternalConfigProvider provider;
     private Path propertyPath;
 
     @BeforeEach
     void setUp() {
-        propertyPath = Path.of(ResourceHelpers.resourceFilePath("ExternalPropertyProvider/config.properties"));
-        provider = ExternalPropertyProvider.builder().explicitPath(propertyPath).build();
+        propertyPath = Path.of(ResourceHelpers.resourceFilePath("ExternalConfigProvider/config.properties"));
+        provider = ExternalConfigProvider.builder().explicitPath(propertyPath).build();
     }
 
     @Nested
@@ -42,9 +42,9 @@ class ExternalPropertyProviderTest {
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                addSystemProperty(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, propertyPath.toString());
+                addSystemProperty(ExternalConfigProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, propertyPath.toString());
 
-                var provider = ExternalPropertyProvider.builder().build();
+                var provider = ExternalConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
             }
@@ -53,7 +53,7 @@ class ExternalPropertyProviderTest {
             void shouldBuildUsingProvidedSystemPropertyKey() {
                 addSystemProperty("bar", propertyPath.toString());
 
-                var provider = ExternalPropertyProvider.builder().systemPropertyKey("bar").build();
+                var provider = ExternalConfigProvider.builder().systemPropertyKey("bar").build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
             }
@@ -66,9 +66,9 @@ class ExternalPropertyProviderTest {
             @Test
             void shouldBuildUsingDefaultEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
-                when(env.getenv(ExternalPropertyProvider.DEFAULT_CONFIG_PATH_ENV_VARIABLE)).thenReturn(propertyPath.toString());
+                when(env.getenv(ExternalConfigProvider.DEFAULT_CONFIG_PATH_ENV_VARIABLE)).thenReturn(propertyPath.toString());
 
-                var provider = ExternalPropertyProvider.builder().environment(env).build();
+                var provider = ExternalConfigProvider.builder().environment(env).build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
             }
@@ -78,7 +78,7 @@ class ExternalPropertyProviderTest {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv("baz")).thenReturn(propertyPath.toString());
 
-                var provider = ExternalPropertyProvider.builder()
+                var provider = ExternalConfigProvider.builder()
                         .environment(env)
                         .envVariable("baz")
                         .build();
@@ -105,10 +105,10 @@ class ExternalPropertyProviderTest {
 
             @Test
             void shouldBuildUsingDefaultPath() {
-                var provider = ExternalPropertyProvider.builder().build();
+                var provider = ExternalConfigProvider.builder().build();
 
                 assertThat(provider.canProvide()).isFalse();
-                assertThat(provider.getPropertiesPath()).isEqualTo(ExternalPropertyProvider.DEFAULT_CONFIG_PATH);
+                assertThat(provider.getPropertiesPath()).isEqualTo(ExternalConfigProvider.DEFAULT_CONFIG_PATH);
             }
 
         }

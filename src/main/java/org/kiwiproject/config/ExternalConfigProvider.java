@@ -23,7 +23,7 @@ import java.util.Properties;
 import java.util.function.Consumer;
 
 /**
- * Property provider that looks up configuration values from a known properties file. This provider loads the properties
+ * Config provider that looks up configuration values from a known properties file. This provider loads the properties
  * so that other providers can access the values.
  * <p>
  * The provider will look for the external config file in the following order:
@@ -37,7 +37,7 @@ import java.util.function.Consumer;
  * </ol>
  */
 @Slf4j
-public class ExternalPropertyProvider implements ConfigProvider {
+public class ExternalConfigProvider implements ConfigProvider {
 
     @VisibleForTesting
     static final Path DEFAULT_CONFIG_PATH = Paths.get(System.getProperty("user.home"), ".kiwi.external.config.properties");
@@ -54,19 +54,19 @@ public class ExternalPropertyProvider implements ConfigProvider {
     private Properties properties;
 
     /**
-     * Builds a new ExternalPropertyProvider
+     * Builds a new ExternalConfigProvider
      *
      * @param explicitPath        An explicit path to the external properties file
      * @param systemPropertyKey   A System property key that resolves the path to the external properties file
      * @param envVariable         A variable name that resolves the path to the external properties file from the system environment
      * @param environment         The {@link KiwiEnvironment} to use for resolving environment variables
      *
-     * @see ExternalPropertyProvider#DEFAULT_CONFIG_PATH
-     * @see ExternalPropertyProvider#DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY
-     * @see ExternalPropertyProvider#DEFAULT_CONFIG_PATH_ENV_VARIABLE
+     * @see ExternalConfigProvider#DEFAULT_CONFIG_PATH
+     * @see ExternalConfigProvider#DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY
+     * @see ExternalConfigProvider#DEFAULT_CONFIG_PATH_ENV_VARIABLE
      */
     @Builder
-    private ExternalPropertyProvider(Path explicitPath, String systemPropertyKey, String envVariable, KiwiEnvironment environment) {
+    private ExternalConfigProvider(Path explicitPath, String systemPropertyKey, String envVariable, KiwiEnvironment environment) {
         var kiwiEnvironment = isNull(environment) ? new DefaultEnvironment() : environment;
         var configPathEnvVariable = isBlank(envVariable) ? DEFAULT_CONFIG_PATH_ENV_VARIABLE : envVariable;
         var configPathSystemPropertyKey = isBlank(systemPropertyKey) ? DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY : systemPropertyKey;
