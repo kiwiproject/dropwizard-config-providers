@@ -21,6 +21,13 @@ import java.util.List;
 @DisplayName("TlsPropertyProvider")
 class TlsPropertyProviderTest {
 
+    private static final String STORE_PATH = "/keystore/path.jks";
+    private static final String STORE_PASSWORD = "keystore-pass";
+    private static final String STORE_TYPE = "JKS";
+    private static final String PROTOCOL = "TLSv1.2";
+    private static final String SUPPORTED_PROTOCOLS = "TLSv1.2,TLSv1.1";
+    private static final String[] SUPPORTED_PROTOCOLS_ARRAY = new String[]{ "TLSv1.2", "TLSv1.1" };
+
     @Nested
     class Construct {
 
@@ -34,28 +41,28 @@ class TlsPropertyProviderTest {
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                addSystemProperty(TlsPropertyProvider.DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY, "foo-path");
-                addSystemProperty(TlsPropertyProvider.DEFAULT_KEYSTORE_PASSWORD_SYSTEM_PROPERTY, "foo-pass");
-                addSystemProperty(TlsPropertyProvider.DEFAULT_KEYSTORE_TYPE_SYSTEM_PROPERTY, "foo-type");
-                addSystemProperty(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PATH_SYSTEM_PROPERTY, "foo-path");
-                addSystemProperty(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY, "foo-pass");
-                addSystemProperty(TlsPropertyProvider.DEFAULT_TRUSTSTORE_TYPE_SYSTEM_PROPERTY, "foo-type");
+                addSystemProperty(TlsPropertyProvider.DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY, STORE_PATH);
+                addSystemProperty(TlsPropertyProvider.DEFAULT_KEYSTORE_PASSWORD_SYSTEM_PROPERTY, STORE_PASSWORD);
+                addSystemProperty(TlsPropertyProvider.DEFAULT_KEYSTORE_TYPE_SYSTEM_PROPERTY, STORE_TYPE);
+                addSystemProperty(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PATH_SYSTEM_PROPERTY, STORE_PATH);
+                addSystemProperty(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY, STORE_PASSWORD);
+                addSystemProperty(TlsPropertyProvider.DEFAULT_TRUSTSTORE_TYPE_SYSTEM_PROPERTY, STORE_TYPE);
                 addSystemProperty(TlsPropertyProvider.DEFAULT_VERIFY_HOSTNAME_SYSTEM_PROPERTY, "false");
-                addSystemProperty(TlsPropertyProvider.DEFAULT_PROTOCOL_SYSTEM_PROPERTY, "foo-protocol");
-                addSystemProperty(TlsPropertyProvider.DEFAULT_SUPPORTED_PROTOCOLS_SYSTEM_PROPERTY, "foo,bar,baz");
+                addSystemProperty(TlsPropertyProvider.DEFAULT_PROTOCOL_SYSTEM_PROPERTY, PROTOCOL);
+                addSystemProperty(TlsPropertyProvider.DEFAULT_SUPPORTED_PROTOCOLS_SYSTEM_PROPERTY, SUPPORTED_PROTOCOLS);
 
                 var provider = TlsPropertyProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
 
                 var config = provider.getTlsContextConfiguration();
-                assertThat(config.getKeyStorePath()).isEqualTo("foo-path");
-                assertThat(config.getKeyStorePassword()).isEqualTo("foo-pass");
-                assertThat(config.getKeyStoreType()).isEqualTo("foo-type");
-                assertThat(config.getTrustStorePath()).isEqualTo("foo-path");
-                assertThat(config.getTrustStorePassword()).isEqualTo("foo-pass");
-                assertThat(config.getTrustStoreType()).isEqualTo("foo-type");
-                assertThat(config.getProtocol()).isEqualTo("foo-protocol");
-                assertThat(config.getSupportedProtocols()).contains("foo","bar","baz");
+                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
+                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
                 assertThat(config.isVerifyHostname()).isFalse();
                 assertThat(provider.getResolvedBy()).contains(
                         entry("keyStorePath", ResolvedBy.SYSTEM_PROPERTY),
@@ -72,15 +79,15 @@ class TlsPropertyProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-                addSystemProperty("a", "foo-path");
-                addSystemProperty("b", "foo-pass");
-                addSystemProperty("c", "foo-type");
-                addSystemProperty("d", "foo-path");
-                addSystemProperty("e", "foo-pass");
-                addSystemProperty("f", "foo-type");
+                addSystemProperty("a", STORE_PATH);
+                addSystemProperty("b", STORE_PASSWORD);
+                addSystemProperty("c", STORE_TYPE);
+                addSystemProperty("d", STORE_PATH);
+                addSystemProperty("e", STORE_PASSWORD);
+                addSystemProperty("f", STORE_TYPE);
                 addSystemProperty("g", "false");
-                addSystemProperty("h", "foo-protocol");
-                addSystemProperty("i", "foo,bar,baz");
+                addSystemProperty("h", PROTOCOL);
+                addSystemProperty("i", SUPPORTED_PROTOCOLS);
 
                 var provider = TlsPropertyProvider.builder()
                         .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("a").build())
@@ -97,14 +104,14 @@ class TlsPropertyProviderTest {
                 assertThat(provider.canProvide()).isTrue();
                 var config = provider.getTlsContextConfiguration();
 
-                assertThat(config.getKeyStorePath()).isEqualTo("foo-path");
-                assertThat(config.getKeyStorePassword()).isEqualTo("foo-pass");
-                assertThat(config.getKeyStoreType()).isEqualTo("foo-type");
-                assertThat(config.getTrustStorePath()).isEqualTo("foo-path");
-                assertThat(config.getTrustStorePassword()).isEqualTo("foo-pass");
-                assertThat(config.getTrustStoreType()).isEqualTo("foo-type");
-                assertThat(config.getProtocol()).isEqualTo("foo-protocol");
-                assertThat(config.getSupportedProtocols()).contains("foo","bar","baz");
+                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
+                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
                 assertThat(config.isVerifyHostname()).isFalse();
                 assertThat(provider.getResolvedBy()).contains(
                         entry("keyStorePath", ResolvedBy.SYSTEM_PROPERTY),
@@ -124,18 +131,20 @@ class TlsPropertyProviderTest {
         @Nested
         class WithEnvironmentVariable {
 
+
+
             @Test
             void shouldBuildUsingDefaultEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
-                when(env.getenv(TlsPropertyProvider.DEFAULT_KEYSTORE_PATH_ENV_VARIABLE)).thenReturn("bar-path");
-                when(env.getenv(TlsPropertyProvider.DEFAULT_KEYSTORE_PASSWORD_ENV_VARIABLE)).thenReturn("bar-pass");
-                when(env.getenv(TlsPropertyProvider.DEFAULT_KEYSTORE_TYPE_ENV_VARIABLE)).thenReturn("bar-type");
-                when(env.getenv(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PATH_ENV_VARIABLE)).thenReturn("bar-path");
-                when(env.getenv(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PASSWORD_ENV_VARIABLE)).thenReturn("bar-pass");
-                when(env.getenv(TlsPropertyProvider.DEFAULT_TRUSTSTORE_TYPE_ENV_VARIABLE)).thenReturn("bar-type");
-                when(env.getenv(TlsPropertyProvider.DEFAULT_VERIFY_HOSTNAME_ENV_VARIABLE)).thenReturn("bar-host");
-                when(env.getenv(TlsPropertyProvider.DEFAULT_PROTOCOL_ENV_VARIABLE)).thenReturn("bar-protocol");
-                when(env.getenv(TlsPropertyProvider.DEFAULT_SUPPORTED_PROTOCOLS_ENV_VARIABLE)).thenReturn("bar,foo,baz");
+                when(env.getenv(TlsPropertyProvider.DEFAULT_KEYSTORE_PATH_ENV_VARIABLE)).thenReturn(STORE_PATH);
+                when(env.getenv(TlsPropertyProvider.DEFAULT_KEYSTORE_PASSWORD_ENV_VARIABLE)).thenReturn(STORE_PASSWORD);
+                when(env.getenv(TlsPropertyProvider.DEFAULT_KEYSTORE_TYPE_ENV_VARIABLE)).thenReturn(STORE_TYPE);
+                when(env.getenv(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PATH_ENV_VARIABLE)).thenReturn(STORE_PATH);
+                when(env.getenv(TlsPropertyProvider.DEFAULT_TRUSTSTORE_PASSWORD_ENV_VARIABLE)).thenReturn(STORE_PASSWORD);
+                when(env.getenv(TlsPropertyProvider.DEFAULT_TRUSTSTORE_TYPE_ENV_VARIABLE)).thenReturn(STORE_TYPE);
+                when(env.getenv(TlsPropertyProvider.DEFAULT_VERIFY_HOSTNAME_ENV_VARIABLE)).thenReturn("false");
+                when(env.getenv(TlsPropertyProvider.DEFAULT_PROTOCOL_ENV_VARIABLE)).thenReturn(PROTOCOL);
+                when(env.getenv(TlsPropertyProvider.DEFAULT_SUPPORTED_PROTOCOLS_ENV_VARIABLE)).thenReturn(SUPPORTED_PROTOCOLS);
 
                 var provider = TlsPropertyProvider.builder()
                         .kiwiEnvironment(env)
@@ -144,14 +153,14 @@ class TlsPropertyProviderTest {
                 assertThat(provider.canProvide()).isTrue();
                 var config = provider.getTlsContextConfiguration();
 
-                assertThat(config.getKeyStorePath()).isEqualTo("bar-path");
-                assertThat(config.getKeyStorePassword()).isEqualTo("bar-pass");
-                assertThat(config.getKeyStoreType()).isEqualTo("bar-type");
-                assertThat(config.getTrustStorePath()).isEqualTo("bar-path");
-                assertThat(config.getTrustStorePassword()).isEqualTo("bar-pass");
-                assertThat(config.getTrustStoreType()).isEqualTo("bar-type");
-                assertThat(config.getProtocol()).isEqualTo("bar-protocol");
-                assertThat(config.getSupportedProtocols()).contains("foo","bar","baz");
+                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
+                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
                 assertThat(config.isVerifyHostname()).isFalse();
                 assertThat(provider.getResolvedBy()).contains(
                         entry("keyStorePath", ResolvedBy.SYSTEM_ENV),
@@ -169,15 +178,15 @@ class TlsPropertyProviderTest {
             @Test
             void shouldBuildUsingProvidedEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
-                when(env.getenv("a")).thenReturn("bar-path");
-                when(env.getenv("b")).thenReturn("bar-pass");
-                when(env.getenv("c")).thenReturn("bar-type");
-                when(env.getenv("d")).thenReturn("bar-path");
-                when(env.getenv("e")).thenReturn("bar-pass");
-                when(env.getenv("f")).thenReturn("bar-type");
+                when(env.getenv("a")).thenReturn(STORE_PATH);
+                when(env.getenv("b")).thenReturn(STORE_PASSWORD);
+                when(env.getenv("c")).thenReturn(STORE_TYPE);
+                when(env.getenv("d")).thenReturn(STORE_PATH);
+                when(env.getenv("e")).thenReturn(STORE_PASSWORD);
+                when(env.getenv("f")).thenReturn(STORE_TYPE);
                 when(env.getenv("g")).thenReturn("bar-host");
-                when(env.getenv("h")).thenReturn("bar-protocol");
-                when(env.getenv("i")).thenReturn("bar,foo,baz");
+                when(env.getenv("h")).thenReturn(PROTOCOL);
+                when(env.getenv("i")).thenReturn(SUPPORTED_PROTOCOLS);
 
                 var provider = TlsPropertyProvider.builder()
                         .kiwiEnvironment(env)
@@ -195,14 +204,14 @@ class TlsPropertyProviderTest {
                 assertThat(provider.canProvide()).isTrue();
                 var config = provider.getTlsContextConfiguration();
 
-                assertThat(config.getKeyStorePath()).isEqualTo("bar-path");
-                assertThat(config.getKeyStorePassword()).isEqualTo("bar-pass");
-                assertThat(config.getKeyStoreType()).isEqualTo("bar-type");
-                assertThat(config.getTrustStorePath()).isEqualTo("bar-path");
-                assertThat(config.getTrustStorePassword()).isEqualTo("bar-pass");
-                assertThat(config.getTrustStoreType()).isEqualTo("bar-type");
-                assertThat(config.getProtocol()).isEqualTo("bar-protocol");
-                assertThat(config.getSupportedProtocols()).contains("foo","bar","baz");
+                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
+                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
                 assertThat(config.isVerifyHostname()).isFalse();
                 assertThat(provider.getResolvedBy()).contains(
                         entry("keyStorePath", ResolvedBy.SYSTEM_ENV),
@@ -236,14 +245,14 @@ class TlsPropertyProviderTest {
                 assertThat(provider.canProvide()).isTrue();
                 var config = provider.getTlsContextConfiguration();
 
-                assertThat(config.getKeyStorePath()).isEqualTo("baz-path");
-                assertThat(config.getKeyStorePassword()).isEqualTo("baz-pass");
-                assertThat(config.getKeyStoreType()).isEqualTo("baz-type");
-                assertThat(config.getTrustStorePath()).isEqualTo("baz-path");
-                assertThat(config.getTrustStorePassword()).isEqualTo("baz-pass");
-                assertThat(config.getTrustStoreType()).isEqualTo("baz-type");
-                assertThat(config.getProtocol()).isEqualTo("baz-protocol");
-                assertThat(config.getSupportedProtocols()).contains("foo","bar","baz");
+                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
+                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
                 assertThat(config.isVerifyHostname()).isFalse();
                 assertThat(provider.getResolvedBy()).contains(
                         entry("keyStorePath", ResolvedBy.EXTERNAL_PROPERTY),
@@ -275,14 +284,14 @@ class TlsPropertyProviderTest {
                 assertThat(provider.canProvide()).isTrue();
                 var config = provider.getTlsContextConfiguration();
 
-                assertThat(config.getKeyStorePath()).isEqualTo("baz-path");
-                assertThat(config.getKeyStorePassword()).isEqualTo("baz-pass");
-                assertThat(config.getKeyStoreType()).isEqualTo("baz-type");
-                assertThat(config.getTrustStorePath()).isEqualTo("baz-path");
-                assertThat(config.getTrustStorePassword()).isEqualTo("baz-pass");
-                assertThat(config.getTrustStoreType()).isEqualTo("baz-type");
-                assertThat(config.getProtocol()).isEqualTo("baz-protocol");
-                assertThat(config.getSupportedProtocols()).contains("foo","bar","baz");
+                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
+                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
                 assertThat(config.isVerifyHostname()).isFalse();
                 assertThat(provider.getResolvedBy()).contains(
                         entry("keyStorePath", ResolvedBy.EXTERNAL_PROPERTY),
@@ -304,28 +313,29 @@ class TlsPropertyProviderTest {
             @Test
             void shouldBuildUsingProvidedValues() {
                 var provider = TlsPropertyProvider.builder()
-                        .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue("baz-path").build())
-                        .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue("baz-pass").build())
-                        .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue("baz-type").build())
-                        .trustStorePathResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue("baz-path").build())
-                        .trustStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue("baz-pass").build())
-                        .trustStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue("baz-type").build())
+                        .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_PATH).build())
+                        .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_PASSWORD).build())
+                        .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_TYPE).build())
+                        .trustStorePathResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_PATH).build())
+                        .trustStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_PASSWORD).build())
+                        .trustStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_TYPE).build())
                         .verifyHostnameResolverStrategy(FieldResolverStrategy.<Boolean>builder().explicitValue(false).build())
-                        .protocolResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue("baz-protocol").build())
-                        .supportedProtocolsResolverStrategy(FieldResolverStrategy.<List<String>>builder().explicitValue(List.of("foo", "bar", "baz")).build())
+                        .protocolResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(PROTOCOL).build())
+                        .supportedProtocolsResolverStrategy(FieldResolverStrategy.<List<String>>builder().explicitValue(
+                                List.of(SUPPORTED_PROTOCOLS_ARRAY)).build())
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
                 var config = provider.getTlsContextConfiguration();
 
-                assertThat(config.getKeyStorePath()).isEqualTo("baz-path");
-                assertThat(config.getKeyStorePassword()).isEqualTo("baz-pass");
-                assertThat(config.getKeyStoreType()).isEqualTo("baz-type");
-                assertThat(config.getTrustStorePath()).isEqualTo("baz-path");
-                assertThat(config.getTrustStorePassword()).isEqualTo("baz-pass");
-                assertThat(config.getTrustStoreType()).isEqualTo("baz-type");
-                assertThat(config.getProtocol()).isEqualTo("baz-protocol");
-                assertThat(config.getSupportedProtocols()).contains("foo","bar","baz");
+                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
+                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
                 assertThat(config.isVerifyHostname()).isFalse();
                 assertThat(provider.getResolvedBy()).contains(
                         entry("keyStorePath", ResolvedBy.EXPLICIT_VALUE),
@@ -348,29 +358,29 @@ class TlsPropertyProviderTest {
             @Test
             void shouldBuildUsingProvidedSupplier() {
                 var provider = TlsPropertyProvider.builder()
-                        .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> "baz-path").build())
-                        .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> "baz-pass").build())
-                        .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> "baz-type").build())
-                        .trustStorePathResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> "baz-path").build())
-                        .trustStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> "baz-pass").build())
-                        .trustStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> "baz-type").build())
+                        .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_PATH).build())
+                        .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_PASSWORD).build())
+                        .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_TYPE).build())
+                        .trustStorePathResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_PATH).build())
+                        .trustStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_PASSWORD).build())
+                        .trustStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_TYPE).build())
                         .verifyHostnameResolverStrategy(FieldResolverStrategy.<Boolean>builder().valueSupplier(() -> false).build())
-                        .protocolResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> "baz-protocol").build())
+                        .protocolResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> PROTOCOL).build())
                         .supportedProtocolsResolverStrategy(FieldResolverStrategy.<List<String>>builder()
-                                .valueSupplier(() -> List.of("foo", "bar", "baz")).build())
+                                .valueSupplier(() -> List.of(SUPPORTED_PROTOCOLS_ARRAY)).build())
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
                 var config = provider.getTlsContextConfiguration();
 
-                assertThat(config.getKeyStorePath()).isEqualTo("baz-path");
-                assertThat(config.getKeyStorePassword()).isEqualTo("baz-pass");
-                assertThat(config.getKeyStoreType()).isEqualTo("baz-type");
-                assertThat(config.getTrustStorePath()).isEqualTo("baz-path");
-                assertThat(config.getTrustStorePassword()).isEqualTo("baz-pass");
-                assertThat(config.getTrustStoreType()).isEqualTo("baz-type");
-                assertThat(config.getProtocol()).isEqualTo("baz-protocol");
-                assertThat(config.getSupportedProtocols()).contains("foo","bar","baz");
+                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
+                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
+                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
+                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
+                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
                 assertThat(config.isVerifyHostname()).isFalse();
                 assertThat(provider.getResolvedBy()).contains(
                         entry("keyStorePath", ResolvedBy.DEFAULT),
