@@ -15,7 +15,7 @@ import org.kiwiproject.base.KiwiEnvironment;
 import java.util.Map;
 
 /**
- * Config provider that determines the connect string to use for a Zookeeper connection.
+ * Config provider that determines the connect string to use for a ZooKeeper connection.
  * <p>
  * This is useful when a system of services are deployed in multiple locations like separate AWS VPCs or subnets.
  * <p>
@@ -25,14 +25,14 @@ import java.util.Map;
  *     <li>System property with the default system property key (kiwi.zookeeper.connection)</li>
  *     <li>Environment variable with the given variable name</li>
  *     <li>Environment variable with the default variable name (KIWI_ZOOKEEPER_CONNECTION)</li>
- *     <li>The given zookeeper connect string</li>
- *     <li>The zookeeper connect string from an external configuration file with the given key</li>
- *     <li>The zookeeper connect string from an external configuration file with the default key (zookeeper.connection)</li>
- *     <li>The zookeeper connect string from a given supplier</li>
+ *     <li>The given ZooKeeper connect string</li>
+ *     <li>The ZooKeeper connect string from an external configuration file with the given key</li>
+ *     <li>The ZooKeeper connect string from an external configuration file with the default key (zookeeper.connection)</li>
+ *     <li>The ZooKeeper connect string from a given supplier</li>
  * </ol>
  */
 @Slf4j
-public class ZookeeperConfigProvider implements ConfigProvider {
+public class ZooKeeperConfigProvider implements ConfigProvider {
 
     @VisibleForTesting
     static final String DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY = "kiwi.zookeeper.connection";
@@ -50,7 +50,7 @@ public class ZookeeperConfigProvider implements ConfigProvider {
 
 
     @Builder
-    private ZookeeperConfigProvider(ExternalConfigProvider externalConfigProvider,
+    private ZooKeeperConfigProvider(ExternalConfigProvider externalConfigProvider,
                                     KiwiEnvironment kiwiEnvironment,
                                     FieldResolverStrategy<String> resolverStrategy) {
 

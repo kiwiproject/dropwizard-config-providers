@@ -49,7 +49,7 @@ The following providers are currently available in this library.
 | NetworkIdentityConfigProvider | Resolves a named network, useful if you want to have services run in different subnets/VPCs | network |
 | ServiceIdentityConfigProvider | Resolves identity information for a running service | name, version, environment (deployed) |
 | TlsConfigProvider | Resolves the properties to use in a TLS Configuration | tlsContextConfiguration |
-| ZookeeperConfigProvider | Resolves the zookeeper connection string | connectString |
+| ZooKeeperConfigProvider | Resolves the ZooKeeper connection string | connectString |
 
 #### Custom Providers
 
