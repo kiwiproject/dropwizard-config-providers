@@ -6,3 +6,51 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 Utility library to assist in providing default config properties to dropwizard services
+
+#### How to use it
+* Add the Maven dependency (available in Maven Central)
+
+```xml
+<dependency>
+    <groupId>org.kiwiproject</groupId>
+    <artifactId>dropwizard-config-providers</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+* Add the following to your Configuration class:
+
+```java
+public class YourConfiguration extends Configuration {
+
+    private String serviceName = ServiceIdentityProvider.builder().build().getName();
+
+}
+```
+
+#### Property resolution order of precedence
+
+The service providers will resolve properties in the following order:
+1. System property with the given system property key
+2. System property with the default system property key (See the specific provider for details)
+3. Environment variable with the given variable name
+4. Environment variable with the default variable name (See the specific provider for details)
+5. An explicit value
+6. The value from an external configuration file with the given key (See ExternalPropertyProvider for details)
+7. The value from an external configuration file with the default key (See the specific provider for details)
+8. The value from a given supplier
+
+#### Current Providers
+
+The following providers are currently available in this library.
+
+| Provider | Description | Properties Resolved |
+| -------- | ----------- | ------------------- |
+| NetworkIdentityProvider | Resolves a named network, useful if you want to have services run in different subnets/VPCs | network |
+| ServiceIdentityProvider | Resolves identity information for a running service | name, version, environment (deployed) |
+| TlsPropertyProvider | Resolves the properties to use in a TLS Configuration | tlsContextConfiguration |
+
+#### Custom Providers
+
+Custom providers can be created by extending the `ConfigProvider` interface.  Also the existing providers can be extended by setting various lookup mechanisms
+listed in the order of precedence section.
