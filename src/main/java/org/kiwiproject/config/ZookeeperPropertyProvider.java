@@ -44,7 +44,7 @@ public class ZookeeperPropertyProvider implements ConfigProvider {
     static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "zookeeper.connection";
 
     @Getter
-    private String connectStr;
+    private String connectString;
     private ResolvedBy connectStrResolvedBy = ResolvedBy.NONE;
 
 
@@ -63,24 +63,24 @@ public class ZookeeperPropertyProvider implements ConfigProvider {
         var connectStrFromEnv = resolvedEnvironment.getenv(connectStrResolver.getEnvVariableOrDefault(DEFAULT_CONNECT_STRING_ENV_VARIABLE));
 
         if (isNotBlank(connectStrFromSystemProperties)) {
-            this.connectStr = connectStrFromSystemProperties;
+            this.connectString = connectStrFromSystemProperties;
             this.connectStrResolvedBy = ResolvedBy.SYSTEM_PROPERTY;
         } else if (isNotBlank(connectStrFromEnv)) {
-            this.connectStr = connectStrFromEnv;
+            this.connectString = connectStrFromEnv;
             this.connectStrResolvedBy = ResolvedBy.SYSTEM_ENV;
         } else if (nonNull(connectStrResolver.getExplicitValue())) {
-            this.connectStr = connectStrResolver.getExplicitValue();
+            this.connectString = connectStrResolver.getExplicitValue();
             this.connectStrResolvedBy = ResolvedBy.EXPLICIT_VALUE;
         } else {
             getExternalPropertyProviderOrDefault(externalPropertyProvider)
                     .usePropertyIfPresent(connectStrResolver.getExternalPropertyOrDefault(DEFAULT_EXTERNAL_PROPERTY_KEY),
                         value -> {
-                            this.connectStr = value;
+                            this.connectString = value;
                             this.connectStrResolvedBy = ResolvedBy.EXTERNAL_PROPERTY;
                         },
                         () -> {
-                            this.connectStr = connectStrResolver.getValueSupplierOrDefault("").get();
-                            this.connectStrResolvedBy = isBlank(this.connectStr) ? ResolvedBy.NONE : ResolvedBy.DEFAULT;
+                            this.connectString = connectStrResolver.getValueSupplierOrDefault("").get();
+                            this.connectStrResolvedBy = isBlank(this.connectString) ? ResolvedBy.NONE : ResolvedBy.DEFAULT;
                         });
         }
     }
@@ -91,11 +91,11 @@ public class ZookeeperPropertyProvider implements ConfigProvider {
 
     @Override
     public boolean canProvide() {
-        return isNotBlank(connectStr);
+        return isNotBlank(connectString);
     }
 
     @Override
     public Map<String, ResolvedBy> getResolvedBy() {
-        return Map.of("connectStr", connectStrResolvedBy);
+        return Map.of("connectString", connectStrResolvedBy);
     }
 }
