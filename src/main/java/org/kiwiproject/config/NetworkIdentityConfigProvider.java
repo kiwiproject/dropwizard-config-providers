@@ -15,7 +15,7 @@ import org.kiwiproject.base.KiwiEnvironment;
 import java.util.Map;
 
 /**
- * Property provider that determines the named network on which the service is running.
+ * Config provider that determines the named network on which the service is running.
  * <p>
  * This is useful when a system of services are deployed in multiple locations like separate AWS VPCs or subnets.
  * <p>
@@ -32,7 +32,7 @@ import java.util.Map;
  * </ol>
  */
 @Slf4j
-public class NetworkIdentityProvider implements ConfigProvider {
+public class NetworkIdentityConfigProvider implements ConfigProvider {
 
     @VisibleForTesting
     static final String DEFAULT_NETWORK_SYSTEM_PROPERTY = "kiwi.network";
@@ -49,9 +49,9 @@ public class NetworkIdentityProvider implements ConfigProvider {
 
 
     @Builder
-    private NetworkIdentityProvider(ExternalPropertyProvider externalPropertyProvider,
-                                    KiwiEnvironment kiwiEnvironment,
-                                    FieldResolverStrategy<String> resolverStrategy) {
+    private NetworkIdentityConfigProvider(ExternalConfigProvider externalConfigProvider,
+                                          KiwiEnvironment kiwiEnvironment,
+                                          FieldResolverStrategy<String> resolverStrategy) {
 
         var networkResolver = isNull(resolverStrategy)
                 ? FieldResolverStrategy.<String>builder().build() : resolverStrategy;
@@ -71,7 +71,7 @@ public class NetworkIdentityProvider implements ConfigProvider {
             this.network = networkResolver.getExplicitValue();
             this.networkResolvedBy = ResolvedBy.EXPLICIT_VALUE;
         } else {
-            getExternalPropertyProviderOrDefault(externalPropertyProvider)
+            getExternalPropertyProviderOrDefault(externalConfigProvider)
                     .usePropertyIfPresent(networkResolver.getExternalPropertyOrDefault(DEFAULT_EXTERNAL_PROPERTY_KEY),
                         value -> {
                             this.network = value;
@@ -84,8 +84,8 @@ public class NetworkIdentityProvider implements ConfigProvider {
         }
     }
 
-    private ExternalPropertyProvider getExternalPropertyProviderOrDefault(ExternalPropertyProvider providedProvider) {
-        return nonNull(providedProvider) ? providedProvider : ExternalPropertyProvider.builder().build();
+    private ExternalConfigProvider getExternalPropertyProviderOrDefault(ExternalConfigProvider providedProvider) {
+        return nonNull(providedProvider) ? providedProvider : ExternalConfigProvider.builder().build();
     }
 
     @Override

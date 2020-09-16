@@ -46,10 +46,10 @@ The following providers are currently available in this library.
 
 | Provider | Description | Properties Resolved |
 | -------- | ----------- | ------------------- |
-| NetworkIdentityProvider | Resolves a named network, useful if you want to have services run in different subnets/VPCs | network |
-| ServiceIdentityProvider | Resolves identity information for a running service | name, version, environment (deployed) |
-| TlsPropertyProvider | Resolves the properties to use in a TLS Configuration | tlsContextConfiguration |
-| ZookeeperPropertyProvider | Resolves the zookeeper connection string | connectString |
+| NetworkIdentityConfigProvider | Resolves a named network, useful if you want to have services run in different subnets/VPCs | network |
+| ServiceIdentityConfigProvider | Resolves identity information for a running service | name, version, environment (deployed) |
+| TlsConfigProvider | Resolves the properties to use in a TLS Configuration | tlsContextConfiguration |
+| ZookeeperConfigProvider | Resolves the zookeeper connection string | connectString |
 
 #### Custom Providers
 

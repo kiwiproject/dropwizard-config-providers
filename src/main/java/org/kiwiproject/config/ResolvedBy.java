@@ -15,7 +15,7 @@ public enum ResolvedBy {
     /**
      * Resolved from external configuration
      *
-     * @see ExternalPropertyProvider
+     * @see ExternalConfigProvider
      */
     EXTERNAL_PROPERTY,
 

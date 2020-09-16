@@ -22,7 +22,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Property provider that provides a {@link TlsContextConfiguration}.
+ * Config provider that provides a {@link TlsContextConfiguration}.
  * <p>
  * The provider will look for the fields in the following order:
  * <ol>
@@ -37,7 +37,7 @@ import java.util.function.Supplier;
  * </ol>
  */
 @Slf4j
-public class TlsPropertyProvider implements ConfigProvider {
+public class TlsConfigProvider implements ConfigProvider {
 
     private static final String RESOLUTION_VALUE_KEY = "value";
     private static final String RESOLUTION_METHOD_KEY = "method";
@@ -191,23 +191,23 @@ public class TlsPropertyProvider implements ConfigProvider {
 
     @SuppressWarnings("java:S107")
     @Builder
-    private TlsPropertyProvider(ExternalPropertyProvider externalPropertyProvider,
-                                KiwiEnvironment kiwiEnvironment,
-                                FieldResolverStrategy<String> keyStorePathResolverStrategy,
-                                FieldResolverStrategy<String> keyStorePasswordResolverStrategy,
-                                FieldResolverStrategy<String> keyStoreTypeResolverStrategy,
-                                FieldResolverStrategy<String> trustStorePathResolverStrategy,
-                                FieldResolverStrategy<String> trustStorePasswordResolverStrategy,
-                                FieldResolverStrategy<String> trustStoreTypeResolverStrategy,
-                                FieldResolverStrategy<Boolean> verifyHostnameResolverStrategy,
-                                FieldResolverStrategy<String> protocolResolverStrategy,
-                                FieldResolverStrategy<List<String>> supportedProtocolsResolverStrategy,
-                                Supplier<TlsContextConfiguration> tlsContextConfigurationSupplier) {
+    private TlsConfigProvider(ExternalConfigProvider externalConfigProvider,
+                              KiwiEnvironment kiwiEnvironment,
+                              FieldResolverStrategy<String> keyStorePathResolverStrategy,
+                              FieldResolverStrategy<String> keyStorePasswordResolverStrategy,
+                              FieldResolverStrategy<String> keyStoreTypeResolverStrategy,
+                              FieldResolverStrategy<String> trustStorePathResolverStrategy,
+                              FieldResolverStrategy<String> trustStorePasswordResolverStrategy,
+                              FieldResolverStrategy<String> trustStoreTypeResolverStrategy,
+                              FieldResolverStrategy<Boolean> verifyHostnameResolverStrategy,
+                              FieldResolverStrategy<String> protocolResolverStrategy,
+                              FieldResolverStrategy<List<String>> supportedProtocolsResolverStrategy,
+                              Supplier<TlsContextConfiguration> tlsContextConfigurationSupplier) {
 
         var originalConfiguration = getSuppliedConfigurationOrDefault(tlsContextConfigurationSupplier);
 
         var resolvedKiwiEnvironment = isNull(kiwiEnvironment) ? new DefaultEnvironment() : kiwiEnvironment;
-        var extProvider = getExternalPropertyProviderOrDefault(externalPropertyProvider);
+        var extProvider = getExternalPropertyProviderOrDefault(externalConfigProvider);
 
         tlsContextConfiguration = TlsContextConfiguration.builder()
                 .protocol(resolveProperty(PROTOCOL_FIELD, getResolverOrDefault(protocolResolverStrategy), extProvider, resolvedKiwiEnvironment,
@@ -242,23 +242,23 @@ public class TlsPropertyProvider implements ConfigProvider {
         return TlsContextConfiguration.builder().build();
     }
 
-    private ExternalPropertyProvider getExternalPropertyProviderOrDefault(ExternalPropertyProvider providedProvider) {
-        return nonNull(providedProvider) ? providedProvider : ExternalPropertyProvider.builder().build();
+    private ExternalConfigProvider getExternalPropertyProviderOrDefault(ExternalConfigProvider providedProvider) {
+        return nonNull(providedProvider) ? providedProvider : ExternalConfigProvider.builder().build();
     }
 
     private String resolveProperty(String fieldName,
                                   FieldResolverStrategy<String> resolver,
-                                  ExternalPropertyProvider externalPropertyProvider,
+                                  ExternalConfigProvider externalConfigProvider,
                                   KiwiEnvironment kiwiEnvironment,
                                   String originalValue,
                                   Consumer<ResolvedBy> resolvedBySetter) {
-        return resolveProperty(fieldName, resolver, externalPropertyProvider, kiwiEnvironment, originalValue, resolvedBySetter, value -> value);
+        return resolveProperty(fieldName, resolver, externalConfigProvider, kiwiEnvironment, originalValue, resolvedBySetter, value -> value);
     }
 
     @SuppressWarnings("unchecked")
     private <T> T resolveProperty(String fieldName,
                                   FieldResolverStrategy<T> resolver,
-                                  ExternalPropertyProvider externalPropertyProvider,
+                                  ExternalConfigProvider externalConfigProvider,
                                   KiwiEnvironment kiwiEnvironment,
                                   T originalValue,
                                   Consumer<ResolvedBy> resolvedBySetter,
@@ -281,7 +281,7 @@ public class TlsPropertyProvider implements ConfigProvider {
         }
 
         var returnVal = new HashMap<String, Object>();
-        externalPropertyProvider.usePropertyIfPresent(resolver.getExternalPropertyOrDefault(defaultFields.get(EXTERNAL_PROPERTY)),
+        externalConfigProvider.usePropertyIfPresent(resolver.getExternalPropertyOrDefault(defaultFields.get(EXTERNAL_PROPERTY)),
                 value -> {
                     returnVal.put(RESOLUTION_VALUE_KEY, convertFromString.apply(value));
                     returnVal.put(RESOLUTION_METHOD_KEY, ResolvedBy.EXTERNAL_PROPERTY);
