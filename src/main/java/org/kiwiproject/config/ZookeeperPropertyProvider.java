@@ -45,6 +45,7 @@ public class ZookeeperPropertyProvider implements ConfigProvider {
 
     @Getter
     private String connectString;
+
     private ResolvedBy connectStrResolvedBy = ResolvedBy.NONE;
 
 
