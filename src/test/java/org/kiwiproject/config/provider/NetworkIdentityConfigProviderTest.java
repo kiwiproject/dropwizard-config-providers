@@ -2,6 +2,8 @@ package org.kiwiproject.config.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
+import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -12,7 +14,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.base.KiwiEnvironment;
-import org.kiwiproject.config.provider.util.SystemPropertyHelper;
 
 import java.nio.file.Path;
 
@@ -27,12 +28,12 @@ class NetworkIdentityConfigProviderTest {
 
             @AfterEach
             void tearDown() {
-                SystemPropertyHelper.clearAllSystemProperties();
+                clearAllSystemProperties();
             }
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                SystemPropertyHelper.addSystemProperty(NetworkIdentityConfigProvider.DEFAULT_NETWORK_SYSTEM_PROPERTY, "VPC-SystemProp-Default");
+                addSystemProperty(NetworkIdentityConfigProvider.DEFAULT_NETWORK_SYSTEM_PROPERTY, "VPC-SystemProp-Default");
 
                 var provider = NetworkIdentityConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
@@ -42,7 +43,7 @@ class NetworkIdentityConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-                SystemPropertyHelper.addSystemProperty("bar", "VPC-SystemProp-Provided");
+                addSystemProperty("bar", "VPC-SystemProp-Provided");
 
                 var resolver = FieldResolverStrategy.<String>builder().systemPropertyKey("bar").build();
                 var provider = NetworkIdentityConfigProvider.builder().resolverStrategy(resolver).build();

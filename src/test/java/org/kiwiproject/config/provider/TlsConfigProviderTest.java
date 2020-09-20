@@ -2,6 +2,8 @@ package org.kiwiproject.config.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
+import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -13,7 +15,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.base.KiwiEnvironment;
 import org.kiwiproject.config.TlsContextConfiguration;
-import org.kiwiproject.config.provider.util.SystemPropertyHelper;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -36,20 +37,20 @@ class TlsConfigProviderTest {
 
             @AfterEach
             void tearDown() {
-                SystemPropertyHelper.clearAllSystemProperties();
+                clearAllSystemProperties();
             }
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                SystemPropertyHelper.addSystemProperty(TlsConfigProvider.DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY, STORE_PATH);
-                SystemPropertyHelper.addSystemProperty(TlsConfigProvider.DEFAULT_KEYSTORE_PASSWORD_SYSTEM_PROPERTY, STORE_PASSWORD);
-                SystemPropertyHelper.addSystemProperty(TlsConfigProvider.DEFAULT_KEYSTORE_TYPE_SYSTEM_PROPERTY, STORE_TYPE);
-                SystemPropertyHelper.addSystemProperty(TlsConfigProvider.DEFAULT_TRUSTSTORE_PATH_SYSTEM_PROPERTY, STORE_PATH);
-                SystemPropertyHelper.addSystemProperty(TlsConfigProvider.DEFAULT_TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY, STORE_PASSWORD);
-                SystemPropertyHelper.addSystemProperty(TlsConfigProvider.DEFAULT_TRUSTSTORE_TYPE_SYSTEM_PROPERTY, STORE_TYPE);
-                SystemPropertyHelper.addSystemProperty(TlsConfigProvider.DEFAULT_VERIFY_HOSTNAME_SYSTEM_PROPERTY, "false");
-                SystemPropertyHelper.addSystemProperty(TlsConfigProvider.DEFAULT_PROTOCOL_SYSTEM_PROPERTY, PROTOCOL);
-                SystemPropertyHelper.addSystemProperty(TlsConfigProvider.DEFAULT_SUPPORTED_PROTOCOLS_SYSTEM_PROPERTY, SUPPORTED_PROTOCOLS);
+                addSystemProperty(TlsConfigProvider.DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY, STORE_PATH);
+                addSystemProperty(TlsConfigProvider.DEFAULT_KEYSTORE_PASSWORD_SYSTEM_PROPERTY, STORE_PASSWORD);
+                addSystemProperty(TlsConfigProvider.DEFAULT_KEYSTORE_TYPE_SYSTEM_PROPERTY, STORE_TYPE);
+                addSystemProperty(TlsConfigProvider.DEFAULT_TRUSTSTORE_PATH_SYSTEM_PROPERTY, STORE_PATH);
+                addSystemProperty(TlsConfigProvider.DEFAULT_TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY, STORE_PASSWORD);
+                addSystemProperty(TlsConfigProvider.DEFAULT_TRUSTSTORE_TYPE_SYSTEM_PROPERTY, STORE_TYPE);
+                addSystemProperty(TlsConfigProvider.DEFAULT_VERIFY_HOSTNAME_SYSTEM_PROPERTY, "false");
+                addSystemProperty(TlsConfigProvider.DEFAULT_PROTOCOL_SYSTEM_PROPERTY, PROTOCOL);
+                addSystemProperty(TlsConfigProvider.DEFAULT_SUPPORTED_PROTOCOLS_SYSTEM_PROPERTY, SUPPORTED_PROTOCOLS);
 
                 var provider = TlsConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
@@ -79,15 +80,15 @@ class TlsConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-                SystemPropertyHelper.addSystemProperty("a", STORE_PATH);
-                SystemPropertyHelper.addSystemProperty("b", STORE_PASSWORD);
-                SystemPropertyHelper.addSystemProperty("c", STORE_TYPE);
-                SystemPropertyHelper.addSystemProperty("d", STORE_PATH);
-                SystemPropertyHelper.addSystemProperty("e", STORE_PASSWORD);
-                SystemPropertyHelper.addSystemProperty("f", STORE_TYPE);
-                SystemPropertyHelper.addSystemProperty("g", "false");
-                SystemPropertyHelper.addSystemProperty("h", PROTOCOL);
-                SystemPropertyHelper.addSystemProperty("i", SUPPORTED_PROTOCOLS);
+                addSystemProperty("a", STORE_PATH);
+                addSystemProperty("b", STORE_PASSWORD);
+                addSystemProperty("c", STORE_TYPE);
+                addSystemProperty("d", STORE_PATH);
+                addSystemProperty("e", STORE_PASSWORD);
+                addSystemProperty("f", STORE_TYPE);
+                addSystemProperty("g", "false");
+                addSystemProperty("h", PROTOCOL);
+                addSystemProperty("i", SUPPORTED_PROTOCOLS);
 
                 var provider = TlsConfigProvider.builder()
                         .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("a").build())

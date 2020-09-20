@@ -2,6 +2,8 @@ package org.kiwiproject.config.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.fail;
+import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
+import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -12,7 +14,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.base.KiwiEnvironment;
-import org.kiwiproject.config.provider.util.SystemPropertyHelper;
 
 import java.nio.file.Path;
 
@@ -36,12 +37,12 @@ class ExternalConfigProviderTest {
 
             @AfterEach
             void tearDown() {
-                SystemPropertyHelper.clearAllSystemProperties();
+                clearAllSystemProperties();
             }
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                SystemPropertyHelper.addSystemProperty(ExternalConfigProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, propertyPath.toString());
+                addSystemProperty(ExternalConfigProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, propertyPath.toString());
 
                 var provider = ExternalConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
@@ -50,7 +51,7 @@ class ExternalConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-                SystemPropertyHelper.addSystemProperty("bar", propertyPath.toString());
+                addSystemProperty("bar", propertyPath.toString());
 
                 var provider = ExternalConfigProvider.builder().systemPropertyKey("bar").build();
                 assertThat(provider.canProvide()).isTrue();

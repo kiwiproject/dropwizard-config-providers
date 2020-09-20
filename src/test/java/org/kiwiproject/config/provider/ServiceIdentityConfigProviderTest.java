@@ -2,6 +2,8 @@ package org.kiwiproject.config.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
+import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -12,7 +14,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.base.KiwiEnvironment;
-import org.kiwiproject.config.provider.util.SystemPropertyHelper;
 
 import java.nio.file.Path;
 
@@ -27,14 +28,14 @@ class ServiceIdentityConfigProviderTest {
 
             @AfterEach
             void tearDown() {
-                SystemPropertyHelper.clearAllSystemProperties();
+                clearAllSystemProperties();
             }
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                SystemPropertyHelper.addSystemProperty(ServiceIdentityConfigProvider.DEFAULT_NAME_SYSTEM_PROPERTY, "systemprop-default-service");
-                SystemPropertyHelper.addSystemProperty(ServiceIdentityConfigProvider.DEFAULT_VERSION_SYSTEM_PROPERTY, "0.1.0");
-                SystemPropertyHelper.addSystemProperty(ServiceIdentityConfigProvider.DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY, "development");
+                addSystemProperty(ServiceIdentityConfigProvider.DEFAULT_NAME_SYSTEM_PROPERTY, "systemprop-default-service");
+                addSystemProperty(ServiceIdentityConfigProvider.DEFAULT_VERSION_SYSTEM_PROPERTY, "0.1.0");
+                addSystemProperty(ServiceIdentityConfigProvider.DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY, "development");
 
                 var provider = ServiceIdentityConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
@@ -50,9 +51,9 @@ class ServiceIdentityConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-                SystemPropertyHelper.addSystemProperty("foo", "systemprop-provided-service");
-                SystemPropertyHelper.addSystemProperty("bar", "0.1.1");
-                SystemPropertyHelper.addSystemProperty("baz", "dev-int");
+                addSystemProperty("foo", "systemprop-provided-service");
+                addSystemProperty("bar", "0.1.1");
+                addSystemProperty("baz", "dev-int");
 
                 var provider = ServiceIdentityConfigProvider.builder()
                         .nameResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("foo").build())
