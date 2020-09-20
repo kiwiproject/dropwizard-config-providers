@@ -1,9 +1,7 @@
-package org.kiwiproject.config;
+package org.kiwiproject.config.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.kiwiproject.config.util.SystemPropertyHelper.addSystemProperty;
-import static org.kiwiproject.config.util.SystemPropertyHelper.clearAllSystemProperties;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.base.KiwiEnvironment;
+import org.kiwiproject.config.provider.util.SystemPropertyHelper;
 
 import java.nio.file.Path;
 
@@ -30,12 +29,12 @@ class ZooKeeperConfigProviderTest {
 
             @AfterEach
             void tearDown() {
-                clearAllSystemProperties();
+                SystemPropertyHelper.clearAllSystemProperties();
             }
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                addSystemProperty(ZooKeeperConfigProvider.DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY, ZOOKEEPER_CONNECT_STRING);
+                SystemPropertyHelper.addSystemProperty(ZooKeeperConfigProvider.DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY, ZOOKEEPER_CONNECT_STRING);
 
                 var provider = ZooKeeperConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
@@ -45,7 +44,7 @@ class ZooKeeperConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-                addSystemProperty("bar", ZOOKEEPER_CONNECT_STRING);
+                SystemPropertyHelper.addSystemProperty("bar", ZOOKEEPER_CONNECT_STRING);
 
                 var resolver = FieldResolverStrategy.<String>builder().systemPropertyKey("bar").build();
                 var provider = ZooKeeperConfigProvider.builder().resolverStrategy(resolver).build();

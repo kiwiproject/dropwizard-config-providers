@@ -1,4 +1,4 @@
-package org.kiwiproject.config;
+package org.kiwiproject.config.provider;
 
 import org.kiwiproject.base.KiwiEnvironment;
 
