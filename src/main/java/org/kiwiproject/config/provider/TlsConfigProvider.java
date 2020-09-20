@@ -1,4 +1,4 @@
-package org.kiwiproject.config;
+package org.kiwiproject.config.provider;
 
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.base.DefaultEnvironment;
 import org.kiwiproject.base.KiwiEnvironment;
+import org.kiwiproject.config.TlsContextConfiguration;
 
 import java.util.Arrays;
 import java.util.HashMap;

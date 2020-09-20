@@ -1,4 +1,4 @@
-package org.kiwiproject.config.util;
+package org.kiwiproject.config.provider.util;
 
 import lombok.experimental.UtilityClass;
 

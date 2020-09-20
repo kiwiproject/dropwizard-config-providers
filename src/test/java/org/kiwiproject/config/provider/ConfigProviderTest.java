@@ -1,4 +1,4 @@
-package org.kiwiproject.config;
+package org.kiwiproject.config.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

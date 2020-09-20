@@ -1,9 +1,9 @@
-package org.kiwiproject.config;
+package org.kiwiproject.config.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
-import static org.kiwiproject.config.util.SystemPropertyHelper.addSystemProperty;
-import static org.kiwiproject.config.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
+import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.base.KiwiEnvironment;
+import org.kiwiproject.config.TlsContextConfiguration;
 
 import java.nio.file.Path;
 import java.util.List;
