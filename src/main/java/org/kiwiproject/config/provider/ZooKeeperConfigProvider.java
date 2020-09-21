@@ -1,16 +1,13 @@
 package org.kiwiproject.config.provider;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.kiwiproject.base.DefaultEnvironment;
 import org.kiwiproject.base.KiwiEnvironment;
+import org.kiwiproject.config.provider.util.SinglePropertyResolver;
 
 import java.util.Map;
 
@@ -44,9 +41,9 @@ public class ZooKeeperConfigProvider implements ConfigProvider {
     static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "zookeeper.connection";
 
     @Getter
-    private String connectString;
+    private final String connectString;
 
-    private ResolvedBy connectStrResolvedBy = ResolvedBy.NONE;
+    private final ResolvedBy connectStrResolvedBy;
 
 
     @Builder
@@ -54,40 +51,12 @@ public class ZooKeeperConfigProvider implements ConfigProvider {
                                     KiwiEnvironment kiwiEnvironment,
                                     FieldResolverStrategy<String> resolverStrategy) {
 
-        var connectStrResolver = isNull(resolverStrategy)
-                ? FieldResolverStrategy.<String>builder().build() : resolverStrategy;
+        var resolution = SinglePropertyResolver.resolveStringProperty(
+                externalConfigProvider, kiwiEnvironment, resolverStrategy, DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY,
+                DEFAULT_CONNECT_STRING_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY, "");
 
-        var connectStrFromSystemProperties = System.getProperty(
-                connectStrResolver.getSystemPropertyKeyOrDefault(DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY));
-
-        var resolvedEnvironment = isNull(kiwiEnvironment) ? new DefaultEnvironment() : kiwiEnvironment;
-        var connectStrFromEnv = resolvedEnvironment.getenv(connectStrResolver.getEnvVariableOrDefault(DEFAULT_CONNECT_STRING_ENV_VARIABLE));
-
-        if (isNotBlank(connectStrFromSystemProperties)) {
-            this.connectString = connectStrFromSystemProperties;
-            this.connectStrResolvedBy = ResolvedBy.SYSTEM_PROPERTY;
-        } else if (isNotBlank(connectStrFromEnv)) {
-            this.connectString = connectStrFromEnv;
-            this.connectStrResolvedBy = ResolvedBy.SYSTEM_ENV;
-        } else if (nonNull(connectStrResolver.getExplicitValue())) {
-            this.connectString = connectStrResolver.getExplicitValue();
-            this.connectStrResolvedBy = ResolvedBy.EXPLICIT_VALUE;
-        } else {
-            getExternalPropertyProviderOrDefault(externalConfigProvider)
-                    .usePropertyIfPresent(connectStrResolver.getExternalPropertyOrDefault(DEFAULT_EXTERNAL_PROPERTY_KEY),
-                        value -> {
-                            this.connectString = value;
-                            this.connectStrResolvedBy = ResolvedBy.EXTERNAL_PROPERTY;
-                        },
-                        () -> {
-                            this.connectString = connectStrResolver.getValueSupplierOrDefault("").get();
-                            this.connectStrResolvedBy = isBlank(this.connectString) ? ResolvedBy.NONE : ResolvedBy.DEFAULT;
-                        });
-        }
-    }
-
-    private ExternalConfigProvider getExternalPropertyProviderOrDefault(ExternalConfigProvider providedProvider) {
-        return nonNull(providedProvider) ? providedProvider : ExternalConfigProvider.builder().build();
+        this.connectString = resolution.getLeft();
+        this.connectStrResolvedBy = resolution.getRight();
     }
 
     @Override

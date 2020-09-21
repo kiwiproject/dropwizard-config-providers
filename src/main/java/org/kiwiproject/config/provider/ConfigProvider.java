@@ -33,4 +33,5 @@ public interface ConfigProvider {
     default Map<String, ResolvedBy> getResolvedBy() {
         return Map.of();
     }
+
 }

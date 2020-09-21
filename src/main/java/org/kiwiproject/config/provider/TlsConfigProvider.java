@@ -3,6 +3,7 @@ package org.kiwiproject.config.provider;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.kiwiproject.config.provider.ExternalConfigProvider.getExternalPropertyProviderOrDefault;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.AccessLevel;
@@ -241,10 +242,6 @@ public class TlsConfigProvider implements ConfigProvider {
 
         setAllResolvedByTo(ResolvedBy.DEFAULT);
         return TlsContextConfiguration.builder().build();
-    }
-
-    private ExternalConfigProvider getExternalPropertyProviderOrDefault(ExternalConfigProvider providedProvider) {
-        return nonNull(providedProvider) ? providedProvider : ExternalConfigProvider.builder().build();
     }
 
     private String resolveProperty(String fieldName,
