@@ -1,9 +1,6 @@
 package org.kiwiproject.config.provider;
 
-import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.kiwiproject.config.provider.ExternalConfigProvider.getExternalPropertyProviderOrDefault;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.AccessLevel;
@@ -11,12 +8,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.kiwiproject.base.DefaultEnvironment;
 import org.kiwiproject.base.KiwiEnvironment;
 import org.kiwiproject.config.TlsContextConfiguration;
+import org.kiwiproject.config.provider.util.SinglePropertyResolver;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -41,8 +37,6 @@ import java.util.function.Supplier;
 @Slf4j
 public class TlsConfigProvider implements ConfigProvider {
 
-    private static final String RESOLUTION_VALUE_KEY = "value";
-    private static final String RESOLUTION_METHOD_KEY = "method";
     private static final String SYSTEM_PROPERTY = "systemProperty";
     private static final String ENV_PROPERTY = "envVariable";
     private static final String EXTERNAL_PROPERTY = "externalProperty";
@@ -208,28 +202,25 @@ public class TlsConfigProvider implements ConfigProvider {
 
         var originalConfiguration = getSuppliedConfigurationOrDefault(tlsContextConfigurationSupplier);
 
-        var resolvedKiwiEnvironment = isNull(kiwiEnvironment) ? new DefaultEnvironment() : kiwiEnvironment;
-        var extProvider = getExternalPropertyProviderOrDefault(externalConfigProvider);
-
         tlsContextConfiguration = TlsContextConfiguration.builder()
-                .protocol(resolveProperty(PROTOCOL_FIELD, getResolverOrDefault(protocolResolverStrategy), extProvider, resolvedKiwiEnvironment,
+                .protocol(resolveProperty(PROTOCOL_FIELD, protocolResolverStrategy, externalConfigProvider, kiwiEnvironment,
                         originalConfiguration.getProtocol(), this::setProtocolResolvedBy))
-                .keyStorePath(resolveProperty(KEYSTORE_PATH_FIELD, getResolverOrDefault(keyStorePathResolverStrategy), extProvider, resolvedKiwiEnvironment,
+                .keyStorePath(resolveProperty(KEYSTORE_PATH_FIELD, keyStorePathResolverStrategy, externalConfigProvider, kiwiEnvironment,
                         originalConfiguration.getKeyStorePath(), this::setKeyStorePathResolvedBy))
-                .keyStorePassword(resolveProperty(KEYSTORE_PASSWORD_FIELD, getResolverOrDefault(keyStorePasswordResolverStrategy), extProvider,
-                        resolvedKiwiEnvironment, originalConfiguration.getKeyStorePassword(), this::setKeyStorePasswordResolvedBy))
-                .keyStoreType(resolveProperty(KEYSTORE_TYPE_FIELD, getResolverOrDefault(keyStoreTypeResolverStrategy), extProvider, resolvedKiwiEnvironment,
+                .keyStorePassword(resolveProperty(KEYSTORE_PASSWORD_FIELD, keyStorePasswordResolverStrategy, externalConfigProvider,
+                        kiwiEnvironment, originalConfiguration.getKeyStorePassword(), this::setKeyStorePasswordResolvedBy))
+                .keyStoreType(resolveProperty(KEYSTORE_TYPE_FIELD, keyStoreTypeResolverStrategy, externalConfigProvider, kiwiEnvironment,
                         originalConfiguration.getKeyStoreType(), this::setKeyStoreTypeResolvedBy))
-                .trustStorePath(resolveProperty(TRUSTSTORE_PATH_FIELD, getResolverOrDefault(trustStorePathResolverStrategy), extProvider,
-                        resolvedKiwiEnvironment, originalConfiguration.getTrustStorePath(), this::setTrustStorePathResolvedBy))
-                .trustStorePassword(resolveProperty(TRUSTSTORE_PASSWORD_FIELD, getResolverOrDefault(trustStorePasswordResolverStrategy), extProvider,
-                        resolvedKiwiEnvironment, originalConfiguration.getTrustStorePassword(), this::setTrustStorePasswordResolvedBy))
-                .trustStoreType(resolveProperty(TRUSTSTORE_TYPE_FIELD, getResolverOrDefault(trustStoreTypeResolverStrategy), extProvider,
-                        resolvedKiwiEnvironment, originalConfiguration.getTrustStoreType(), this::setTrustStoreTypeResolvedBy))
-                .verifyHostname(resolveProperty(VERIFY_HOSTNAME_FIELD, getResolverOrDefault(verifyHostnameResolverStrategy), extProvider,
-                        resolvedKiwiEnvironment, originalConfiguration.isVerifyHostname(), this::setVerifyHostnameResolvedBy, Boolean::parseBoolean))
-                .supportedProtocols(resolveProperty(SUPPORTED_PROTOCOLS_FIELD, getResolverOrDefault(supportedProtocolsResolverStrategy), extProvider,
-                        resolvedKiwiEnvironment, originalConfiguration.getSupportedProtocols(),
+                .trustStorePath(resolveProperty(TRUSTSTORE_PATH_FIELD, trustStorePathResolverStrategy, externalConfigProvider,
+                        kiwiEnvironment, originalConfiguration.getTrustStorePath(), this::setTrustStorePathResolvedBy))
+                .trustStorePassword(resolveProperty(TRUSTSTORE_PASSWORD_FIELD, trustStorePasswordResolverStrategy, externalConfigProvider,
+                        kiwiEnvironment, originalConfiguration.getTrustStorePassword(), this::setTrustStorePasswordResolvedBy))
+                .trustStoreType(resolveProperty(TRUSTSTORE_TYPE_FIELD, trustStoreTypeResolverStrategy, externalConfigProvider,
+                        kiwiEnvironment, originalConfiguration.getTrustStoreType(), this::setTrustStoreTypeResolvedBy))
+                .verifyHostname(resolveProperty(VERIFY_HOSTNAME_FIELD, verifyHostnameResolverStrategy, externalConfigProvider,
+                        kiwiEnvironment, originalConfiguration.isVerifyHostname(), this::setVerifyHostnameResolvedBy, Boolean::parseBoolean))
+                .supportedProtocols(resolveProperty(SUPPORTED_PROTOCOLS_FIELD, supportedProtocolsResolverStrategy, externalConfigProvider,
+                        kiwiEnvironment, originalConfiguration.getSupportedProtocols(),
                         this::setSupportedProtocolsResolvedBy, str -> Arrays.asList(str.split(","))))
                 .build();
     }
@@ -250,10 +241,11 @@ public class TlsConfigProvider implements ConfigProvider {
                                   KiwiEnvironment kiwiEnvironment,
                                   String originalValue,
                                   Consumer<ResolvedBy> resolvedBySetter) {
-        return resolveProperty(fieldName, resolver, externalConfigProvider, kiwiEnvironment, originalValue, resolvedBySetter, value -> value);
+
+        return resolveProperty(fieldName, resolver, externalConfigProvider, kiwiEnvironment, originalValue, 
+                resolvedBySetter, value -> value);
     }
 
-    @SuppressWarnings("unchecked")
     private <T> T resolveProperty(String fieldName,
                                   FieldResolverStrategy<T> resolver,
                                   ExternalConfigProvider externalConfigProvider,
@@ -263,39 +255,12 @@ public class TlsConfigProvider implements ConfigProvider {
                                   Function<String, T> convertFromString) {
 
         var defaultFields = DEFAULTS_FOR_PROPERTIES.get(fieldName);
+        var resolution = SinglePropertyResolver.resolveProperty(
+                externalConfigProvider, kiwiEnvironment, resolver, defaultFields.get(SYSTEM_PROPERTY),
+                defaultFields.get(ENV_PROPERTY), defaultFields.get(EXTERNAL_PROPERTY), originalValue, convertFromString);
 
-        var fromSystemProperties = System.getProperty(resolver.getSystemPropertyKeyOrDefault(defaultFields.get(SYSTEM_PROPERTY)));
-        var fromEnv = kiwiEnvironment.getenv(resolver.getEnvVariableOrDefault(defaultFields.get(ENV_PROPERTY)));
-
-        if (isNotBlank(fromSystemProperties)) {
-            resolvedBySetter.accept(ResolvedBy.SYSTEM_PROPERTY);
-            return convertFromString.apply(fromSystemProperties);
-        } else if (isNotBlank(fromEnv)) {
-            resolvedBySetter.accept(ResolvedBy.SYSTEM_ENV);
-            return convertFromString.apply(fromEnv);
-        } else if (nonNull(resolver.getExplicitValue())) {
-            resolvedBySetter.accept(ResolvedBy.EXPLICIT_VALUE);
-            return resolver.getExplicitValue();
-        }
-
-        var returnVal = new HashMap<String, Object>();
-        externalConfigProvider.usePropertyIfPresent(resolver.getExternalPropertyOrDefault(defaultFields.get(EXTERNAL_PROPERTY)),
-                value -> {
-                    returnVal.put(RESOLUTION_VALUE_KEY, convertFromString.apply(value));
-                    returnVal.put(RESOLUTION_METHOD_KEY, ResolvedBy.EXTERNAL_PROPERTY);
-                },
-                () -> {
-                    var value = resolver.getValueSupplierOrDefault(originalValue).get();
-                    returnVal.put(RESOLUTION_VALUE_KEY, value);
-                    returnVal.put(RESOLUTION_METHOD_KEY, isNull(value) ? ResolvedBy.NONE : ResolvedBy.DEFAULT);
-                });
-
-        resolvedBySetter.accept((ResolvedBy) returnVal.get(RESOLUTION_METHOD_KEY));
-        return (T) returnVal.get(RESOLUTION_VALUE_KEY);
-    }
-
-    private <T> FieldResolverStrategy<T> getResolverOrDefault(FieldResolverStrategy<T> providedStrategy) {
-        return isNull(providedStrategy) ? FieldResolverStrategy.<T>builder().build() : providedStrategy;
+        resolvedBySetter.accept(resolution.getRight());
+        return resolution.getLeft();
     }
 
     private void setAllResolvedByTo(ResolvedBy resolvedBy) {

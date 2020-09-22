@@ -30,9 +30,6 @@ import java.util.Map;
 @Slf4j
 public class ServiceIdentityConfigProvider implements ConfigProvider {
 
-    private static final String RESOLUTION_VALUE_KEY = "value";
-    private static final String RESOLUTION_METHOD_KEY = "method";
-
     @VisibleForTesting
     static final String DEFAULT_NAME_SYSTEM_PROPERTY = "kiwi.service.name";
 
@@ -82,23 +79,23 @@ public class ServiceIdentityConfigProvider implements ConfigProvider {
                                           FieldResolverStrategy<String> versionResolverStrategy,
                                           FieldResolverStrategy<String> environmentResolverStrategy) {
 
-        var nameResolution = SinglePropertyResolver.resolveStringProperty(
+        var nameResolution = SinglePropertyResolver.resolveProperty(
                 externalConfigProvider, kiwiEnvironment, nameResolverStrategy, DEFAULT_NAME_SYSTEM_PROPERTY,
-                DEFAULT_NAME_ENV_VARIABLE, DEFAULT_NAME_EXTERNAL_PROPERTY_KEY, "");
+                DEFAULT_NAME_ENV_VARIABLE, DEFAULT_NAME_EXTERNAL_PROPERTY_KEY);
 
         this.name = nameResolution.getLeft();
         this.nameResolvedBy = nameResolution.getRight();
 
-        var versionResolution = SinglePropertyResolver.resolveStringProperty(
+        var versionResolution = SinglePropertyResolver.resolveProperty(
                 externalConfigProvider, kiwiEnvironment, versionResolverStrategy, DEFAULT_VERSION_SYSTEM_PROPERTY,
-                DEFAULT_VERSION_ENV_VARIABLE, DEFAULT_VERSION_EXTERNAL_PROPERTY_KEY, "");
+                DEFAULT_VERSION_ENV_VARIABLE, DEFAULT_VERSION_EXTERNAL_PROPERTY_KEY);
 
         this.version = versionResolution.getLeft();
         this.versionResolvedBy = versionResolution.getRight();
 
-        var environmentResolution = SinglePropertyResolver.resolveStringProperty(
+        var environmentResolution = SinglePropertyResolver.resolveProperty(
                 externalConfigProvider, kiwiEnvironment, environmentResolverStrategy, DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY,
-                DEFAULT_ENVIRONMENT_ENV_VARIABLE, DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY, "");
+                DEFAULT_ENVIRONMENT_ENV_VARIABLE, DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY);
 
         this.environment = environmentResolution.getLeft();
         this.environmentResolvedBy = environmentResolution.getRight();

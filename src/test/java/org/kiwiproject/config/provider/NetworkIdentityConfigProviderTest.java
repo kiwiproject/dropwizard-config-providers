@@ -159,7 +159,7 @@ class NetworkIdentityConfigProviderTest {
             void shouldBuildUsingDefaultSupplierAndCannotProvide() {
                 var provider = NetworkIdentityConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isFalse();
-                assertThat(provider.getNetwork()).isEmpty();
+                assertThat(provider.getNetwork()).isNull();
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.NONE));
             }
 

@@ -161,7 +161,7 @@ class ActiveMQConfigProviderTest {
             void shouldBuildUsingDefaultSupplierAndCannotProvide() {
                 var provider = ActiveMQConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isFalse();
-                assertThat(provider.getActiveMQServers()).isEmpty();
+                assertThat(provider.getActiveMQServers()).isNull();
                 assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.NONE));
             }
 

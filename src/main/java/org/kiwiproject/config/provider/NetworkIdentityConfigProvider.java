@@ -50,9 +50,9 @@ public class NetworkIdentityConfigProvider implements ConfigProvider {
                                           KiwiEnvironment kiwiEnvironment,
                                           FieldResolverStrategy<String> resolverStrategy) {
 
-        var resolution = SinglePropertyResolver.resolveStringProperty(
+        var resolution = SinglePropertyResolver.resolveProperty(
                 externalConfigProvider, kiwiEnvironment, resolverStrategy, DEFAULT_NETWORK_SYSTEM_PROPERTY,
-                DEFAULT_NETWORK_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY, "");
+                DEFAULT_NETWORK_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY);
 
         this.network = resolution.getLeft();
         this.networkResolvedBy = resolution.getRight();

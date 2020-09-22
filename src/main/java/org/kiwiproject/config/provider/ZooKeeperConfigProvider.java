@@ -51,9 +51,9 @@ public class ZooKeeperConfigProvider implements ConfigProvider {
                                     KiwiEnvironment kiwiEnvironment,
                                     FieldResolverStrategy<String> resolverStrategy) {
 
-        var resolution = SinglePropertyResolver.resolveStringProperty(
+        var resolution = SinglePropertyResolver.resolveProperty(
                 externalConfigProvider, kiwiEnvironment, resolverStrategy, DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY,
-                DEFAULT_CONNECT_STRING_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY, "");
+                DEFAULT_CONNECT_STRING_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY);
 
         this.connectString = resolution.getLeft();
         this.connectStrResolvedBy = resolution.getRight();

@@ -161,7 +161,7 @@ class ZooKeeperConfigProviderTest {
             void shouldBuildUsingDefaultSupplierAndCannotProvide() {
                 var provider = ZooKeeperConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isFalse();
-                assertThat(provider.getConnectString()).isEmpty();
+                assertThat(provider.getConnectString()).isNull();
                 assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.NONE));
             }
 

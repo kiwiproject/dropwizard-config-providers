@@ -31,9 +31,9 @@ public class ActiveMQConfigProvider implements ConfigProvider {
                                     KiwiEnvironment kiwiEnvironment,
                                     FieldResolverStrategy<String> resolverStrategy) {
 
-        var resolution = SinglePropertyResolver.resolveStringProperty(
+        var resolution = SinglePropertyResolver.resolveProperty(
                 externalConfigProvider, kiwiEnvironment, resolverStrategy, DEFAULT_AMQ_SERVERS_SYSTEM_PROPERTY,
-                DEFAULT_AMQ_SERVERS_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY, "");
+                DEFAULT_AMQ_SERVERS_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY);
 
         this.activeMQServers = resolution.getLeft();
         this.activeMQServersResolvedBy = resolution.getRight();
