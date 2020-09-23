@@ -414,12 +414,12 @@ class TlsConfigProviderTest {
                 assertThat(provider.getResolvedBy()).contains(
                         entry("keyStorePath", ResolvedBy.NONE),
                         entry("keyStorePassword", ResolvedBy.NONE),
-                        entry("keyStoreType", ResolvedBy.DEFAULT),
+                        entry("keyStoreType", ResolvedBy.EXPLICIT_VALUE),
                         entry("trustStorePath", ResolvedBy.NONE),
                         entry("trustStorePassword", ResolvedBy.NONE),
-                        entry("trustStoreType", ResolvedBy.DEFAULT),
-                        entry("verifyHostname", ResolvedBy.DEFAULT),
-                        entry("protocol", ResolvedBy.DEFAULT),
+                        entry("trustStoreType", ResolvedBy.EXPLICIT_VALUE),
+                        entry("verifyHostname", ResolvedBy.EXPLICIT_VALUE),
+                        entry("protocol", ResolvedBy.EXPLICIT_VALUE),
                         entry("supportedProtocols", ResolvedBy.NONE)
                 );
             }
@@ -449,14 +449,14 @@ class TlsConfigProviderTest {
                 assertThat(config.isVerifyHostname()).isTrue();
                 assertThat(provider.getResolvedBy()).contains(
                         entry("tlsContextConfiguration", ResolvedBy.EXPLICIT_VALUE),
-                        entry("keyStorePath", ResolvedBy.DEFAULT),
+                        entry("keyStorePath", ResolvedBy.EXPLICIT_VALUE),
                         entry("keyStorePassword", ResolvedBy.NONE),
-                        entry("keyStoreType", ResolvedBy.DEFAULT),
+                        entry("keyStoreType", ResolvedBy.EXPLICIT_VALUE),
                         entry("trustStorePath", ResolvedBy.NONE),
                         entry("trustStorePassword", ResolvedBy.NONE),
-                        entry("trustStoreType", ResolvedBy.DEFAULT),
-                        entry("verifyHostname", ResolvedBy.DEFAULT),
-                        entry("protocol", ResolvedBy.DEFAULT),
+                        entry("trustStoreType", ResolvedBy.EXPLICIT_VALUE),
+                        entry("verifyHostname", ResolvedBy.EXPLICIT_VALUE),
+                        entry("protocol", ResolvedBy.EXPLICIT_VALUE),
                         entry("supportedProtocols", ResolvedBy.NONE)
                 );
             }

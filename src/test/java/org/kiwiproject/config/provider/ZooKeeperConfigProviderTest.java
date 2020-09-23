@@ -162,7 +162,7 @@ class ZooKeeperConfigProviderTest {
                 var provider = ZooKeeperConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getConnectString()).isEqualTo(ZooKeeperConfigProvider.DEFAULT_EXPLICIT_VALUE);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.DEFAULT));
+                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.EXPLICIT_VALUE));
             }
 
         }
