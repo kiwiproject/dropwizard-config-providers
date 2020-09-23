@@ -160,9 +160,9 @@ class ZooKeeperConfigProviderTest {
             @Test
             void shouldBuildUsingDefaultSupplierAndCannotProvide() {
                 var provider = ZooKeeperConfigProvider.builder().build();
-                assertThat(provider.canProvide()).isFalse();
-                assertThat(provider.getConnectString()).isNull();
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.NONE));
+                assertThat(provider.canProvide()).isTrue();
+                assertThat(provider.getConnectString()).isEqualTo(ZooKeeperConfigProvider.DEFAULT_EXPLICIT_VALUE);
+                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.DEFAULT));
             }
 
         }

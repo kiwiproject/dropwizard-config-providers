@@ -10,7 +10,7 @@ import java.util.Set;
 @NotThreadSafe
 public class SystemPropertyHelper {
 
-    private static Set<String> systemProperties = new HashSet<>();
+    private static final Set<String> systemProperties = new HashSet<>();
 
     public static void addSystemProperty(String key, String value) {
         System.setProperty(key, value);
