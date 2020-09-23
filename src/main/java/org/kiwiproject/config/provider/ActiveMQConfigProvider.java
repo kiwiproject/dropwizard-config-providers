@@ -10,6 +10,17 @@ import org.kiwiproject.config.provider.util.SinglePropertyResolver;
 
 import java.util.Map;
 
+/**
+ * Config provider that determines the connection string for ActiveMQ.
+ * <p>
+ * Default resolution lookup keys are as follows:
+ * <ul>
+ *     <li>System Property: kiwi.amq.connection</li>
+ *     <li>Environment Variable: KIWI_AMQ_CONNECTION</li>
+ *     <li>External Config File: amq.connection</li>
+ * </ul>
+ * @see SinglePropertyResolver for resolution order
+ */
 public class ActiveMQConfigProvider implements ConfigProvider {
 
     @VisibleForTesting
@@ -35,8 +46,8 @@ public class ActiveMQConfigProvider implements ConfigProvider {
                 externalConfigProvider, kiwiEnvironment, resolverStrategy, DEFAULT_AMQ_SERVERS_SYSTEM_PROPERTY,
                 DEFAULT_AMQ_SERVERS_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY);
 
-        this.activeMQServers = resolution.getLeft();
-        this.activeMQServersResolvedBy = resolution.getRight();
+        this.activeMQServers = resolution.getValue();
+        this.activeMQServersResolvedBy = resolution.getResolvedBy();
     }
 
     @Override

@@ -22,17 +22,8 @@ import java.util.function.Supplier;
 /**
  * Config provider that provides a {@link TlsContextConfiguration}.
  * <p>
- * The provider will look for the fields in the following order:
- * <ol>
- *     <li>System property with the given system property key</li>
- *     <li>System property with the default system property key (see constants ending in SYSTEM_PROPERTY)</li>
- *     <li>Environment variable with the given variable name</li>
- *     <li>Environment variable with the default variable name (see constants ending in ENV_VARIABLE)</li>
- *     <li>The given network</li>
- *     <li>The named network from an external configuration file with the given key</li>
- *     <li>The named network from an external configuration file with the default key (see constants ending in EXTERNAL_PROPERTY_KEY)</li>
- *     <li>The named network from a given supplier</li>
- * </ol>
+ * Default resolution lookup keys can be found in the constants for this class
+ * @see SinglePropertyResolver for resolution order
  */
 @Slf4j
 public class TlsConfigProvider implements ConfigProvider {
@@ -259,8 +250,8 @@ public class TlsConfigProvider implements ConfigProvider {
                 externalConfigProvider, kiwiEnvironment, resolver, defaultFields.get(SYSTEM_PROPERTY),
                 defaultFields.get(ENV_PROPERTY), defaultFields.get(EXTERNAL_PROPERTY), originalValue, convertFromString);
 
-        resolvedBySetter.accept(resolution.getRight());
-        return resolution.getLeft();
+        resolvedBySetter.accept(resolution.getResolvedBy());
+        return resolution.getValue();
     }
 
     private void setAllResolvedByTo(ResolvedBy resolvedBy) {

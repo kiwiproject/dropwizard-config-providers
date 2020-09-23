@@ -16,17 +16,13 @@ import java.util.Map;
  * <p>
  * This is useful when a system of services are deployed in multiple locations like separate AWS VPCs or subnets.
  * <p>
- * The provider will look for the named network in the following order:
- * <ol>
- *     <li>System property with the given system property key</li>
- *     <li>System property with the default system property key (kiwi.network)</li>
- *     <li>Environment variable with the given variable name</li>
- *     <li>Environment variable with the default variable name (KIWI_NETWORK)</li>
- *     <li>The given network</li>
- *     <li>The named network from an external configuration file with the given key</li>
- *     <li>The named network from an external configuration file with the default key (network)</li>
- *     <li>The named network from a given supplier</li>
- * </ol>
+ * Default resolution lookup keys are as follows:
+ * <ul>
+ *     <li>System Property: kiwi.network</li>
+ *     <li>Environment Variable: KIWI_NETWORK</li>
+ *     <li>External Config File: network</li>
+ * </ul>
+ * @see SinglePropertyResolver for resolution order
  */
 @Slf4j
 public class NetworkIdentityConfigProvider implements ConfigProvider {
@@ -54,8 +50,8 @@ public class NetworkIdentityConfigProvider implements ConfigProvider {
                 externalConfigProvider, kiwiEnvironment, resolverStrategy, DEFAULT_NETWORK_SYSTEM_PROPERTY,
                 DEFAULT_NETWORK_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY);
 
-        this.network = resolution.getLeft();
-        this.networkResolvedBy = resolution.getRight();
+        this.network = resolution.getValue();
+        this.networkResolvedBy = resolution.getResolvedBy();
     }
 
     @Override
