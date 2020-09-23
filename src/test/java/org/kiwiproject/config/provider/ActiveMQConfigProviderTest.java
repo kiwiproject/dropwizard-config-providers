@@ -17,10 +17,10 @@ import org.kiwiproject.base.KiwiEnvironment;
 
 import java.nio.file.Path;
 
-@DisplayName("ZooKeeperConfigProvider")
-class ZooKeeperConfigProviderTest {
+@DisplayName("ActiveMQConfigProvider")
+class ActiveMQConfigProviderTest {
 
-    private static final String ZOOKEEPER_CONNECT_STRING = "zoo.test:2181,zoo2.test:2181";
+    private static final String AMQ_CONNECTION = "msg1.test:61616,msg2.test:61616";
 
     @Nested
     class Construct {
@@ -35,23 +35,23 @@ class ZooKeeperConfigProviderTest {
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                addSystemProperty(ZooKeeperConfigProvider.DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY, ZOOKEEPER_CONNECT_STRING);
+                addSystemProperty(ActiveMQConfigProvider.DEFAULT_AMQ_SERVERS_SYSTEM_PROPERTY, AMQ_CONNECTION);
 
-                var provider = ZooKeeperConfigProvider.builder().build();
+                var provider = ActiveMQConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
-                assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.SYSTEM_PROPERTY));
+                assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
+                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.SYSTEM_PROPERTY));
             }
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-                addSystemProperty("bar", ZOOKEEPER_CONNECT_STRING);
+                addSystemProperty("bar", AMQ_CONNECTION);
 
                 var resolver = FieldResolverStrategy.<String>builder().systemPropertyKey("bar").build();
-                var provider = ZooKeeperConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = ActiveMQConfigProvider.builder().resolverStrategy(resolver).build();
                 assertThat(provider.canProvide()).isTrue();
-                assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.SYSTEM_PROPERTY));
+                assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
+                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.SYSTEM_PROPERTY));
             }
 
         }
@@ -62,28 +62,28 @@ class ZooKeeperConfigProviderTest {
             @Test
             void shouldBuildUsingDefaultEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
-                when(env.getenv(ZooKeeperConfigProvider.DEFAULT_CONNECT_STRING_ENV_VARIABLE)).thenReturn(ZOOKEEPER_CONNECT_STRING);
+                when(env.getenv(ActiveMQConfigProvider.DEFAULT_AMQ_SERVERS_ENV_VARIABLE)).thenReturn(AMQ_CONNECTION);
 
-                var provider = ZooKeeperConfigProvider.builder().kiwiEnvironment(env).build();
+                var provider = ActiveMQConfigProvider.builder().kiwiEnvironment(env).build();
                 assertThat(provider.canProvide()).isTrue();
-                assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.SYSTEM_ENV));
+                assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
+                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.SYSTEM_ENV));
             }
 
             @Test
             void shouldBuildUsingProvidedEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
-                when(env.getenv("baz")).thenReturn(ZOOKEEPER_CONNECT_STRING);
+                when(env.getenv("baz")).thenReturn(AMQ_CONNECTION);
 
                 var resolver = FieldResolverStrategy.<String>builder().envVariable("baz").build();
-                var provider = ZooKeeperConfigProvider.builder()
+                var provider = ActiveMQConfigProvider.builder()
                         .kiwiEnvironment(env)
                         .resolverStrategy(resolver)
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
-                assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.SYSTEM_ENV));
+                assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
+                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.SYSTEM_ENV));
             }
 
         }
@@ -96,32 +96,32 @@ class ZooKeeperConfigProviderTest {
             @BeforeEach
             void setUp() {
                 var propertyPath = Path.of(ResourceHelpers
-                        .resourceFilePath("ZooKeeperConfigProvider/config.properties"));
+                        .resourceFilePath("ActiveMQConfigProvider/config.properties"));
 
                 externalConfigProvider = ExternalConfigProvider.builder().explicitPath(propertyPath).build();
             }
 
             @Test
             void shouldBuildUsingDefaultExternalProperty() {
-                var provider = ZooKeeperConfigProvider.builder()
+                var provider = ActiveMQConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
-                assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.EXTERNAL_PROPERTY));
+                assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
+                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.EXTERNAL_PROPERTY));
             }
 
             @Test
             void shouldBuildUsingProvidedExternalProperty() {
-                var resolver = FieldResolverStrategy.<String>builder().externalProperty("zookeeper.connection.provided").build();
-                var provider = ZooKeeperConfigProvider.builder()
+                var resolver = FieldResolverStrategy.<String>builder().externalProperty("amq.connection.provided").build();
+                var provider = ActiveMQConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
                         .resolverStrategy(resolver)
                         .build();
                 assertThat(provider.canProvide()).isTrue();
-                assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.EXTERNAL_PROPERTY));
+                assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
+                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.EXTERNAL_PROPERTY));
             }
         }
 
@@ -130,11 +130,11 @@ class ZooKeeperConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedNetwork() {
-                var resolver = FieldResolverStrategy.<String>builder().explicitValue(ZOOKEEPER_CONNECT_STRING).build();
-                var provider = ZooKeeperConfigProvider.builder().resolverStrategy(resolver).build();
+                var resolver = FieldResolverStrategy.<String>builder().explicitValue(AMQ_CONNECTION).build();
+                var provider = ActiveMQConfigProvider.builder().resolverStrategy(resolver).build();
                 assertThat(provider.canProvide()).isTrue();
-                assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.EXPLICIT_VALUE));
+                assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
+                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.EXPLICIT_VALUE));
             }
 
         }
@@ -145,24 +145,24 @@ class ZooKeeperConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedSupplier() {
                 var resolver = FieldResolverStrategy.<String>builder()
-                        .valueSupplier(() -> ZOOKEEPER_CONNECT_STRING)
+                        .valueSupplier(() -> AMQ_CONNECTION)
                         .build();
 
-                var provider = ZooKeeperConfigProvider.builder()
+                var provider = ActiveMQConfigProvider.builder()
                         .resolverStrategy(resolver)
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
-                assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.DEFAULT));
+                assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
+                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.DEFAULT));
             }
 
             @Test
             void shouldBuildUsingDefaultSupplierAndCannotProvide() {
-                var provider = ZooKeeperConfigProvider.builder().build();
-                assertThat(provider.canProvide()).isTrue();
-                assertThat(provider.getConnectString()).isEqualTo(ZooKeeperConfigProvider.DEFAULT_EXPLICIT_VALUE);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.DEFAULT));
+                var provider = ActiveMQConfigProvider.builder().build();
+                assertThat(provider.canProvide()).isFalse();
+                assertThat(provider.getActiveMQServers()).isNull();
+                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.NONE));
             }
 
         }

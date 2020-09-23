@@ -134,4 +134,15 @@ public class ExternalConfigProvider implements ConfigProvider {
         var propertyValue = getProperty(propertyKey);
         propertyValue.ifPresentOrElse(propertyValueConsumer, orElse);
     }
+
+    /**
+     * Will check if a given {@link ExternalConfigProvider} is null and return a new one if so. Otherwise return the one
+     * passed in.
+     *
+     * @param provided an {@link ExternalConfigProvider} to test for null
+     * @return A new {@link ExternalConfigProvider} if the given {@code provided} is null or {@code provided}
+     */
+    public static ExternalConfigProvider getExternalPropertyProviderOrDefault(ExternalConfigProvider provided) {
+        return nonNull(provided) ? provided : ExternalConfigProvider.builder().build();
+    }
 }

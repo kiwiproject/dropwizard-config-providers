@@ -221,9 +221,9 @@ class ServiceIdentityConfigProviderTest {
             void shouldBuildUsingDefaultSupplierAndCannotProvide() {
                 var provider = ServiceIdentityConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isFalse();
-                assertThat(provider.getName()).isEmpty();
-                assertThat(provider.getVersion()).isEmpty();
-                assertThat(provider.getEnvironment()).isEmpty();
+                assertThat(provider.getName()).isNull();
+                assertThat(provider.getVersion()).isNull();
+                assertThat(provider.getEnvironment()).isNull();
                 assertThat(provider.getResolvedBy()).contains(
                         entry("name", ResolvedBy.NONE),
                         entry("version", ResolvedBy.NONE),
