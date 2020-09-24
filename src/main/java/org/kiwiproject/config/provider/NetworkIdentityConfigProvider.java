@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.base.KiwiEnvironment;
+import org.kiwiproject.config.provider.util.PropertyResolutionSettings;
 import org.kiwiproject.config.provider.util.SinglePropertyResolver;
 
 import java.util.Map;
@@ -46,9 +47,14 @@ public class NetworkIdentityConfigProvider implements ConfigProvider {
                                           KiwiEnvironment kiwiEnvironment,
                                           FieldResolverStrategy<String> resolverStrategy) {
 
-        var resolution = SinglePropertyResolver.resolveProperty(
-                externalConfigProvider, kiwiEnvironment, resolverStrategy, DEFAULT_NETWORK_SYSTEM_PROPERTY,
-                DEFAULT_NETWORK_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY);
+        var resolution = SinglePropertyResolver.resolveStringProperty(PropertyResolutionSettings.<String>builder()
+                .externalConfigProvider(externalConfigProvider)
+                .kiwiEnvironment(kiwiEnvironment)
+                .resolverStrategy(resolverStrategy)
+                .systemProperty(DEFAULT_NETWORK_SYSTEM_PROPERTY)
+                .environmentVariable(DEFAULT_NETWORK_ENV_VARIABLE)
+                .externalKey(DEFAULT_EXTERNAL_PROPERTY_KEY)
+                .build());
 
         this.network = resolution.getValue();
         this.networkResolvedBy = resolution.getResolvedBy();

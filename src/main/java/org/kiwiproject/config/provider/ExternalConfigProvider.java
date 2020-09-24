@@ -21,6 +21,8 @@ import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Config provider that looks up configuration values from a known properties file. This provider loads the properties
@@ -133,6 +135,22 @@ public class ExternalConfigProvider implements ConfigProvider {
     public void usePropertyIfPresent(String propertyKey, Consumer<String> propertyValueConsumer, Runnable orElse) {
         var propertyValue = getProperty(propertyKey);
         propertyValue.ifPresentOrElse(propertyValueConsumer, orElse);
+    }
+
+    /**
+     * Executes a given function if the requested property is found, otherwise runs the {@code orElseSupplier} supplier.
+     *
+     * @param propertyKey           the key of the property to look up
+     * @param propertyValueFunction a function to process the value of the property if found and return a {@link ResolverResult}
+     * @param orElseSupplier        a supplier to execute if the property is not found and return a {@link ResolverResult}
+     * @param <T>                   The class type of the value inside the ResolverResult
+     * @return                      a {@link ResolverResult} containing the resolved value and the resolution method
+     */
+    public <T> ResolverResult<T> resolveExternalProperty(String propertyKey,
+                                                         Function<String, ResolverResult<T>> propertyValueFunction,
+                                                         Supplier<ResolverResult<T>> orElseSupplier) {
+        var propertyValue = getProperty(propertyKey);
+        return propertyValue.map(propertyValueFunction).orElseGet(orElseSupplier);
     }
 
     /**
