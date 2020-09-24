@@ -14,7 +14,9 @@ import org.kiwiproject.config.provider.ResolvedBy;
 import org.kiwiproject.config.provider.ResolverResult;
 
 import java.util.HashMap;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 @UtilityClass
 public class SinglePropertyResolver {
@@ -103,8 +105,6 @@ public class SinglePropertyResolver {
             return new ResolverResult<>(convertFromString.apply(fromSystemProperty), ResolvedBy.SYSTEM_PROPERTY);
         } else if (isNotBlank(fromEnvironment)) {
             return new ResolverResult<>(convertFromString.apply(fromEnvironment), ResolvedBy.SYSTEM_ENV);
-        } else if (nonNull(nonNullResolver.getExplicitValue())) {
-            return new ResolverResult<>(nonNullResolver.getExplicitValue(), ResolvedBy.EXPLICIT_VALUE);
         } else {
             var returnVal = new HashMap<String, Object>();
             getExternalPropertyProviderOrDefault(externalConfigProvider)
@@ -114,12 +114,30 @@ public class SinglePropertyResolver {
                                 returnVal.put(RESOLUTION_METHOD_KEY, ResolvedBy.EXTERNAL_PROPERTY);
                             },
                             () -> {
-                                var value = nonNullResolver.getValueSupplierOrDefault(defaultValue).get();
-                                returnVal.put(RESOLUTION_VALUE_KEY, value);
-                                returnVal.put(RESOLUTION_METHOD_KEY, isNull(value) ? ResolvedBy.NONE : ResolvedBy.DEFAULT);
+                                var result = resolveFromDefaults(nonNullResolver, defaultValue);
+                                returnVal.put(RESOLUTION_VALUE_KEY, result.getValue());
+                                returnVal.put(RESOLUTION_METHOD_KEY, result.getResolvedBy());
                             });
 
             return new ResolverResult<>((T) returnVal.get(RESOLUTION_VALUE_KEY), (ResolvedBy) returnVal.get(RESOLUTION_METHOD_KEY));
         }
     }
+
+    private <T> ResolverResult<T> resolveFromDefaults(FieldResolverStrategy<T> resolver, T defaultValue) {
+        var supplierValue = Optional.ofNullable(resolver.getValueSupplier()).map(Supplier::get).orElse(null);
+        if (nonNull(supplierValue)) {
+            return new ResolverResult<>(supplierValue, ResolvedBy.SUPPLIER);
+        }
+
+        if (nonNull(resolver.getExplicitValue())) {
+            return new ResolverResult<>(resolver.getExplicitValue(), ResolvedBy.EXPLICIT_VALUE);
+        }
+
+        if (nonNull(defaultValue)) {
+            return new ResolverResult<>(defaultValue, ResolvedBy.PROVIDER_DEFAULT);
+        }
+
+        return new ResolverResult<>(null, ResolvedBy.NONE);
+    }
+
 }

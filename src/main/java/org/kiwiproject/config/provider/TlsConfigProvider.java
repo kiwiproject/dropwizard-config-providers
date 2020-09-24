@@ -147,8 +147,6 @@ public class TlsConfigProvider implements ConfigProvider {
     @Getter
     private final TlsContextConfiguration tlsContextConfiguration;
 
-    private ResolvedBy tlsContextConfigurationResolvedBy;
-
     @Setter(AccessLevel.PRIVATE)
     private ResolvedBy keyStorePathResolvedBy;
 
@@ -217,12 +215,12 @@ public class TlsConfigProvider implements ConfigProvider {
     }
 
     private TlsContextConfiguration getSuppliedConfigurationOrDefault(Supplier<TlsContextConfiguration> tlsContextConfigurationSupplier) {
+        setAllResolvedByToProviderDefault();
+
         if (nonNull(tlsContextConfigurationSupplier)) {
-            setAllResolvedByTo(ResolvedBy.EXPLICIT_VALUE);
             return tlsContextConfigurationSupplier.get();
         }
 
-        setAllResolvedByTo(ResolvedBy.DEFAULT);
         return TlsContextConfiguration.builder().build();
     }
 
@@ -254,17 +252,16 @@ public class TlsConfigProvider implements ConfigProvider {
         return resolution.getValue();
     }
 
-    private void setAllResolvedByTo(ResolvedBy resolvedBy) {
-        tlsContextConfigurationResolvedBy = resolvedBy;
-        keyStorePathResolvedBy = resolvedBy;
-        keyStorePasswordResolvedBy = resolvedBy;
-        keyStoreTypeResolvedBy = resolvedBy;
-        trustStorePathResolvedBy = resolvedBy;
-        trustStorePasswordResolvedBy = resolvedBy;
-        trustStoreTypeResolvedBy = resolvedBy;
-        verifyHostnameResolvedBy = resolvedBy;
-        protocolResolvedBy = resolvedBy;
-        supportedProtocolsResolvedBy = resolvedBy;
+    private void setAllResolvedByToProviderDefault() {
+        keyStorePathResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
+        keyStorePasswordResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
+        keyStoreTypeResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
+        trustStorePathResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
+        trustStorePasswordResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
+        trustStoreTypeResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
+        verifyHostnameResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
+        protocolResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
+        supportedProtocolsResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
     }
 
     @Override
@@ -275,7 +272,6 @@ public class TlsConfigProvider implements ConfigProvider {
     @Override
     public Map<String, ResolvedBy> getResolvedBy() {
         return Map.of(
-                "tlsContextConfiguration", tlsContextConfigurationResolvedBy,
                 KEYSTORE_PATH_FIELD, keyStorePathResolvedBy,
                 KEYSTORE_PASSWORD_FIELD, keyStorePasswordResolvedBy,
                 KEYSTORE_TYPE_FIELD, keyStoreTypeResolvedBy,
