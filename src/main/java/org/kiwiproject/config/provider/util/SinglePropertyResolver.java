@@ -13,16 +13,12 @@ import org.kiwiproject.config.provider.FieldResolverStrategy;
 import org.kiwiproject.config.provider.ResolvedBy;
 import org.kiwiproject.config.provider.ResolverResult;
 
-import java.util.HashMap;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 @UtilityClass
 public class SinglePropertyResolver {
-
-    private static final String RESOLUTION_VALUE_KEY = "value";
-    private static final String RESOLUTION_METHOD_KEY = "method";
 
     /**
      * Resolves a {@link String} configuration property, defaulting the value to null
@@ -82,7 +78,7 @@ public class SinglePropertyResolver {
      * @param <T>                    The type of the value to be returned
      * @return The resolved value
      */
-    @SuppressWarnings({"unchecked", "java:S107"})
+    @SuppressWarnings({"java:S107"})
     public static <T> ResolverResult<T> resolveProperty(ExternalConfigProvider externalConfigProvider,
                                                         KiwiEnvironment kiwiEnvironment,
                                                         FieldResolverStrategy<T> resolverStrategy,
@@ -105,22 +101,12 @@ public class SinglePropertyResolver {
             return new ResolverResult<>(convertFromString.apply(fromSystemProperty), ResolvedBy.SYSTEM_PROPERTY);
         } else if (isNotBlank(fromEnvironment)) {
             return new ResolverResult<>(convertFromString.apply(fromEnvironment), ResolvedBy.SYSTEM_ENV);
-        } else {
-            var returnVal = new HashMap<String, Object>();
-            getExternalPropertyProviderOrDefault(externalConfigProvider)
-                    .usePropertyIfPresent(nonNullResolver.getExternalPropertyOrDefault(externalKey),
-                            value -> {
-                                returnVal.put(RESOLUTION_VALUE_KEY, convertFromString.apply(value));
-                                returnVal.put(RESOLUTION_METHOD_KEY, ResolvedBy.EXTERNAL_PROPERTY);
-                            },
-                            () -> {
-                                var result = resolveFromDefaults(nonNullResolver, defaultValue);
-                                returnVal.put(RESOLUTION_VALUE_KEY, result.getValue());
-                                returnVal.put(RESOLUTION_METHOD_KEY, result.getResolvedBy());
-                            });
-
-            return new ResolverResult<>((T) returnVal.get(RESOLUTION_VALUE_KEY), (ResolvedBy) returnVal.get(RESOLUTION_METHOD_KEY));
         }
+
+        return getExternalPropertyProviderOrDefault(externalConfigProvider)
+                .resolveExternalProperty(nonNullResolver.getExternalPropertyOrDefault(externalKey),
+                        value -> new ResolverResult<>(convertFromString.apply(value), ResolvedBy.EXTERNAL_PROPERTY),
+                        () -> resolveFromDefaults(nonNullResolver, defaultValue));
     }
 
     private <T> ResolverResult<T> resolveFromDefaults(FieldResolverStrategy<T> resolver, T defaultValue) {

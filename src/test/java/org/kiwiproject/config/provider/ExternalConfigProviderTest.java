@@ -149,4 +149,29 @@ class ExternalConfigProviderTest {
                     () -> assertThat(true).isTrue());
         }
     }
+
+    @Nested
+    class ResolveExternalProperty {
+
+        @Test
+        void shouldCallFunction_WhenFound() {
+            var result = provider.resolveExternalProperty("unit.test.foo",
+                    value -> new ResolverResult<>(value, ResolvedBy.EXTERNAL_PROPERTY),
+                    () -> new ResolverResult<>("Nope not gonna happen", ResolvedBy.PROVIDER_DEFAULT));
+
+            assertThat(result.getValue()).isEqualTo("bar");
+            assertThat(result.getResolvedBy()).isEqualTo(ResolvedBy.EXTERNAL_PROPERTY);
+        }
+
+        @Test
+        @SuppressWarnings("java:S3415")
+        void shouldCallOrElse_WhenNotFound() {
+            var result = provider.resolveExternalProperty("unit.test.baz",
+                    value -> new ResolverResult<>("Should not work", ResolvedBy.EXTERNAL_PROPERTY),
+                    () -> new ResolverResult<>("This is my default", ResolvedBy.PROVIDER_DEFAULT));
+
+            assertThat(result.getValue()).isEqualTo("This is my default");
+            assertThat(result.getResolvedBy()).isEqualTo(ResolvedBy.PROVIDER_DEFAULT);
+        }
+    }
 }
