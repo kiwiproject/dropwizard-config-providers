@@ -10,7 +10,7 @@ public enum ResolvedBy {
     /**
      * Resolved by the provider's default mechanism
      */
-    DEFAULT,
+    PROVIDER_DEFAULT,
 
     /**
      * Resolved from external configuration
@@ -37,6 +37,11 @@ public enum ResolvedBy {
      * Resolved by an explicit value being supplied, e.g. to a constructor or via a (static) factory method.
      */
     EXPLICIT_VALUE,
+
+    /**
+     * Resolved by a provided supplier in the {@link FieldResolverStrategy}
+     */
+    SUPPLIER,
 
     /**
      * Resolution did not occur; no value was resolved

@@ -154,7 +154,7 @@ class ActiveMQConfigProviderTest {
 
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.DEFAULT));
+                assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.SUPPLIER));
             }
 
             @Test

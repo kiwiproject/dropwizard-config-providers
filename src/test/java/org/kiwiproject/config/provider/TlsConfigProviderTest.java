@@ -384,15 +384,15 @@ class TlsConfigProviderTest {
                 assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
                 assertThat(config.isVerifyHostname()).isFalse();
                 assertThat(provider.getResolvedBy()).contains(
-                        entry("keyStorePath", ResolvedBy.DEFAULT),
-                        entry("keyStorePassword", ResolvedBy.DEFAULT),
-                        entry("keyStoreType", ResolvedBy.DEFAULT),
-                        entry("trustStorePath", ResolvedBy.DEFAULT),
-                        entry("trustStorePassword", ResolvedBy.DEFAULT),
-                        entry("trustStoreType", ResolvedBy.DEFAULT),
-                        entry("verifyHostname", ResolvedBy.DEFAULT),
-                        entry("protocol", ResolvedBy.DEFAULT),
-                        entry("supportedProtocols", ResolvedBy.DEFAULT)
+                        entry("keyStorePath", ResolvedBy.SUPPLIER),
+                        entry("keyStorePassword", ResolvedBy.SUPPLIER),
+                        entry("keyStoreType", ResolvedBy.SUPPLIER),
+                        entry("trustStorePath", ResolvedBy.SUPPLIER),
+                        entry("trustStorePassword", ResolvedBy.SUPPLIER),
+                        entry("trustStoreType", ResolvedBy.SUPPLIER),
+                        entry("verifyHostname", ResolvedBy.SUPPLIER),
+                        entry("protocol", ResolvedBy.SUPPLIER),
+                        entry("supportedProtocols", ResolvedBy.SUPPLIER)
                 );
             }
 
@@ -414,12 +414,12 @@ class TlsConfigProviderTest {
                 assertThat(provider.getResolvedBy()).contains(
                         entry("keyStorePath", ResolvedBy.NONE),
                         entry("keyStorePassword", ResolvedBy.NONE),
-                        entry("keyStoreType", ResolvedBy.EXPLICIT_VALUE),
+                        entry("keyStoreType", ResolvedBy.PROVIDER_DEFAULT),
                         entry("trustStorePath", ResolvedBy.NONE),
                         entry("trustStorePassword", ResolvedBy.NONE),
-                        entry("trustStoreType", ResolvedBy.EXPLICIT_VALUE),
-                        entry("verifyHostname", ResolvedBy.EXPLICIT_VALUE),
-                        entry("protocol", ResolvedBy.EXPLICIT_VALUE),
+                        entry("trustStoreType", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("verifyHostname", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("protocol", ResolvedBy.PROVIDER_DEFAULT),
                         entry("supportedProtocols", ResolvedBy.NONE)
                 );
             }
@@ -448,15 +448,14 @@ class TlsConfigProviderTest {
                 assertThat(config.getSupportedProtocols()).isNull();
                 assertThat(config.isVerifyHostname()).isTrue();
                 assertThat(provider.getResolvedBy()).contains(
-                        entry("tlsContextConfiguration", ResolvedBy.EXPLICIT_VALUE),
-                        entry("keyStorePath", ResolvedBy.EXPLICIT_VALUE),
+                        entry("keyStorePath", ResolvedBy.PROVIDER_DEFAULT),
                         entry("keyStorePassword", ResolvedBy.NONE),
-                        entry("keyStoreType", ResolvedBy.EXPLICIT_VALUE),
+                        entry("keyStoreType", ResolvedBy.PROVIDER_DEFAULT),
                         entry("trustStorePath", ResolvedBy.NONE),
                         entry("trustStorePassword", ResolvedBy.NONE),
-                        entry("trustStoreType", ResolvedBy.EXPLICIT_VALUE),
-                        entry("verifyHostname", ResolvedBy.EXPLICIT_VALUE),
-                        entry("protocol", ResolvedBy.EXPLICIT_VALUE),
+                        entry("trustStoreType", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("verifyHostname", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("protocol", ResolvedBy.PROVIDER_DEFAULT),
                         entry("supportedProtocols", ResolvedBy.NONE)
                 );
             }

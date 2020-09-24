@@ -211,9 +211,9 @@ class ServiceIdentityConfigProviderTest {
                 assertThat(provider.getVersion()).isEqualTo("0.5.0");
                 assertThat(provider.getEnvironment()).isEqualTo("production");
                 assertThat(provider.getResolvedBy()).contains(
-                        entry("name", ResolvedBy.DEFAULT),
-                        entry("version", ResolvedBy.DEFAULT),
-                        entry("environment", ResolvedBy.DEFAULT)
+                        entry("name", ResolvedBy.SUPPLIER),
+                        entry("version", ResolvedBy.SUPPLIER),
+                        entry("environment", ResolvedBy.SUPPLIER)
                 );
             }
 

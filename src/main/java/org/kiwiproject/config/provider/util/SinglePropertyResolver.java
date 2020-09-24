@@ -126,12 +126,15 @@ public class SinglePropertyResolver {
     private <T> ResolverResult<T> resolveFromDefaults(FieldResolverStrategy<T> resolver, T defaultValue) {
         var supplierValue = Optional.ofNullable(resolver.getValueSupplier()).map(Supplier::get).orElse(null);
         if (nonNull(supplierValue)) {
-            return new ResolverResult<>(supplierValue, ResolvedBy.DEFAULT);
+            return new ResolverResult<>(supplierValue, ResolvedBy.SUPPLIER);
         }
 
-        var explicitValueOrDefault = Optional.ofNullable(resolver.getExplicitValue()).orElse(defaultValue);
-        if (nonNull(explicitValueOrDefault)) {
-            return new ResolverResult<>(explicitValueOrDefault, ResolvedBy.EXPLICIT_VALUE);
+        if (nonNull(resolver.getExplicitValue())) {
+            return new ResolverResult<>(resolver.getExplicitValue(), ResolvedBy.EXPLICIT_VALUE);
+        }
+
+        if (nonNull(defaultValue)) {
+            return new ResolverResult<>(defaultValue, ResolvedBy.PROVIDER_DEFAULT);
         }
 
         return new ResolverResult<>(null, ResolvedBy.NONE);

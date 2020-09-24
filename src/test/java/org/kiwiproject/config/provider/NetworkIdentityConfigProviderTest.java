@@ -152,7 +152,7 @@ class NetworkIdentityConfigProviderTest {
 
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-Supplier");
-                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.DEFAULT));
+                assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SUPPLIER));
             }
 
             @Test
