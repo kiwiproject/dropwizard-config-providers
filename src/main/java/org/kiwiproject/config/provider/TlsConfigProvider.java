@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.base.KiwiEnvironment;
 import org.kiwiproject.config.TlsContextConfiguration;
+import org.kiwiproject.config.provider.util.PropertyResolutionSettings;
 import org.kiwiproject.config.provider.util.SinglePropertyResolver;
 
 import java.util.Arrays;
@@ -244,9 +245,17 @@ public class TlsConfigProvider implements ConfigProvider {
                                   Function<String, T> convertFromString) {
 
         var defaultFields = DEFAULTS_FOR_PROPERTIES.get(fieldName);
-        var resolution = SinglePropertyResolver.resolveProperty(
-                externalConfigProvider, kiwiEnvironment, resolver, defaultFields.get(SYSTEM_PROPERTY),
-                defaultFields.get(ENV_PROPERTY), defaultFields.get(EXTERNAL_PROPERTY), originalValue, convertFromString);
+
+        var resolution = SinglePropertyResolver.resolveProperty(PropertyResolutionSettings.<T>builder()
+                .externalConfigProvider(externalConfigProvider)
+                .kiwiEnvironment(kiwiEnvironment)
+                .resolverStrategy(resolver)
+                .systemProperty(defaultFields.get(SYSTEM_PROPERTY))
+                .environmentVariable(defaultFields.get(ENV_PROPERTY))
+                .externalKey(defaultFields.get(EXTERNAL_PROPERTY))
+                .defaultValue(originalValue)
+                .convertFromString(convertFromString)
+                .build());
 
         resolvedBySetter.accept(resolution.getResolvedBy());
         return resolution.getValue();

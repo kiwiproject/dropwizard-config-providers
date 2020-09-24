@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.base.KiwiEnvironment;
+import org.kiwiproject.config.provider.util.PropertyResolutionSettings;
 import org.kiwiproject.config.provider.util.SinglePropertyResolver;
 
 import java.util.Map;
@@ -75,23 +76,38 @@ public class ServiceIdentityConfigProvider implements ConfigProvider {
                                           FieldResolverStrategy<String> versionResolverStrategy,
                                           FieldResolverStrategy<String> environmentResolverStrategy) {
 
-        var nameResolution = SinglePropertyResolver.resolveProperty(
-                externalConfigProvider, kiwiEnvironment, nameResolverStrategy, DEFAULT_NAME_SYSTEM_PROPERTY,
-                DEFAULT_NAME_ENV_VARIABLE, DEFAULT_NAME_EXTERNAL_PROPERTY_KEY);
+        var nameResolution = SinglePropertyResolver.resolveStringProperty(PropertyResolutionSettings.<String>builder()
+                .externalConfigProvider(externalConfigProvider)
+                .kiwiEnvironment(kiwiEnvironment)
+                .resolverStrategy(nameResolverStrategy)
+                .systemProperty(DEFAULT_NAME_SYSTEM_PROPERTY)
+                .environmentVariable(DEFAULT_NAME_ENV_VARIABLE)
+                .externalKey(DEFAULT_NAME_EXTERNAL_PROPERTY_KEY)
+                .build());
 
         this.name = nameResolution.getValue();
         this.nameResolvedBy = nameResolution.getResolvedBy();
 
-        var versionResolution = SinglePropertyResolver.resolveProperty(
-                externalConfigProvider, kiwiEnvironment, versionResolverStrategy, DEFAULT_VERSION_SYSTEM_PROPERTY,
-                DEFAULT_VERSION_ENV_VARIABLE, DEFAULT_VERSION_EXTERNAL_PROPERTY_KEY);
+        var versionResolution = SinglePropertyResolver.resolveStringProperty(PropertyResolutionSettings.<String>builder()
+                .externalConfigProvider(externalConfigProvider)
+                .kiwiEnvironment(kiwiEnvironment)
+                .resolverStrategy(versionResolverStrategy)
+                .systemProperty(DEFAULT_VERSION_SYSTEM_PROPERTY)
+                .environmentVariable(DEFAULT_VERSION_ENV_VARIABLE)
+                .externalKey(DEFAULT_VERSION_EXTERNAL_PROPERTY_KEY)
+                .build());
 
         this.version = versionResolution.getValue();
         this.versionResolvedBy = versionResolution.getResolvedBy();
 
-        var environmentResolution = SinglePropertyResolver.resolveProperty(
-                externalConfigProvider, kiwiEnvironment, environmentResolverStrategy, DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY,
-                DEFAULT_ENVIRONMENT_ENV_VARIABLE, DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY);
+        var environmentResolution = SinglePropertyResolver.resolveStringProperty(PropertyResolutionSettings.<String>builder()
+                .externalConfigProvider(externalConfigProvider)
+                .kiwiEnvironment(kiwiEnvironment)
+                .resolverStrategy(environmentResolverStrategy)
+                .systemProperty(DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY)
+                .environmentVariable(DEFAULT_ENVIRONMENT_ENV_VARIABLE)
+                .externalKey(DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY)
+                .build());
 
         this.environment = environmentResolution.getValue();
         this.environmentResolvedBy = environmentResolution.getResolvedBy();

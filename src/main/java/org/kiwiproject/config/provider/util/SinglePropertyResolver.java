@@ -7,50 +7,18 @@ import static org.kiwiproject.config.provider.ExternalConfigProvider.getExternal
 
 import lombok.experimental.UtilityClass;
 import org.kiwiproject.base.DefaultEnvironment;
-import org.kiwiproject.base.KiwiEnvironment;
-import org.kiwiproject.config.provider.ExternalConfigProvider;
 import org.kiwiproject.config.provider.FieldResolverStrategy;
 import org.kiwiproject.config.provider.ResolvedBy;
 import org.kiwiproject.config.provider.ResolverResult;
 
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 @UtilityClass
 public class SinglePropertyResolver {
 
-    /**
-     * Resolves a {@link String} configuration property, defaulting the value to null
-     *
-     * @see SinglePropertyResolver#resolveProperty(ExternalConfigProvider, KiwiEnvironment, FieldResolverStrategy, String, String, String, Object, Function)
-     */
-    public static ResolverResult<String> resolveProperty(ExternalConfigProvider externalConfigProvider,
-                                                         KiwiEnvironment kiwiEnvironment,
-                                                         FieldResolverStrategy<String> resolverStrategy,
-                                                         String systemProperty,
-                                                         String environmentVariable,
-                                                         String externalKey) {
-
-        return resolveProperty(externalConfigProvider, kiwiEnvironment, resolverStrategy, systemProperty,
-                environmentVariable, externalKey, null, value -> value);
-    }
-
-    /**
-     * Resolves a {@link String} configuration property
-     *
-     * @see SinglePropertyResolver#resolveProperty(ExternalConfigProvider, KiwiEnvironment, FieldResolverStrategy, String, String, String, Object, Function)
-     */
-    public static ResolverResult<String> resolveProperty(ExternalConfigProvider externalConfigProvider,
-                                                         KiwiEnvironment kiwiEnvironment,
-                                                         FieldResolverStrategy<String> resolverStrategy,
-                                                         String systemProperty,
-                                                         String environmentVariable,
-                                                         String externalKey,
-                                                         String defaultValue) {
-
-        return resolveProperty(externalConfigProvider, kiwiEnvironment, resolverStrategy, systemProperty,
-                environmentVariable, externalKey, defaultValue, value -> value);
+    public static ResolverResult<String> resolveStringProperty(PropertyResolutionSettings<String> settings) {
+        return resolveProperty(settings.toBuilder().convertFromString(value -> value).build());
     }
 
     /**
@@ -67,46 +35,31 @@ public class SinglePropertyResolver {
      *     <li>The value explicitly given</li>
      * </ol>
      *
-     * @param externalConfigProvider The provider that looks up config values in an external file
-     * @param kiwiEnvironment        The kiwi environment to lookup environment variables
-     * @param resolverStrategy       The field resolver strategy that contains the information on how to resolve a property
-     * @param systemProperty         The default system property if not provided
-     * @param environmentVariable    The default environment variable if not provided
-     * @param externalKey            The default external file key if not provided
-     * @param defaultValue           The default value to return if no other resolutions work
-     * @param convertFromString      A Function that takes a string value and converts it to T
-     * @param <T>                    The type of the value to be returned
+     * @param settings  A set of settings to figure out the resolution process
+     * @param <T>       The type of the value to be returned
      * @return The resolved value
      */
-    @SuppressWarnings({"java:S107"})
-    public static <T> ResolverResult<T> resolveProperty(ExternalConfigProvider externalConfigProvider,
-                                                        KiwiEnvironment kiwiEnvironment,
-                                                        FieldResolverStrategy<T> resolverStrategy,
-                                                        String systemProperty,
-                                                        String environmentVariable,
-                                                        String externalKey,
-                                                        T defaultValue,
-                                                        Function<String, T> convertFromString) {
+    public static <T> ResolverResult<T> resolveProperty(PropertyResolutionSettings<T> settings) {
 
-        var nonNullResolver = isNull(resolverStrategy)
-                ? FieldResolverStrategy.<T>builder().build() : resolverStrategy;
+        var nonNullResolver = isNull(settings.getResolverStrategy())
+                ? FieldResolverStrategy.<T>builder().build() : settings.getResolverStrategy();
 
         var fromSystemProperty = System.getProperty(
-                nonNullResolver.getSystemPropertyKeyOrDefault(systemProperty));
+                nonNullResolver.getSystemPropertyKeyOrDefault(settings.getSystemProperty()));
 
-        var resolvedEnvironment = isNull(kiwiEnvironment) ? new DefaultEnvironment() : kiwiEnvironment;
-        var fromEnvironment = resolvedEnvironment.getenv(nonNullResolver.getEnvVariableOrDefault(environmentVariable));
+        var resolvedEnvironment = isNull(settings.getKiwiEnvironment()) ? new DefaultEnvironment() : settings.getKiwiEnvironment();
+        var fromEnvironment = resolvedEnvironment.getenv(nonNullResolver.getEnvVariableOrDefault(settings.getEnvironmentVariable()));
 
         if (isNotBlank(fromSystemProperty)) {
-            return new ResolverResult<>(convertFromString.apply(fromSystemProperty), ResolvedBy.SYSTEM_PROPERTY);
+            return new ResolverResult<>(settings.getConvertFromString().apply(fromSystemProperty), ResolvedBy.SYSTEM_PROPERTY);
         } else if (isNotBlank(fromEnvironment)) {
-            return new ResolverResult<>(convertFromString.apply(fromEnvironment), ResolvedBy.SYSTEM_ENV);
+            return new ResolverResult<>(settings.getConvertFromString().apply(fromEnvironment), ResolvedBy.SYSTEM_ENV);
         }
 
-        return getExternalPropertyProviderOrDefault(externalConfigProvider)
-                .resolveExternalProperty(nonNullResolver.getExternalPropertyOrDefault(externalKey),
-                        value -> new ResolverResult<>(convertFromString.apply(value), ResolvedBy.EXTERNAL_PROPERTY),
-                        () -> resolveFromDefaults(nonNullResolver, defaultValue));
+        return getExternalPropertyProviderOrDefault(settings.getExternalConfigProvider())
+                .resolveExternalProperty(nonNullResolver.getExternalPropertyOrDefault(settings.getExternalKey()),
+                        value -> new ResolverResult<>(settings.getConvertFromString().apply(value), ResolvedBy.EXTERNAL_PROPERTY),
+                        () -> resolveFromDefaults(nonNullResolver, settings.getDefaultValue()));
     }
 
     private <T> ResolverResult<T> resolveFromDefaults(FieldResolverStrategy<T> resolver, T defaultValue) {

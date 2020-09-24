@@ -6,6 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import org.kiwiproject.base.KiwiEnvironment;
+import org.kiwiproject.config.provider.util.PropertyResolutionSettings;
 import org.kiwiproject.config.provider.util.SinglePropertyResolver;
 
 import java.util.Map;
@@ -42,9 +43,14 @@ public class ActiveMQConfigProvider implements ConfigProvider {
                                     KiwiEnvironment kiwiEnvironment,
                                     FieldResolverStrategy<String> resolverStrategy) {
 
-        var resolution = SinglePropertyResolver.resolveProperty(
-                externalConfigProvider, kiwiEnvironment, resolverStrategy, DEFAULT_AMQ_SERVERS_SYSTEM_PROPERTY,
-                DEFAULT_AMQ_SERVERS_ENV_VARIABLE, DEFAULT_EXTERNAL_PROPERTY_KEY);
+        var resolution = SinglePropertyResolver.resolveStringProperty(PropertyResolutionSettings.<String>builder()
+                .externalConfigProvider(externalConfigProvider)
+                .kiwiEnvironment(kiwiEnvironment)
+                .resolverStrategy(resolverStrategy)
+                .systemProperty(DEFAULT_AMQ_SERVERS_SYSTEM_PROPERTY)
+                .environmentVariable(DEFAULT_AMQ_SERVERS_ENV_VARIABLE)
+                .externalKey(DEFAULT_EXTERNAL_PROPERTY_KEY)
+                .build());
 
         this.activeMQServers = resolution.getValue();
         this.activeMQServersResolvedBy = resolution.getResolvedBy();
