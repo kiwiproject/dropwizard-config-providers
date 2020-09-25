@@ -47,6 +47,8 @@ The following providers are currently available in this library.
 
 | Provider | Description | Properties Resolved |
 | -------- | ----------- | ------------------- |
+| ActiveMQConfigProvider | Resolves the connection string for ActiveMQ servers | activeMQServers |
+| DropwizardDataSourceConfigProvider | Resolves a DataSourceFactory for connecting to a relational database in Dropwizard | dataSourceFactory |
 | NetworkIdentityConfigProvider | Resolves a named network, useful if you want to have services run in different subnets/VPCs | network |
 | ServiceIdentityConfigProvider | Resolves identity information for a running service | name, version, environment (deployed) |
 | TlsConfigProvider | Resolves the properties to use in a TLS Configuration | tlsContextConfiguration |
