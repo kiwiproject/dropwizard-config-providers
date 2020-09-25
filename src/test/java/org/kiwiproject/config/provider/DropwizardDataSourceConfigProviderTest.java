@@ -2,16 +2,20 @@ package org.kiwiproject.config.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.kiwiproject.collect.KiwiMaps.newHashMap;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
+import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.testing.ResourceHelpers;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.kiwiproject.collect.KiwiMaps;
+import org.kiwiproject.base.KiwiEnvironment;
 import org.kiwiproject.json.JsonHelper;
 
 import java.nio.file.Path;
@@ -24,7 +28,7 @@ class DropwizardDataSourceConfigProviderTest {
     private static final String URL = "jdbc://localhost:5432/test-db";
     private static final String USER = "kiwi";
     private static final String PASSWORD = "secret";
-    private static final Map<String, String> ORM_PROPERTIES = KiwiMaps.newHashMap("prop", "value");
+    private static final Map<String, String> ORM_PROPERTIES = newHashMap("prop", "value");
 
     private JsonHelper json;
 
@@ -58,74 +62,33 @@ class DropwizardDataSourceConfigProviderTest {
                 var provider = DropwizardDataSourceConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
 
-                var config = provider.getDataSourceFactory();
-                assertThat(config.getDriverClass()).isEqualTo(DRIVER_CLASS);
-                assertThat(config.getUrl()).isEqualTo(URL);
-                assertThat(config.getUser()).isEqualTo(USER);
-                assertThat(config.getPassword()).isEqualTo(PASSWORD);
-                assertThat(config.getMaxSize()).isEqualTo(1);
-                assertThat(config.getMinSize()).isZero();
-                assertThat(config.getInitialSize()).isZero();
-                assertThat(config.getProperties()).containsAllEntriesOf(ORM_PROPERTIES);
-                assertThat(provider.getResolvedBy()).contains(
-                        entry("driverClass", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("url", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("user", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("password", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("maxSize", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("minSize", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("initialSize", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("ormProperties", ResolvedBy.SYSTEM_PROPERTY)
-                );
+                assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.SYSTEM_PROPERTY);
             }
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-//                addSystemProperty("a", STORE_PATH);
-//                addSystemProperty("b", STORE_PASSWORD);
-//                addSystemProperty("c", STORE_TYPE);
-//                addSystemProperty("d", STORE_PATH);
-//                addSystemProperty("e", STORE_PASSWORD);
-//                addSystemProperty("f", STORE_TYPE);
-//                addSystemProperty("g", "false");
-//                addSystemProperty("h", PROTOCOL);
-//                addSystemProperty("i", SUPPORTED_PROTOCOLS);
-//
-//                var provider = TlsConfigProvider.builder()
-//                        .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("a").build())
-//                        .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("b").build())
-//                        .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("c").build())
-//                        .trustStorePathResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("d").build())
-//                        .trustStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("e").build())
-//                        .trustStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("f").build())
-//                        .verifyHostnameResolverStrategy(FieldResolverStrategy.<Boolean>builder().systemPropertyKey("g").build())
-//                        .protocolResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("h").build())
-//                        .supportedProtocolsResolverStrategy(FieldResolverStrategy.<List<String>>builder().systemPropertyKey("i").build())
-//                        .build();
-//
-//                assertThat(provider.canProvide()).isTrue();
-//                var config = provider.getTlsContextConfiguration();
-//
-//                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-//                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-//                assertThat(config.isVerifyHostname()).isFalse();
-//                assertThat(provider.getResolvedBy()).contains(
-//                        entry("keyStorePath", ResolvedBy.SYSTEM_PROPERTY),
-//                        entry("keyStorePassword", ResolvedBy.SYSTEM_PROPERTY),
-//                        entry("keyStoreType", ResolvedBy.SYSTEM_PROPERTY),
-//                        entry("trustStorePath", ResolvedBy.SYSTEM_PROPERTY),
-//                        entry("trustStorePassword", ResolvedBy.SYSTEM_PROPERTY),
-//                        entry("trustStoreType", ResolvedBy.SYSTEM_PROPERTY),
-//                        entry("verifyHostname", ResolvedBy.SYSTEM_PROPERTY),
-//                        entry("protocol", ResolvedBy.SYSTEM_PROPERTY),
-//                        entry("supportedProtocols", ResolvedBy.SYSTEM_PROPERTY)
-//                );
+                addSystemProperty("a", DRIVER_CLASS);
+                addSystemProperty("b", URL);
+                addSystemProperty("c", USER);
+                addSystemProperty("d", PASSWORD);
+                addSystemProperty("e", "1");
+                addSystemProperty("f", "0");
+                addSystemProperty("g", "0");
+                addSystemProperty("h", json.toJson(ORM_PROPERTIES));
+
+                var provider = DropwizardDataSourceConfigProvider.builder()
+                        .driverClassResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("a").build())
+                        .urlResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("b").build())
+                        .userResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("c").build())
+                        .passwordResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("d").build())
+                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("e").build())
+                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("f").build())
+                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("g").build())
+                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().systemPropertyKey("h").build())
+                        .build();
+
+                assertThat(provider.canProvide()).isTrue();
+                assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.SYSTEM_PROPERTY);
             }
 
         }
@@ -133,99 +96,52 @@ class DropwizardDataSourceConfigProviderTest {
         @Nested
         class WithEnvironmentVariable {
 
-
-
             @Test
             void shouldBuildUsingDefaultEnvVariable() {
-//                var env = mock(KiwiEnvironment.class);
-//                when(env.getenv(TlsConfigProvider.DEFAULT_KEYSTORE_PATH_ENV_VARIABLE)).thenReturn(STORE_PATH);
-//                when(env.getenv(TlsConfigProvider.DEFAULT_KEYSTORE_PASSWORD_ENV_VARIABLE)).thenReturn(STORE_PASSWORD);
-//                when(env.getenv(TlsConfigProvider.DEFAULT_KEYSTORE_TYPE_ENV_VARIABLE)).thenReturn(STORE_TYPE);
-//                when(env.getenv(TlsConfigProvider.DEFAULT_TRUSTSTORE_PATH_ENV_VARIABLE)).thenReturn(STORE_PATH);
-//                when(env.getenv(TlsConfigProvider.DEFAULT_TRUSTSTORE_PASSWORD_ENV_VARIABLE)).thenReturn(STORE_PASSWORD);
-//                when(env.getenv(TlsConfigProvider.DEFAULT_TRUSTSTORE_TYPE_ENV_VARIABLE)).thenReturn(STORE_TYPE);
-//                when(env.getenv(TlsConfigProvider.DEFAULT_VERIFY_HOSTNAME_ENV_VARIABLE)).thenReturn("false");
-//                when(env.getenv(TlsConfigProvider.DEFAULT_PROTOCOL_ENV_VARIABLE)).thenReturn(PROTOCOL);
-//                when(env.getenv(TlsConfigProvider.DEFAULT_SUPPORTED_PROTOCOLS_ENV_VARIABLE)).thenReturn(SUPPORTED_PROTOCOLS);
-//
-//                var provider = TlsConfigProvider.builder()
-//                        .kiwiEnvironment(env)
-//                        .build();
-//
-//                assertThat(provider.canProvide()).isTrue();
-//                var config = provider.getTlsContextConfiguration();
-//
-//                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-//                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-//                assertThat(config.isVerifyHostname()).isFalse();
-//                assertThat(provider.getResolvedBy()).contains(
-//                        entry("keyStorePath", ResolvedBy.SYSTEM_ENV),
-//                        entry("keyStorePassword", ResolvedBy.SYSTEM_ENV),
-//                        entry("keyStoreType", ResolvedBy.SYSTEM_ENV),
-//                        entry("trustStorePath", ResolvedBy.SYSTEM_ENV),
-//                        entry("trustStorePassword", ResolvedBy.SYSTEM_ENV),
-//                        entry("trustStoreType", ResolvedBy.SYSTEM_ENV),
-//                        entry("verifyHostname", ResolvedBy.SYSTEM_ENV),
-//                        entry("protocol", ResolvedBy.SYSTEM_ENV),
-//                        entry("supportedProtocols", ResolvedBy.SYSTEM_ENV)
-//                );
+                var env = mock(KiwiEnvironment.class);
+                when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_DRIVER_CLASS_ENV_VARIABLE)).thenReturn(DRIVER_CLASS);
+                when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_URL_ENV_VARIABLE)).thenReturn(URL);
+                when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_USER_ENV_VARIABLE)).thenReturn(USER);
+                when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_PASSWORD_ENV_VARIABLE)).thenReturn(PASSWORD);
+                when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_MAX_SIZE_ENV_VARIABLE)).thenReturn("1");
+                when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_MIN_SIZE_ENV_VARIABLE)).thenReturn("0");
+                when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_INITIAL_SIZE_ENV_VARIABLE)).thenReturn("0");
+                when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_ORM_PROPERTIES_ENV_VARIABLE)).thenReturn(json.toJson(ORM_PROPERTIES));
+
+                var provider = DropwizardDataSourceConfigProvider.builder()
+                        .kiwiEnvironment(env)
+                        .build();
+
+                assertThat(provider.canProvide()).isTrue();
+                assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.SYSTEM_ENV);
             }
 
             @Test
             void shouldBuildUsingProvidedEnvVariable() {
-//                var env = mock(KiwiEnvironment.class);
-//                when(env.getenv("a")).thenReturn(STORE_PATH);
-//                when(env.getenv("b")).thenReturn(STORE_PASSWORD);
-//                when(env.getenv("c")).thenReturn(STORE_TYPE);
-//                when(env.getenv("d")).thenReturn(STORE_PATH);
-//                when(env.getenv("e")).thenReturn(STORE_PASSWORD);
-//                when(env.getenv("f")).thenReturn(STORE_TYPE);
-//                when(env.getenv("g")).thenReturn("bar-host");
-//                when(env.getenv("h")).thenReturn(PROTOCOL);
-//                when(env.getenv("i")).thenReturn(SUPPORTED_PROTOCOLS);
-//
-//                var provider = TlsConfigProvider.builder()
-//                        .kiwiEnvironment(env)
-//                        .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("a").build())
-//                        .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("b").build())
-//                        .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("c").build())
-//                        .trustStorePathResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("d").build())
-//                        .trustStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("e").build())
-//                        .trustStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("f").build())
-//                        .verifyHostnameResolverStrategy(FieldResolverStrategy.<Boolean>builder().envVariable("g").build())
-//                        .protocolResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("h").build())
-//                        .supportedProtocolsResolverStrategy(FieldResolverStrategy.<List<String>>builder().envVariable("i").build())
-//                        .build();
-//
-//                assertThat(provider.canProvide()).isTrue();
-//                var config = provider.getTlsContextConfiguration();
-//
-//                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-//                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-//                assertThat(config.isVerifyHostname()).isFalse();
-//                assertThat(provider.getResolvedBy()).contains(
-//                        entry("keyStorePath", ResolvedBy.SYSTEM_ENV),
-//                        entry("keyStorePassword", ResolvedBy.SYSTEM_ENV),
-//                        entry("keyStoreType", ResolvedBy.SYSTEM_ENV),
-//                        entry("trustStorePath", ResolvedBy.SYSTEM_ENV),
-//                        entry("trustStorePassword", ResolvedBy.SYSTEM_ENV),
-//                        entry("trustStoreType", ResolvedBy.SYSTEM_ENV),
-//                        entry("verifyHostname", ResolvedBy.SYSTEM_ENV),
-//                        entry("protocol", ResolvedBy.SYSTEM_ENV),
-//                        entry("supportedProtocols", ResolvedBy.SYSTEM_ENV)
-//                );
+                var env = mock(KiwiEnvironment.class);
+                when(env.getenv("a")).thenReturn(DRIVER_CLASS);
+                when(env.getenv("b")).thenReturn(URL);
+                when(env.getenv("c")).thenReturn(USER);
+                when(env.getenv("d")).thenReturn(PASSWORD);
+                when(env.getenv("e")).thenReturn("1");
+                when(env.getenv("f")).thenReturn("0");
+                when(env.getenv("g")).thenReturn("0");
+                when(env.getenv("h")).thenReturn(json.toJson(ORM_PROPERTIES));
+
+                var provider = DropwizardDataSourceConfigProvider.builder()
+                        .kiwiEnvironment(env)
+                        .driverClassResolver(FieldResolverStrategy.<String>builder().envVariable("a").build())
+                        .urlResolver(FieldResolverStrategy.<String>builder().envVariable("b").build())
+                        .userResolver(FieldResolverStrategy.<String>builder().envVariable("c").build())
+                        .passwordResolver(FieldResolverStrategy.<String>builder().envVariable("d").build())
+                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("e").build())
+                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("f").build())
+                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("g").build())
+                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().envVariable("h").build())
+                        .build();
+
+                assertThat(provider.canProvide()).isTrue();
+                assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.SYSTEM_ENV);
             }
 
         }
@@ -237,75 +153,32 @@ class DropwizardDataSourceConfigProviderTest {
 
             @BeforeEach
             void setUp() {
-                var propertyPath = Path.of(ResourceHelpers.resourceFilePath("TlsConfigProvider/config.properties"));
+                var propertyPath = Path.of(ResourceHelpers.resourceFilePath("DropwizardDataSourceConfigProvider/config.properties"));
                 externalConfigProvider = ExternalConfigProvider.builder().explicitPath(propertyPath).build();
             }
 
             @Test
             void shouldBuildUsingDefaultExternalProperty() {
-//                var provider = TlsConfigProvider.builder().externalConfigProvider(externalConfigProvider).build();
-//                assertThat(provider.canProvide()).isTrue();
-//                var config = provider.getTlsContextConfiguration();
-//
-//                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-//                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-//                assertThat(config.isVerifyHostname()).isFalse();
-//                assertThat(provider.getResolvedBy()).contains(
-//                        entry("keyStorePath", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("keyStorePassword", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("keyStoreType", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("trustStorePath", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("trustStorePassword", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("trustStoreType", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("verifyHostname", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("protocol", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("supportedProtocols", ResolvedBy.EXTERNAL_PROPERTY)
-//                );
+                var provider = DropwizardDataSourceConfigProvider.builder().externalConfigProvider(externalConfigProvider).build();
+                assertThat(provider.canProvide()).isTrue();
+                assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.EXTERNAL_PROPERTY);
             }
 
             @Test
             void shouldBuildUsingProvidedExternalProperty() {
-//                var provider = TlsConfigProvider.builder()
-//                        .externalConfigProvider(externalConfigProvider)
-//                        .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("a").build())
-//                        .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("b").build())
-//                        .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("c").build())
-//                        .trustStorePathResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("d").build())
-//                        .trustStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("e").build())
-//                        .trustStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("f").build())
-//                        .verifyHostnameResolverStrategy(FieldResolverStrategy.<Boolean>builder().externalProperty("g").build())
-//                        .protocolResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("h").build())
-//                        .supportedProtocolsResolverStrategy(FieldResolverStrategy.<List<String>>builder().externalProperty("i").build())
-//                        .build();
-//                assertThat(provider.canProvide()).isTrue();
-//                var config = provider.getTlsContextConfiguration();
-//
-//                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-//                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-//                assertThat(config.isVerifyHostname()).isFalse();
-//                assertThat(provider.getResolvedBy()).contains(
-//                        entry("keyStorePath", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("keyStorePassword", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("keyStoreType", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("trustStorePath", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("trustStorePassword", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("trustStoreType", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("verifyHostname", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("protocol", ResolvedBy.EXTERNAL_PROPERTY),
-//                        entry("supportedProtocols", ResolvedBy.EXTERNAL_PROPERTY)
-//                );
+                var provider = DropwizardDataSourceConfigProvider.builder()
+                        .externalConfigProvider(externalConfigProvider)
+                        .driverClassResolver(FieldResolverStrategy.<String>builder().externalProperty("a").build())
+                        .urlResolver(FieldResolverStrategy.<String>builder().externalProperty("b").build())
+                        .userResolver(FieldResolverStrategy.<String>builder().externalProperty("c").build())
+                        .passwordResolver(FieldResolverStrategy.<String>builder().externalProperty("d").build())
+                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("e").build())
+                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("f").build())
+                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("g").build())
+                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().externalProperty("h").build())
+                        .build();
+                assertThat(provider.canProvide()).isTrue();
+                assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.EXTERNAL_PROPERTY);
             }
         }
 
@@ -314,42 +187,19 @@ class DropwizardDataSourceConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedValues() {
-//                var provider = TlsConfigProvider.builder()
-//                        .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_PATH).build())
-//                        .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_PASSWORD).build())
-//                        .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_TYPE).build())
-//                        .trustStorePathResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_PATH).build())
-//                        .trustStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_PASSWORD).build())
-//                        .trustStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(STORE_TYPE).build())
-//                        .verifyHostnameResolverStrategy(FieldResolverStrategy.<Boolean>builder().explicitValue(false).build())
-//                        .protocolResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(PROTOCOL).build())
-//                        .supportedProtocolsResolverStrategy(FieldResolverStrategy.<List<String>>builder().explicitValue(
-//                                List.of(SUPPORTED_PROTOCOLS_ARRAY)).build())
-//                        .build();
-//
-//                assertThat(provider.canProvide()).isTrue();
-//                var config = provider.getTlsContextConfiguration();
-//
-//                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-//                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-//                assertThat(config.isVerifyHostname()).isFalse();
-//                assertThat(provider.getResolvedBy()).contains(
-//                        entry("keyStorePath", ResolvedBy.EXPLICIT_VALUE),
-//                        entry("keyStorePassword", ResolvedBy.EXPLICIT_VALUE),
-//                        entry("keyStoreType", ResolvedBy.EXPLICIT_VALUE),
-//                        entry("trustStorePath", ResolvedBy.EXPLICIT_VALUE),
-//                        entry("trustStorePassword", ResolvedBy.EXPLICIT_VALUE),
-//                        entry("trustStoreType", ResolvedBy.EXPLICIT_VALUE),
-//                        entry("verifyHostname", ResolvedBy.EXPLICIT_VALUE),
-//                        entry("protocol", ResolvedBy.EXPLICIT_VALUE),
-//                        entry("supportedProtocols", ResolvedBy.EXPLICIT_VALUE)
-//                );
+                var provider = DropwizardDataSourceConfigProvider.builder()
+                        .driverClassResolver(FieldResolverStrategy.<String>builder().explicitValue(DRIVER_CLASS).build())
+                        .urlResolver(FieldResolverStrategy.<String>builder().explicitValue(URL).build())
+                        .userResolver(FieldResolverStrategy.<String>builder().explicitValue(USER).build())
+                        .passwordResolver(FieldResolverStrategy.<String>builder().explicitValue(PASSWORD).build())
+                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().explicitValue(1).build())
+                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().explicitValue(0).build())
+                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().explicitValue(0).build())
+                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().explicitValue(newHashMap("prop", "value")).build())
+                        .build();
+
+                assertThat(provider.canProvide()).isTrue();
+                assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.EXPLICIT_VALUE);
             }
 
         }
@@ -359,108 +209,107 @@ class DropwizardDataSourceConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSupplier() {
-//                var provider = TlsConfigProvider.builder()
-//                        .keyStorePathResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_PATH).build())
-//                        .keyStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_PASSWORD).build())
-//                        .keyStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_TYPE).build())
-//                        .trustStorePathResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_PATH).build())
-//                        .trustStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_PASSWORD).build())
-//                        .trustStoreTypeResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> STORE_TYPE).build())
-//                        .verifyHostnameResolverStrategy(FieldResolverStrategy.<Boolean>builder().valueSupplier(() -> false).build())
-//                        .protocolResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> PROTOCOL).build())
-//                        .supportedProtocolsResolverStrategy(FieldResolverStrategy.<List<String>>builder()
-//                                .valueSupplier(() -> List.of(SUPPORTED_PROTOCOLS_ARRAY)).build())
-//                        .build();
-//
-//                assertThat(provider.canProvide()).isTrue();
-//                var config = provider.getTlsContextConfiguration();
-//
-//                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-//                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-//                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-//                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-//                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-//                assertThat(config.isVerifyHostname()).isFalse();
-//                assertThat(provider.getResolvedBy()).contains(
-//                        entry("keyStorePath", ResolvedBy.SUPPLIER),
-//                        entry("keyStorePassword", ResolvedBy.SUPPLIER),
-//                        entry("keyStoreType", ResolvedBy.SUPPLIER),
-//                        entry("trustStorePath", ResolvedBy.SUPPLIER),
-//                        entry("trustStorePassword", ResolvedBy.SUPPLIER),
-//                        entry("trustStoreType", ResolvedBy.SUPPLIER),
-//                        entry("verifyHostname", ResolvedBy.SUPPLIER),
-//                        entry("protocol", ResolvedBy.SUPPLIER),
-//                        entry("supportedProtocols", ResolvedBy.SUPPLIER)
-//                );
+                var provider = DropwizardDataSourceConfigProvider.builder()
+                        .driverClassResolver(FieldResolverStrategy.<String>builder().valueSupplier(() -> DRIVER_CLASS).build())
+                        .urlResolver(FieldResolverStrategy.<String>builder().valueSupplier(() -> URL).build())
+                        .userResolver(FieldResolverStrategy.<String>builder().valueSupplier(() -> USER).build())
+                        .passwordResolver(FieldResolverStrategy.<String>builder().valueSupplier(() -> PASSWORD).build())
+                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().valueSupplier(() -> 1).build())
+                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().valueSupplier(() -> 0).build())
+                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().valueSupplier(() -> 0).build())
+                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().valueSupplier(() -> newHashMap("prop", "value")).build())
+                        .build();
+
+                assertThat(provider.canProvide()).isTrue();
+                assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.SUPPLIER);
             }
 
             @Test
             void shouldBuildUsingDefaultSupplierAndCanProvide() {
-//                var provider = TlsConfigProvider.builder().build();
-//                assertThat(provider.canProvide()).isTrue();
-//                var config = provider.getTlsContextConfiguration();
-//
-//                assertThat(config.getKeyStorePath()).isBlank();
-//                assertThat(config.getKeyStorePassword()).isBlank();
-//                assertThat(config.getKeyStoreType()).isEqualTo("JKS");
-//                assertThat(config.getTrustStorePath()).isBlank();
-//                assertThat(config.getTrustStorePassword()).isBlank();
-//                assertThat(config.getTrustStoreType()).isEqualTo("JKS");
-//                assertThat(config.getProtocol()).isEqualTo("TLSv1.2");
-//                assertThat(config.getSupportedProtocols()).isNull();
-//                assertThat(config.isVerifyHostname()).isTrue();
-//                assertThat(provider.getResolvedBy()).contains(
-//                        entry("keyStorePath", ResolvedBy.NONE),
-//                        entry("keyStorePassword", ResolvedBy.NONE),
-//                        entry("keyStoreType", ResolvedBy.PROVIDER_DEFAULT),
-//                        entry("trustStorePath", ResolvedBy.NONE),
-//                        entry("trustStorePassword", ResolvedBy.NONE),
-//                        entry("trustStoreType", ResolvedBy.PROVIDER_DEFAULT),
-//                        entry("verifyHostname", ResolvedBy.PROVIDER_DEFAULT),
-//                        entry("protocol", ResolvedBy.PROVIDER_DEFAULT),
-//                        entry("supportedProtocols", ResolvedBy.NONE)
-//                );
+                var provider = DropwizardDataSourceConfigProvider.builder().build();
+                assertThat(provider.canProvide()).isFalse();
+
+                var defaultFactory = new DataSourceFactory();
+                var factory = provider.getDataSourceFactory();
+
+                assertThat(factory.getDriverClass()).isBlank();
+                assertThat(factory.getUrl()).isBlank();
+                assertThat(factory.getUser()).isBlank();
+                assertThat(factory.getPassword()).isBlank();
+                assertThat(factory.getMaxSize()).isEqualTo(defaultFactory.getMaxSize());
+                assertThat(factory.getMinSize()).isEqualTo(defaultFactory.getMinSize());
+                assertThat(factory.getInitialSize()).isEqualTo(defaultFactory.getInitialSize());
+                assertThat(factory.getProperties()).isEqualTo(defaultFactory.getProperties());
+                assertThat(provider.getResolvedBy()).contains(
+                        entry("driverClass", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("url", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("user", ResolvedBy.NONE),
+                        entry("password", ResolvedBy.NONE),
+                        entry("maxSize", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("minSize", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("initialSize", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("ormProperties", ResolvedBy.PROVIDER_DEFAULT)
+                );
             }
 
         }
 
         @Nested
-        class WithProvidedTlsContext {
+        class WithProvidedDataSourceFactory {
 
             @Test
-            void shouldBuildUsingTheProvidedContextAsDefault() {
-//                var context = TlsContextConfiguration.builder().keyStorePath("my-secret-key").build();
-//
-//                var provider = TlsConfigProvider.builder().tlsContextConfigurationSupplier(() -> context).build();
-//
-//                assertThat(provider.canProvide()).isTrue();
-//                var config = provider.getTlsContextConfiguration();
-//
-//                assertThat(config.getKeyStorePath()).isEqualTo("my-secret-key");
-//                assertThat(config.getKeyStorePassword()).isBlank();
-//                assertThat(config.getKeyStoreType()).isEqualTo("JKS");
-//                assertThat(config.getTrustStorePath()).isBlank();
-//                assertThat(config.getTrustStorePassword()).isBlank();
-//                assertThat(config.getTrustStoreType()).isEqualTo("JKS");
-//                assertThat(config.getProtocol()).isEqualTo("TLSv1.2");
-//                assertThat(config.getSupportedProtocols()).isNull();
-//                assertThat(config.isVerifyHostname()).isTrue();
-//                assertThat(provider.getResolvedBy()).contains(
-//                        entry("keyStorePath", ResolvedBy.PROVIDER_DEFAULT),
-//                        entry("keyStorePassword", ResolvedBy.NONE),
-//                        entry("keyStoreType", ResolvedBy.PROVIDER_DEFAULT),
-//                        entry("trustStorePath", ResolvedBy.NONE),
-//                        entry("trustStorePassword", ResolvedBy.NONE),
-//                        entry("trustStoreType", ResolvedBy.PROVIDER_DEFAULT),
-//                        entry("verifyHostname", ResolvedBy.PROVIDER_DEFAULT),
-//                        entry("protocol", ResolvedBy.PROVIDER_DEFAULT),
-//                        entry("supportedProtocols", ResolvedBy.NONE)
-//                );
+            void shouldBuildUsingTheProvidedFactoryAsDefault() {
+                var defaultFactory = new DataSourceFactory();
+                defaultFactory.setUrl(URL);
+
+                var provider = DropwizardDataSourceConfigProvider.builder()
+                        .dataSourceFactorySupplier(() -> defaultFactory)
+                        .build();
+
+                assertThat(provider.canProvide()).isTrue();
+                var factory = provider.getDataSourceFactory();
+
+                assertThat(factory.getDriverClass()).isBlank();
+                assertThat(factory.getUrl()).isEqualTo(URL);
+                assertThat(factory.getUser()).isBlank();
+                assertThat(factory.getPassword()).isBlank();
+                assertThat(factory.getMaxSize()).isEqualTo(defaultFactory.getMaxSize());
+                assertThat(factory.getMinSize()).isEqualTo(defaultFactory.getMinSize());
+                assertThat(factory.getInitialSize()).isEqualTo(defaultFactory.getInitialSize());
+                assertThat(factory.getProperties()).isEqualTo(defaultFactory.getProperties());
+                assertThat(provider.getResolvedBy()).contains(
+                        entry("driverClass", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("url", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("user", ResolvedBy.NONE),
+                        entry("password", ResolvedBy.NONE),
+                        entry("maxSize", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("minSize", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("initialSize", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("ormProperties", ResolvedBy.PROVIDER_DEFAULT)
+                );
             }
         }
 
+    }
+
+    private void assertFactoryIsCorrect(DataSourceFactory factory, ConfigProvider provider, ResolvedBy resolution) {
+        assertThat(factory.getDriverClass()).isEqualTo(DRIVER_CLASS);
+        assertThat(factory.getUrl()).isEqualTo(URL);
+        assertThat(factory.getUser()).isEqualTo(USER);
+        assertThat(factory.getPassword()).isEqualTo(PASSWORD);
+        assertThat(factory.getMaxSize()).isEqualTo(1);
+        assertThat(factory.getMinSize()).isZero();
+        assertThat(factory.getInitialSize()).isZero();
+        assertThat(factory.getProperties()).containsAllEntriesOf(ORM_PROPERTIES);
+        assertThat(provider.getResolvedBy()).contains(
+                entry("driverClass", resolution),
+                entry("url", resolution),
+                entry("user", resolution),
+                entry("password", resolution),
+                entry("maxSize", resolution),
+                entry("minSize", resolution),
+                entry("initialSize", resolution),
+                entry("ormProperties", resolution)
+        );
     }
 }

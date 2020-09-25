@@ -54,28 +54,7 @@ class TlsConfigProviderTest {
 
                 var provider = TlsConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
-
-                var config = provider.getTlsContextConfiguration();
-                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-                assertThat(config.isVerifyHostname()).isFalse();
-                assertThat(provider.getResolvedBy()).contains(
-                        entry("keyStorePath", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("keyStorePassword", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("keyStoreType", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("trustStorePath", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("trustStorePassword", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("trustStoreType", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("verifyHostname", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("protocol", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("supportedProtocols", ResolvedBy.SYSTEM_PROPERTY)
-                );
+                assertContextIsCorrect(provider.getTlsContextConfiguration(), provider, ResolvedBy.SYSTEM_PROPERTY);
             }
 
             @Test
@@ -103,36 +82,13 @@ class TlsConfigProviderTest {
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
-                var config = provider.getTlsContextConfiguration();
-
-                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-                assertThat(config.isVerifyHostname()).isFalse();
-                assertThat(provider.getResolvedBy()).contains(
-                        entry("keyStorePath", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("keyStorePassword", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("keyStoreType", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("trustStorePath", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("trustStorePassword", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("trustStoreType", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("verifyHostname", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("protocol", ResolvedBy.SYSTEM_PROPERTY),
-                        entry("supportedProtocols", ResolvedBy.SYSTEM_PROPERTY)
-                );
+                assertContextIsCorrect(provider.getTlsContextConfiguration(), provider, ResolvedBy.SYSTEM_PROPERTY);
             }
 
         }
 
         @Nested
         class WithEnvironmentVariable {
-
-
 
             @Test
             void shouldBuildUsingDefaultEnvVariable() {
@@ -152,28 +108,7 @@ class TlsConfigProviderTest {
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
-                var config = provider.getTlsContextConfiguration();
-
-                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-                assertThat(config.isVerifyHostname()).isFalse();
-                assertThat(provider.getResolvedBy()).contains(
-                        entry("keyStorePath", ResolvedBy.SYSTEM_ENV),
-                        entry("keyStorePassword", ResolvedBy.SYSTEM_ENV),
-                        entry("keyStoreType", ResolvedBy.SYSTEM_ENV),
-                        entry("trustStorePath", ResolvedBy.SYSTEM_ENV),
-                        entry("trustStorePassword", ResolvedBy.SYSTEM_ENV),
-                        entry("trustStoreType", ResolvedBy.SYSTEM_ENV),
-                        entry("verifyHostname", ResolvedBy.SYSTEM_ENV),
-                        entry("protocol", ResolvedBy.SYSTEM_ENV),
-                        entry("supportedProtocols", ResolvedBy.SYSTEM_ENV)
-                );
+                assertContextIsCorrect(provider.getTlsContextConfiguration(), provider, ResolvedBy.SYSTEM_ENV);
             }
 
             @Test
@@ -203,28 +138,7 @@ class TlsConfigProviderTest {
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
-                var config = provider.getTlsContextConfiguration();
-
-                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-                assertThat(config.isVerifyHostname()).isFalse();
-                assertThat(provider.getResolvedBy()).contains(
-                        entry("keyStorePath", ResolvedBy.SYSTEM_ENV),
-                        entry("keyStorePassword", ResolvedBy.SYSTEM_ENV),
-                        entry("keyStoreType", ResolvedBy.SYSTEM_ENV),
-                        entry("trustStorePath", ResolvedBy.SYSTEM_ENV),
-                        entry("trustStorePassword", ResolvedBy.SYSTEM_ENV),
-                        entry("trustStoreType", ResolvedBy.SYSTEM_ENV),
-                        entry("verifyHostname", ResolvedBy.SYSTEM_ENV),
-                        entry("protocol", ResolvedBy.SYSTEM_ENV),
-                        entry("supportedProtocols", ResolvedBy.SYSTEM_ENV)
-                );
+                assertContextIsCorrect(provider.getTlsContextConfiguration(), provider, ResolvedBy.SYSTEM_ENV);
             }
 
         }
@@ -244,28 +158,7 @@ class TlsConfigProviderTest {
             void shouldBuildUsingDefaultExternalProperty() {
                 var provider = TlsConfigProvider.builder().externalConfigProvider(externalConfigProvider).build();
                 assertThat(provider.canProvide()).isTrue();
-                var config = provider.getTlsContextConfiguration();
-
-                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-                assertThat(config.isVerifyHostname()).isFalse();
-                assertThat(provider.getResolvedBy()).contains(
-                        entry("keyStorePath", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("keyStorePassword", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("keyStoreType", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("trustStorePath", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("trustStorePassword", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("trustStoreType", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("verifyHostname", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("protocol", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("supportedProtocols", ResolvedBy.EXTERNAL_PROPERTY)
-                );
+                assertContextIsCorrect(provider.getTlsContextConfiguration(), provider, ResolvedBy.EXTERNAL_PROPERTY);
             }
 
             @Test
@@ -283,28 +176,7 @@ class TlsConfigProviderTest {
                         .supportedProtocolsResolverStrategy(FieldResolverStrategy.<List<String>>builder().externalProperty("i").build())
                         .build();
                 assertThat(provider.canProvide()).isTrue();
-                var config = provider.getTlsContextConfiguration();
-
-                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-                assertThat(config.isVerifyHostname()).isFalse();
-                assertThat(provider.getResolvedBy()).contains(
-                        entry("keyStorePath", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("keyStorePassword", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("keyStoreType", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("trustStorePath", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("trustStorePassword", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("trustStoreType", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("verifyHostname", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("protocol", ResolvedBy.EXTERNAL_PROPERTY),
-                        entry("supportedProtocols", ResolvedBy.EXTERNAL_PROPERTY)
-                );
+                assertContextIsCorrect(provider.getTlsContextConfiguration(), provider, ResolvedBy.EXTERNAL_PROPERTY);
             }
         }
 
@@ -327,28 +199,7 @@ class TlsConfigProviderTest {
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
-                var config = provider.getTlsContextConfiguration();
-
-                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-                assertThat(config.isVerifyHostname()).isFalse();
-                assertThat(provider.getResolvedBy()).contains(
-                        entry("keyStorePath", ResolvedBy.EXPLICIT_VALUE),
-                        entry("keyStorePassword", ResolvedBy.EXPLICIT_VALUE),
-                        entry("keyStoreType", ResolvedBy.EXPLICIT_VALUE),
-                        entry("trustStorePath", ResolvedBy.EXPLICIT_VALUE),
-                        entry("trustStorePassword", ResolvedBy.EXPLICIT_VALUE),
-                        entry("trustStoreType", ResolvedBy.EXPLICIT_VALUE),
-                        entry("verifyHostname", ResolvedBy.EXPLICIT_VALUE),
-                        entry("protocol", ResolvedBy.EXPLICIT_VALUE),
-                        entry("supportedProtocols", ResolvedBy.EXPLICIT_VALUE)
-                );
+                assertContextIsCorrect(provider.getTlsContextConfiguration(), provider, ResolvedBy.EXPLICIT_VALUE);
             }
 
         }
@@ -372,28 +223,7 @@ class TlsConfigProviderTest {
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
-                var config = provider.getTlsContextConfiguration();
-
-                assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
-                assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
-                assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
-                assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
-                assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
-                assertThat(config.isVerifyHostname()).isFalse();
-                assertThat(provider.getResolvedBy()).contains(
-                        entry("keyStorePath", ResolvedBy.SUPPLIER),
-                        entry("keyStorePassword", ResolvedBy.SUPPLIER),
-                        entry("keyStoreType", ResolvedBy.SUPPLIER),
-                        entry("trustStorePath", ResolvedBy.SUPPLIER),
-                        entry("trustStorePassword", ResolvedBy.SUPPLIER),
-                        entry("trustStoreType", ResolvedBy.SUPPLIER),
-                        entry("verifyHostname", ResolvedBy.SUPPLIER),
-                        entry("protocol", ResolvedBy.SUPPLIER),
-                        entry("supportedProtocols", ResolvedBy.SUPPLIER)
-                );
+                assertContextIsCorrect(provider.getTlsContextConfiguration(), provider, ResolvedBy.SUPPLIER);
             }
 
             @Test
@@ -461,5 +291,28 @@ class TlsConfigProviderTest {
             }
         }
 
+    }
+
+    private void assertContextIsCorrect(TlsContextConfiguration config, ConfigProvider provider, ResolvedBy resolution) {
+        assertThat(config.getKeyStorePath()).isEqualTo(STORE_PATH);
+        assertThat(config.getKeyStorePassword()).isEqualTo(STORE_PASSWORD);
+        assertThat(config.getKeyStoreType()).isEqualTo(STORE_TYPE);
+        assertThat(config.getTrustStorePath()).isEqualTo(STORE_PATH);
+        assertThat(config.getTrustStorePassword()).isEqualTo(STORE_PASSWORD);
+        assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE);
+        assertThat(config.getProtocol()).isEqualTo(PROTOCOL);
+        assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY);
+        assertThat(config.isVerifyHostname()).isFalse();
+        assertThat(provider.getResolvedBy()).contains(
+                entry("keyStorePath", resolution),
+                entry("keyStorePassword", resolution),
+                entry("keyStoreType", resolution),
+                entry("trustStorePath", resolution),
+                entry("trustStorePassword", resolution),
+                entry("trustStoreType", resolution),
+                entry("verifyHostname", resolution),
+                entry("protocol", resolution),
+                entry("supportedProtocols", resolution)
+        );
     }
 }
