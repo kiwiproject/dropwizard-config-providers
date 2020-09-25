@@ -76,6 +76,7 @@
         <!-- Versions for test dependencies -->
         <assertj.version>3.16.1</assertj.version>
         <junit.jupiter.version>5.6.2</junit.jupiter.version>
+        <kiwi-test.version>0.5.0</kiwi-test.version>
         <logback-classic.version>1.2.3</logback-classic.version>
         <mockito.version>3.3.3</mockito.version>
 
@@ -274,6 +275,12 @@
             <artifactId>junit-jupiter-params</artifactId>
             <version>${junit.jupiter.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.kiwiproject</groupId>
+            <artifactId>kiwi-test</artifactId>
+            <version>${kiwi-test.version}</version>
         </dependency>
 
         <dependency>

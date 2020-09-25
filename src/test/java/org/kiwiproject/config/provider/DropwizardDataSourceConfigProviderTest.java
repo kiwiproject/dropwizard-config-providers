@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.collect.KiwiMaps.newHashMap;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.test.constants.KiwiTestConstants.JSON_HELPER;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,7 +17,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kiwiproject.base.KiwiEnvironment;
-import org.kiwiproject.json.JsonHelper;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -28,14 +28,7 @@ class DropwizardDataSourceConfigProviderTest {
     private static final String URL = "jdbc://localhost:5432/test-db";
     private static final String USER = "kiwi";
     private static final String PASSWORD = "secret";
-    private static final Map<String, String> ORM_PROPERTIES = newHashMap("prop", "value");
-
-    private JsonHelper json;
-
-    @BeforeEach
-    void setUp() {
-        json = new JsonHelper();
-    }
+    private static final Map<String, String> ORM_PROPERTIES = Map.of("prop", "value");
 
     @Nested
     class Construct {
@@ -57,7 +50,7 @@ class DropwizardDataSourceConfigProviderTest {
                 addSystemProperty(DropwizardDataSourceConfigProvider.DEFAULT_MAX_SIZE_SYSTEM_PROPERTY, "1");
                 addSystemProperty(DropwizardDataSourceConfigProvider.DEFAULT_MIN_SIZE_SYSTEM_PROPERTY, "0");
                 addSystemProperty(DropwizardDataSourceConfigProvider.DEFAULT_INITIAL_SIZE_SYSTEM_PROPERTY, "0");
-                addSystemProperty(DropwizardDataSourceConfigProvider.DEFAULT_ORM_PROPERTIES_SYSTEM_PROPERTY, json.toJson(ORM_PROPERTIES));
+                addSystemProperty(DropwizardDataSourceConfigProvider.DEFAULT_ORM_PROPERTIES_SYSTEM_PROPERTY, JSON_HELPER.toJson(ORM_PROPERTIES));
 
                 var provider = DropwizardDataSourceConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
@@ -67,24 +60,24 @@ class DropwizardDataSourceConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSystemPropertyKey() {
-                addSystemProperty("a", DRIVER_CLASS);
-                addSystemProperty("b", URL);
-                addSystemProperty("c", USER);
-                addSystemProperty("d", PASSWORD);
-                addSystemProperty("e", "1");
-                addSystemProperty("f", "0");
-                addSystemProperty("g", "0");
-                addSystemProperty("h", json.toJson(ORM_PROPERTIES));
+                addSystemProperty("driver_class_var", DRIVER_CLASS);
+                addSystemProperty("url_var", URL);
+                addSystemProperty("user_var", USER);
+                addSystemProperty("password_var", PASSWORD);
+                addSystemProperty("max_size_var", "1");
+                addSystemProperty("min_size_var", "0");
+                addSystemProperty("initial_size_var", "0");
+                addSystemProperty("orm_properties_var", JSON_HELPER.toJson(ORM_PROPERTIES));
 
                 var provider = DropwizardDataSourceConfigProvider.builder()
-                        .driverClassResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("a").build())
-                        .urlResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("b").build())
-                        .userResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("c").build())
-                        .passwordResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("d").build())
-                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("e").build())
-                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("f").build())
-                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("g").build())
-                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().systemPropertyKey("h").build())
+                        .driverClassResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("driver_class_var").build())
+                        .urlResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("url_var").build())
+                        .userResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("user_var").build())
+                        .passwordResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("password_var").build())
+                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("max_size_var").build())
+                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("min_size_var").build())
+                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("initial_size_var").build())
+                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().systemPropertyKey("orm_properties_var").build())
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -106,7 +99,7 @@ class DropwizardDataSourceConfigProviderTest {
                 when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_MAX_SIZE_ENV_VARIABLE)).thenReturn("1");
                 when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_MIN_SIZE_ENV_VARIABLE)).thenReturn("0");
                 when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_INITIAL_SIZE_ENV_VARIABLE)).thenReturn("0");
-                when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_ORM_PROPERTIES_ENV_VARIABLE)).thenReturn(json.toJson(ORM_PROPERTIES));
+                when(env.getenv(DropwizardDataSourceConfigProvider.DEFAULT_ORM_PROPERTIES_ENV_VARIABLE)).thenReturn(JSON_HELPER.toJson(ORM_PROPERTIES));
 
                 var provider = DropwizardDataSourceConfigProvider.builder()
                         .kiwiEnvironment(env)
@@ -119,25 +112,25 @@ class DropwizardDataSourceConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
-                when(env.getenv("a")).thenReturn(DRIVER_CLASS);
-                when(env.getenv("b")).thenReturn(URL);
-                when(env.getenv("c")).thenReturn(USER);
-                when(env.getenv("d")).thenReturn(PASSWORD);
-                when(env.getenv("e")).thenReturn("1");
-                when(env.getenv("f")).thenReturn("0");
-                when(env.getenv("g")).thenReturn("0");
-                when(env.getenv("h")).thenReturn(json.toJson(ORM_PROPERTIES));
+                when(env.getenv("driver_class_var")).thenReturn(DRIVER_CLASS);
+                when(env.getenv("url_var")).thenReturn(URL);
+                when(env.getenv("user_var")).thenReturn(USER);
+                when(env.getenv("password_var")).thenReturn(PASSWORD);
+                when(env.getenv("max_size_var")).thenReturn("1");
+                when(env.getenv("min_size_var")).thenReturn("0");
+                when(env.getenv("initial_size_var")).thenReturn("0");
+                when(env.getenv("orm_properties_var")).thenReturn(JSON_HELPER.toJson(ORM_PROPERTIES));
 
                 var provider = DropwizardDataSourceConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .driverClassResolver(FieldResolverStrategy.<String>builder().envVariable("a").build())
-                        .urlResolver(FieldResolverStrategy.<String>builder().envVariable("b").build())
-                        .userResolver(FieldResolverStrategy.<String>builder().envVariable("c").build())
-                        .passwordResolver(FieldResolverStrategy.<String>builder().envVariable("d").build())
-                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("e").build())
-                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("f").build())
-                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("g").build())
-                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().envVariable("h").build())
+                        .driverClassResolver(FieldResolverStrategy.<String>builder().envVariable("driver_class_var").build())
+                        .urlResolver(FieldResolverStrategy.<String>builder().envVariable("url_var").build())
+                        .userResolver(FieldResolverStrategy.<String>builder().envVariable("user_var").build())
+                        .passwordResolver(FieldResolverStrategy.<String>builder().envVariable("password_var").build())
+                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("max_size_var").build())
+                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("min_size_var").build())
+                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("initial_size_var").build())
+                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().envVariable("orm_properties_var").build())
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -168,14 +161,14 @@ class DropwizardDataSourceConfigProviderTest {
             void shouldBuildUsingProvidedExternalProperty() {
                 var provider = DropwizardDataSourceConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .driverClassResolver(FieldResolverStrategy.<String>builder().externalProperty("a").build())
-                        .urlResolver(FieldResolverStrategy.<String>builder().externalProperty("b").build())
-                        .userResolver(FieldResolverStrategy.<String>builder().externalProperty("c").build())
-                        .passwordResolver(FieldResolverStrategy.<String>builder().externalProperty("d").build())
-                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("e").build())
-                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("f").build())
-                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("g").build())
-                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().externalProperty("h").build())
+                        .driverClassResolver(FieldResolverStrategy.<String>builder().externalProperty("driver_class_var").build())
+                        .urlResolver(FieldResolverStrategy.<String>builder().externalProperty("url_var").build())
+                        .userResolver(FieldResolverStrategy.<String>builder().externalProperty("user_var").build())
+                        .passwordResolver(FieldResolverStrategy.<String>builder().externalProperty("password_var").build())
+                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("max_size_var").build())
+                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("min_size_var").build())
+                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("initial_size_var").build())
+                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().externalProperty("orm_properties_var").build())
                         .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.EXTERNAL_PROPERTY);
