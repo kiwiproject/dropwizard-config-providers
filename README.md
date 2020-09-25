@@ -58,5 +58,5 @@ The following providers are currently available in this library.
 
 #### Custom Providers
 
-Custom providers can be created by extending the `ConfigProvider` interface.  Also the existing providers can be extended by setting various lookup mechanisms
+Custom providers can be created by extending the `ConfigProvider` interface.  Also, the existing providers can be extended by setting various lookup mechanisms
 listed in the order of precedence section.
