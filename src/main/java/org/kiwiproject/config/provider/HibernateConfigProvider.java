@@ -29,6 +29,8 @@ import java.util.Map;
 @Slf4j
 public class HibernateConfigProvider implements ConfigProvider {
 
+    private static final JsonHelper JSON_HELPER = JsonHelper.newDropwizardJsonHelper();
+
     @VisibleForTesting
     static final String DEFAULT_HIBERNATE_SYSTEM_PROPERTY = "kiwi.hibernate.properties";
 
@@ -56,8 +58,6 @@ public class HibernateConfigProvider implements ConfigProvider {
                                     KiwiEnvironment kiwiEnvironment,
                                     FieldResolverStrategy<Map<String, Object>> resolverStrategy) {
 
-        var json = new JsonHelper();
-
         var resolution = SinglePropertyResolver.resolveProperty(PropertyResolutionSettings.<Map<String, Object>>builder()
                 .externalConfigProvider(externalConfigProvider)
                 .kiwiEnvironment(kiwiEnvironment)
@@ -66,7 +66,7 @@ public class HibernateConfigProvider implements ConfigProvider {
                 .environmentVariable(DEFAULT_HIBERNATE_ENV_VARIABLE)
                 .externalKey(DEFAULT_EXTERNAL_PROPERTY_KEY)
                 .defaultValue(DEFAULT_HIBERNATE_PROPERTIES)
-                .convertFromString(value -> json.toMap(value, new TypeReference<>() {}))
+                .convertFromString(value -> JSON_HELPER.toMap(value, new TypeReference<>() {}))
                 .build());
 
         var mergedProperties = new HashMap<>(DEFAULT_HIBERNATE_PROPERTIES);
