@@ -51,6 +51,7 @@ The following providers are currently available in this library.
 | DropwizardDataSourceConfigProvider | Resolves a DataSourceFactory for connecting to a relational database in Dropwizard | dataSourceFactory |
 | ElkLoggerConfigProvider | Resolves the connection and configuration information for an ELK Logger server | host, port, customFields |
 | ElucidationConfigProvider | Resolves the connection and configuration for an Elucidation server | host, port, enabled |
+| HibernateConfigProvider | Resolves default properties for a Hibernate connection | hibernateProperties |
 | NetworkIdentityConfigProvider | Resolves a named network, useful if you want to have services run in different subnets/VPCs | network |
 | ServiceIdentityConfigProvider | Resolves identity information for a running service | name, version, environment (deployed) |
 | TlsConfigProvider | Resolves the properties to use in a TLS Configuration | tlsContextConfiguration |

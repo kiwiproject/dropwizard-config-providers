@@ -230,8 +230,8 @@ public class DropwizardDataSourceConfigProvider implements ConfigProvider {
                 value -> json.toMap(value, new TypeReference<>() {
                 }));
 
-        var mergedProperties = new HashMap<>(resolvedProperties);
-        mergedProperties.putAll(originalFactory.getProperties());
+        var mergedProperties = new HashMap<>(originalFactory.getProperties());
+        mergedProperties.putAll(resolvedProperties);
         dataSourceFactory.setProperties(mergedProperties);
     }
 
