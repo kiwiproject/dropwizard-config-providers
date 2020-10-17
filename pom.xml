@@ -56,6 +56,13 @@
             <groupId>org.kiwiproject</groupId>
             <artifactId>kiwi</artifactId>
             <version>${kiwi.version}</version>
+            <exclusions>
+                <!--  TODO Remove these temporary exclusions once all dependabot PRs are in -->
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- provided dependencies -->
@@ -66,6 +73,15 @@
             <version>${dropwizard.version}</version>
             <scope>provided</scope>
             <exclusions>
+                <!-- TODO Check if checker-qual and error_prone_annotations can be removed after dependabot PRs are in -->
+                <exclusion>
+                    <groupId>org.checkerframework</groupId>
+                    <artifactId>checker-qual</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.errorprone</groupId>
+                    <artifactId>error_prone_annotations</artifactId>
+                </exclusion>
                 <exclusion>
                     <groupId>com.fasterxml</groupId>
                     <artifactId>classmate</artifactId>
