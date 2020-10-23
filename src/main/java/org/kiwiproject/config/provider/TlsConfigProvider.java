@@ -1,6 +1,7 @@
 package org.kiwiproject.config.provider;
 
 import static java.util.Objects.nonNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.AccessLevel;
@@ -311,7 +312,8 @@ public class TlsConfigProvider implements ConfigProvider {
 
     @Override
     public boolean canProvide() {
-        return nonNull(tlsContextConfiguration);
+        return isNotBlank(tlsContextConfiguration.getTrustStorePath()) &&
+                isNotBlank(tlsContextConfiguration.getTrustStorePassword());
     }
 
     @Override

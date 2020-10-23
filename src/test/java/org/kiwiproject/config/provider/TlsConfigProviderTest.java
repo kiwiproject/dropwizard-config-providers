@@ -227,31 +227,20 @@ class TlsConfigProviderTest {
             }
 
             @Test
-            void shouldBuildUsingDefaultSupplierAndCanProvide() {
-                var provider = TlsConfigProvider.builder().build();
-                assertThat(provider.canProvide()).isTrue();
-                var config = provider.getTlsContextConfiguration();
+            void shouldBuildUsingDefaultSupplierAndCannotProvide() {
+                assertThat(TlsConfigProvider.builder().build().canProvide()).isFalse();
 
-                assertThat(config.getKeyStorePath()).isBlank();
-                assertThat(config.getKeyStorePassword()).isBlank();
-                assertThat(config.getKeyStoreType()).isEqualTo("JKS");
-                assertThat(config.getTrustStorePath()).isBlank();
-                assertThat(config.getTrustStorePassword()).isBlank();
-                assertThat(config.getTrustStoreType()).isEqualTo("JKS");
-                assertThat(config.getProtocol()).isEqualTo("TLSv1.2");
-                assertThat(config.getSupportedProtocols()).isNull();
-                assertThat(config.isVerifyHostname()).isTrue();
-                assertThat(provider.getResolvedBy()).contains(
-                        entry("keyStorePath", ResolvedBy.NONE),
-                        entry("keyStorePassword", ResolvedBy.NONE),
-                        entry("keyStoreType", ResolvedBy.PROVIDER_DEFAULT),
-                        entry("trustStorePath", ResolvedBy.NONE),
-                        entry("trustStorePassword", ResolvedBy.NONE),
-                        entry("trustStoreType", ResolvedBy.PROVIDER_DEFAULT),
-                        entry("verifyHostname", ResolvedBy.PROVIDER_DEFAULT),
-                        entry("protocol", ResolvedBy.PROVIDER_DEFAULT),
-                        entry("supportedProtocols", ResolvedBy.NONE)
-                );
+                assertThat(TlsConfigProvider.builder()
+                        .trustStorePathResolverStrategy(FieldResolverStrategy.<String>builder()
+                                .explicitValue("my-path").build())
+                        .build()
+                        .canProvide()).isFalse();
+
+                assertThat(TlsConfigProvider.builder()
+                        .trustStorePasswordResolverStrategy(FieldResolverStrategy.<String>builder()
+                                .explicitValue("pass").build())
+                        .build()
+                        .canProvide()).isFalse();
             }
 
         }
@@ -261,7 +250,11 @@ class TlsConfigProviderTest {
 
             @Test
             void shouldBuildUsingTheProvidedContextAsDefault() {
-                var context = TlsContextConfiguration.builder().keyStorePath("my-secret-key").build();
+                var context = TlsContextConfiguration.builder()
+                        .keyStorePath("my-secret-key")
+                        .trustStorePath("my-secret-trust")
+                        .trustStorePassword("pass")
+                        .build();
 
                 var provider = TlsConfigProvider.builder().tlsContextConfigurationSupplier(() -> context).build();
 
@@ -271,8 +264,8 @@ class TlsConfigProviderTest {
                 assertThat(config.getKeyStorePath()).isEqualTo("my-secret-key");
                 assertThat(config.getKeyStorePassword()).isBlank();
                 assertThat(config.getKeyStoreType()).isEqualTo("JKS");
-                assertThat(config.getTrustStorePath()).isBlank();
-                assertThat(config.getTrustStorePassword()).isBlank();
+                assertThat(config.getTrustStorePath()).isEqualTo("my-secret-trust");
+                assertThat(config.getTrustStorePassword()).isEqualTo("pass");
                 assertThat(config.getTrustStoreType()).isEqualTo("JKS");
                 assertThat(config.getProtocol()).isEqualTo("TLSv1.2");
                 assertThat(config.getSupportedProtocols()).isNull();
@@ -281,8 +274,8 @@ class TlsConfigProviderTest {
                         entry("keyStorePath", ResolvedBy.PROVIDER_DEFAULT),
                         entry("keyStorePassword", ResolvedBy.NONE),
                         entry("keyStoreType", ResolvedBy.PROVIDER_DEFAULT),
-                        entry("trustStorePath", ResolvedBy.NONE),
-                        entry("trustStorePassword", ResolvedBy.NONE),
+                        entry("trustStorePath", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("trustStorePassword", ResolvedBy.PROVIDER_DEFAULT),
                         entry("trustStoreType", ResolvedBy.PROVIDER_DEFAULT),
                         entry("verifyHostname", ResolvedBy.PROVIDER_DEFAULT),
                         entry("protocol", ResolvedBy.PROVIDER_DEFAULT),
