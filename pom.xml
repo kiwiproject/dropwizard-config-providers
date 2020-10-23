@@ -29,15 +29,15 @@
 
     <properties>
         <!-- Versions for required dependencies -->
-        <kiwi.version>0.12.0</kiwi.version>
+        <kiwi.version>0.13.0</kiwi.version>
 
         <!-- Versions for provided dependencies -->
-        <dropwizard.version>2.0.13</dropwizard.version>
+        <dropwizard.version>2.0.14</dropwizard.version>
 
         <!-- Versions for optional dependencies -->
 
         <!-- Versions for test dependencies -->
-        <kiwi-test.version>0.7.0</kiwi-test.version>
+        <kiwi-test.version>0.8.0</kiwi-test.version>
 
     </properties>
 
@@ -72,10 +72,6 @@
                 <exclusion>
                     <groupId>jakarta.annotation</groupId>
                     <artifactId>jakarta.annotation-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.javassist</groupId>
@@ -114,32 +110,12 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
-                    <groupId>com.fasterxml</groupId>
-                    <artifactId>classmate</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
                 </exclusion>
                 <exclusion>
-                    <groupId>org.apache.commons</groupId>
-                    <artifactId>commons-lang3</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>org.hibernate.validator</groupId>
                     <artifactId>hibernate-validator</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jakarta.annotation</groupId>
-                    <artifactId>jakarta.annotation-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.javassist</groupId>
-                    <artifactId>javassist</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>joda-time</groupId>
-                    <artifactId>joda-time</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -151,10 +127,6 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
-                    <groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
-                <exclusion>
                     <groupId>jakarta.activation</groupId>
                     <artifactId>jakarta.activation-api</artifactId>
                 </exclusion>
@@ -165,10 +137,6 @@
                 <exclusion>
                     <groupId>jakarta.xml.bind</groupId>
                     <artifactId>jakarta.xml.bind-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>junit</groupId>
-                    <artifactId>junit</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
