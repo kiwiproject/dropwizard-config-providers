@@ -38,6 +38,7 @@
 
         <!-- Versions for test dependencies -->
         <kiwi-test.version>0.8.0</kiwi-test.version>
+        <metrics-jetty9.version>4.1.14</metrics-jetty9.version>
 
     </properties>
 
@@ -145,6 +146,19 @@
             <groupId>org.kiwiproject</groupId>
             <artifactId>kiwi-test</artifactId>
             <version>${kiwi-test.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jetty9</artifactId>
+            <version>${metrics-jetty9.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-server</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
     </dependencies>
