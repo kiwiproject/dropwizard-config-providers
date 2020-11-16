@@ -40,6 +40,10 @@
         <kiwi-test.version>0.9.0</kiwi-test.version>
         <metrics-jetty9.version>4.1.14</metrics-jetty9.version>
 
+        <!-- Sonar properties -->
+        <sonar.projectKey>kiwiproject_dropwizard-config-providers</sonar.projectKey>
+        <sonar.organization>kiwiproject</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
 
     <dependencies>
