@@ -1,5 +1,5 @@
 ### Dropwizard Config Providers
-[![Build Status](https://travis-ci.com/kiwiproject/dropwizard-config-providers.svg?branch=master)](https://travis-ci.com/kiwiproject/dropwizard-config-providers)
+[![Build](https://github.com/kiwiproject/dropwizard-config-providers/workflows/build/badge.svg)](https://github.com/kiwiproject/dropwizard-config-providers/actions?query=workflow%3Abuild)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=kiwiproject_dropwizard-config-providers&metric=alert_status)](https://sonarcloud.io/dashboard?id=kiwiproject_dropwizard-config-providers)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=kiwiproject_dropwizard-config-providers&metric=coverage)](https://sonarcloud.io/dashboard?id=kiwiproject_dropwizard-config-providers)
 [![javadoc](https://javadoc.io/badge2/org.kiwiproject/dropwizard-config-providers/javadoc.svg)](https://javadoc.io/doc/org.kiwiproject/dropwizard-config-providers)
@@ -15,7 +15,7 @@ Utility library to assist in providing default config properties to dropwizard s
 <dependency>
     <groupId>org.kiwiproject</groupId>
     <artifactId>dropwizard-config-providers</artifactId>
-    <version>0.4.0</version>
+    <version>0.5.0</version>
 </dependency>
 ```
 
