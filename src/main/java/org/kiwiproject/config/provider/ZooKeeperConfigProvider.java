@@ -35,9 +35,6 @@ public class ZooKeeperConfigProvider implements ConfigProvider {
     @VisibleForTesting
     static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "zookeeper.connection";
 
-    @VisibleForTesting
-    static final String DEFAULT_CONNECT_STRING = "localhost:2181";
-
     @Getter
     private final String connectString;
 
@@ -56,7 +53,6 @@ public class ZooKeeperConfigProvider implements ConfigProvider {
                 .systemProperty(DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY)
                 .environmentVariable(DEFAULT_CONNECT_STRING_ENV_VARIABLE)
                 .externalKey(DEFAULT_EXTERNAL_PROPERTY_KEY)
-                .defaultValue(DEFAULT_CONNECT_STRING)
                 .build());
 
         this.connectString = resolution.getValue();

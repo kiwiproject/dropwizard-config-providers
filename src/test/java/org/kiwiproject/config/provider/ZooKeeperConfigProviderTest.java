@@ -35,12 +35,14 @@ class ZooKeeperConfigProviderTest {
 
             @Test
             void shouldBuildUsingDefaultSystemPropertyKey() {
-                addSystemProperty(ZooKeeperConfigProvider.DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY, ZOOKEEPER_CONNECT_STRING);
+                addSystemProperty(ZooKeeperConfigProvider.DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY,
+                        ZOOKEEPER_CONNECT_STRING);
 
                 var provider = ZooKeeperConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.SYSTEM_PROPERTY));
+                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString",
+                        ResolvedBy.SYSTEM_PROPERTY));
             }
 
             @Test
@@ -51,7 +53,8 @@ class ZooKeeperConfigProviderTest {
                 var provider = ZooKeeperConfigProvider.builder().resolverStrategy(resolver).build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.SYSTEM_PROPERTY));
+                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString",
+                        ResolvedBy.SYSTEM_PROPERTY));
             }
 
         }
@@ -62,7 +65,8 @@ class ZooKeeperConfigProviderTest {
             @Test
             void shouldBuildUsingDefaultEnvVariable() {
                 var env = mock(KiwiEnvironment.class);
-                when(env.getenv(ZooKeeperConfigProvider.DEFAULT_CONNECT_STRING_ENV_VARIABLE)).thenReturn(ZOOKEEPER_CONNECT_STRING);
+                when(env.getenv(ZooKeeperConfigProvider.DEFAULT_CONNECT_STRING_ENV_VARIABLE))
+                        .thenReturn(ZOOKEEPER_CONNECT_STRING);
 
                 var provider = ZooKeeperConfigProvider.builder().kiwiEnvironment(env).build();
                 assertThat(provider.canProvide()).isTrue();
@@ -109,19 +113,24 @@ class ZooKeeperConfigProviderTest {
 
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.EXTERNAL_PROPERTY));
+                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString",
+                        ResolvedBy.EXTERNAL_PROPERTY));
             }
 
             @Test
             void shouldBuildUsingProvidedExternalProperty() {
-                var resolver = FieldResolverStrategy.<String>builder().externalProperty("zookeeper.connection.provided").build();
+                var resolver = FieldResolverStrategy.<String>builder()
+                        .externalProperty("zookeeper.connection.provided")
+                        .build();
+
                 var provider = ZooKeeperConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
                         .resolverStrategy(resolver)
                         .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.EXTERNAL_PROPERTY));
+                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString",
+                        ResolvedBy.EXTERNAL_PROPERTY));
             }
         }
 
@@ -160,9 +169,9 @@ class ZooKeeperConfigProviderTest {
             @Test
             void shouldBuildUsingDefaultSupplierAndCannotProvide() {
                 var provider = ZooKeeperConfigProvider.builder().build();
-                assertThat(provider.canProvide()).isTrue();
-                assertThat(provider.getConnectString()).isEqualTo(ZooKeeperConfigProvider.DEFAULT_CONNECT_STRING);
-                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.PROVIDER_DEFAULT));
+                assertThat(provider.canProvide()).isFalse();
+                assertThat(provider.getConnectString()).isBlank();
+                assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.NONE));
             }
 
         }
