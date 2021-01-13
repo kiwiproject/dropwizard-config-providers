@@ -33,7 +33,7 @@
         <kiwi.version>0.18.0</kiwi.version>
 
         <!-- Versions for provided dependencies -->
-        <dropwizard.version>2.0.16</dropwizard.version>
+        <dropwizard.version>2.0.18</dropwizard.version>
 
         <!-- Versions for optional dependencies -->
 
