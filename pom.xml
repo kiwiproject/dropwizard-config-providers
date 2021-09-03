@@ -36,6 +36,7 @@
         <commons-text.version>1.9</commons-text.version>
         <dropwizard.version>2.0.25</dropwizard.version>
         <jackson.version>2.10.5.1</jackson.version>
+        <jakarta-el.version>3.0.4</jakarta-el.version>
 
         <!-- Versions for optional dependencies -->
 
@@ -138,6 +139,13 @@
         </dependency>
 
         <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.el</artifactId>
+            <version>${jakarta-el.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-jersey2</artifactId>
             <version>${metrics-jersey2.version}</version>
@@ -177,6 +185,10 @@
                 <exclusion>
                     <groupId>com.fasterxml.jackson.core</groupId>
                     <artifactId>jackson-databind</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.glassfish</groupId>
+                    <artifactId>jakarta.el</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.hibernate.validator</groupId>
