@@ -30,7 +30,7 @@
 
     <properties>
         <!-- Versions for required dependencies -->
-        <kiwi.version>0.25.0</kiwi.version>
+        <kiwi.version>1.0.0</kiwi.version>
 
         <!-- Versions for provided dependencies -->
         <commons-text.version>1.9</commons-text.version>
@@ -41,7 +41,7 @@
         <!-- Versions for optional dependencies -->
 
         <!-- Versions for test dependencies -->
-        <kiwi-test.version>0.21.0</kiwi-test.version>
+        <kiwi-test.version>1.0.0</kiwi-test.version>
         <metrics-jetty9.version>4.1.25</metrics-jetty9.version>
         <metrics-jersey2.version>4.1.25</metrics-jersey2.version>
 
