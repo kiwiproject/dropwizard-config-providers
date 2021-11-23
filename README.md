@@ -15,7 +15,7 @@ Utility library to assist in providing default config properties to dropwizard s
 <dependency>
     <groupId>org.kiwiproject</groupId>
     <artifactId>dropwizard-config-providers</artifactId>
-    <version>0.5.0</version>
+    <version>[latest-version]</version>
 </dependency>
 ```
 
