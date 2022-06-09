@@ -217,6 +217,7 @@ class DropwizardDataSourceConfigProviderTest {
                 assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.SUPPLIER);
             }
 
+            // TODO: @chrisrohr is this test named incorrectly? We assert that canProvide() returns false but the test name includes "CanProvide"
             @Test
             void shouldBuildUsingDefaultSupplierAndCanProvide() {
                 var provider = DropwizardDataSourceConfigProvider.builder().build();
@@ -225,7 +226,7 @@ class DropwizardDataSourceConfigProviderTest {
                 var defaultFactory = new DataSourceFactory();
                 var factory = provider.getDataSourceFactory();
 
-                assertThat(factory.getDriverClass()).isBlank();
+                assertThat(factory.getDriverClass()).isNull();
                 assertThat(factory.getUrl()).isBlank();
                 assertThat(factory.getUser()).isBlank();
                 assertThat(factory.getPassword()).isBlank();
@@ -234,7 +235,7 @@ class DropwizardDataSourceConfigProviderTest {
                 assertThat(factory.getInitialSize()).isEqualTo(defaultFactory.getInitialSize());
                 assertThat(factory.getProperties()).isEqualTo(defaultFactory.getProperties());
                 assertThat(provider.getResolvedBy()).contains(
-                        entry("driverClass", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("driverClass", ResolvedBy.NONE),
                         entry("url", ResolvedBy.PROVIDER_DEFAULT),
                         entry("user", ResolvedBy.NONE),
                         entry("password", ResolvedBy.NONE),
@@ -262,7 +263,7 @@ class DropwizardDataSourceConfigProviderTest {
                 assertThat(provider.canProvide()).isTrue();
                 var factory = provider.getDataSourceFactory();
 
-                assertThat(factory.getDriverClass()).isBlank();
+                assertThat(factory.getDriverClass()).isNull();
                 assertThat(factory.getUrl()).isEqualTo(URL);
                 assertThat(factory.getUser()).isBlank();
                 assertThat(factory.getPassword()).isBlank();
@@ -271,7 +272,7 @@ class DropwizardDataSourceConfigProviderTest {
                 assertThat(factory.getInitialSize()).isEqualTo(defaultFactory.getInitialSize());
                 assertThat(factory.getProperties()).isEqualTo(defaultFactory.getProperties());
                 assertThat(provider.getResolvedBy()).contains(
-                        entry("driverClass", ResolvedBy.PROVIDER_DEFAULT),
+                        entry("driverClass", ResolvedBy.NONE),
                         entry("url", ResolvedBy.PROVIDER_DEFAULT),
                         entry("user", ResolvedBy.NONE),
                         entry("password", ResolvedBy.NONE),
