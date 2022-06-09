@@ -6,7 +6,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.base.KiwiEnvironment;
 import org.kiwiproject.config.provider.util.PropertyResolutionSettings;
 import org.kiwiproject.config.provider.util.SinglePropertyResolver;
@@ -26,7 +25,6 @@ import java.util.Map;
  * </ul>
  * @see SinglePropertyResolver for resolution order
  */
-@Slf4j
 public class HibernateConfigProvider implements ConfigProvider {
 
     private static final JsonHelper JSON_HELPER = JsonHelper.newDropwizardJsonHelper();

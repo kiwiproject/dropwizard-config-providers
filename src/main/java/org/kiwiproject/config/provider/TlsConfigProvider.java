@@ -8,7 +8,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 import org.kiwiproject.base.KiwiEnvironment;
 import org.kiwiproject.config.TlsContextConfiguration;
 import org.kiwiproject.config.provider.util.PropertyResolutionSettings;
@@ -27,7 +26,6 @@ import java.util.function.Supplier;
  * Default resolution lookup keys can be found in the constants for this class
  * @see SinglePropertyResolver for resolution order
  */
-@Slf4j
 public class TlsConfigProvider implements ConfigProvider {
 
     private static final String SYSTEM_PROPERTY = "systemProperty";
@@ -269,7 +267,7 @@ public class TlsConfigProvider implements ConfigProvider {
                                   String originalValue,
                                   Consumer<ResolvedBy> resolvedBySetter) {
 
-        return resolveProperty(fieldName, resolver, externalConfigProvider, kiwiEnvironment, originalValue, 
+        return resolveProperty(fieldName, resolver, externalConfigProvider, kiwiEnvironment, originalValue,
                 resolvedBySetter, value -> value);
     }
 
