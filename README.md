@@ -5,7 +5,7 @@
 [![CodeQL](https://github.com/kiwiproject/dropwizard-config-providers/actions/workflows/codeql.yml/badge.svg)](https://github.com/kiwiproject/dropwizard-config-providers/actions/workflows/codeql.yml)
 [![javadoc](https://javadoc.io/badge2/org.kiwiproject/dropwizard-config-providers/javadoc.svg)](https://javadoc.io/doc/org.kiwiproject/dropwizard-config-providers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-[![Maven Central](https://img.shields.io/maven-central/v/org.kiwiproject/dropwizard-config-providers)](https://search.maven.org/search?q=g:org.kiwiproject%20a:dropwizard-config-providers)
+[![Maven Central](https://img.shields.io/maven-central/v/org.kiwiproject/dropwizard-config-providers)](https://central.sonatype.com/artifact/org.kiwiproject/dropwizard-config-providers/1.1.11)
 
 Utility library to assist in providing default config properties to dropwizard services
 
