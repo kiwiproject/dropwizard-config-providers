@@ -7,6 +7,7 @@ import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import org.kiwiproject.base.KiwiEnvironment;
+import org.kiwiproject.base.KiwiPrimitives;
 import org.kiwiproject.config.provider.util.PropertyResolutionSettings;
 import org.kiwiproject.config.provider.util.SinglePropertyResolver;
 
@@ -93,7 +94,7 @@ public class ElucidationConfigProvider implements ConfigProvider {
                 .systemProperty(DEFAULT_PORT_SYSTEM_PROPERTY)
                 .environmentVariable(DEFAULT_PORT_ENV_VARIABLE)
                 .externalKey(DEFAULT_PORT_EXTERNAL_PROPERTY_KEY)
-                .convertFromString(Integer::parseInt)
+                .convertFromString(KiwiPrimitives::tryParseIntOrThrow)
                 .build());
 
         var portValue = portResolution.getValue();

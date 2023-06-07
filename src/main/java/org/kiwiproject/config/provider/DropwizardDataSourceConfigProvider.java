@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.kiwiproject.base.KiwiEnvironment;
+import org.kiwiproject.base.KiwiPrimitives;
 import org.kiwiproject.config.provider.util.PropertyResolutionSettings;
 import org.kiwiproject.config.provider.util.SinglePropertyResolver;
 import org.kiwiproject.json.JsonHelper;
@@ -217,11 +218,11 @@ public class DropwizardDataSourceConfigProvider implements ConfigProvider {
         dataSourceFactory.setPassword(resolveProperty(PASSWORD_FIELD, passwordResolver, externalConfigProvider,
                 kiwiEnvironment, originalFactory.getPassword(), this::setPasswordResolvedBy));
         dataSourceFactory.setMaxSize(resolveProperty(MAX_SIZE_FIELD, maxSizeResolver, externalConfigProvider,
-                kiwiEnvironment, originalFactory.getMaxSize(), this::setMaxSizeResolvedBy, Integer::parseInt));
+                kiwiEnvironment, originalFactory.getMaxSize(), this::setMaxSizeResolvedBy, KiwiPrimitives::tryParseIntOrThrow));
         dataSourceFactory.setMinSize(resolveProperty(MIN_SIZE_FIELD, minSizeResolver, externalConfigProvider,
-                kiwiEnvironment, originalFactory.getMinSize(), this::setMinSizeResolvedBy, Integer::parseInt));
+                kiwiEnvironment, originalFactory.getMinSize(), this::setMinSizeResolvedBy, KiwiPrimitives::tryParseIntOrThrow));
         dataSourceFactory.setInitialSize(resolveProperty(INITIAL_SIZE_FIELD, initialSizeResolver, externalConfigProvider,
-                kiwiEnvironment, originalFactory.getInitialSize(), this::setInitialSizeResolvedBy, Integer::parseInt));
+                kiwiEnvironment, originalFactory.getInitialSize(), this::setInitialSizeResolvedBy, KiwiPrimitives::tryParseIntOrThrow));
 
         var json = new JsonHelper();
 

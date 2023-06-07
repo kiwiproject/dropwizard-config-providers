@@ -217,9 +217,8 @@ class DropwizardDataSourceConfigProviderTest {
                 assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.SUPPLIER);
             }
 
-            // TODO: @chrisrohr is this test named incorrectly? We assert that canProvide() returns false but the test name includes "CanProvide"
             @Test
-            void shouldBuildUsingDefaultSupplierAndCanProvide() {
+            void shouldBuildUsingDefaultSupplier() {
                 var provider = DropwizardDataSourceConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isFalse();
 
