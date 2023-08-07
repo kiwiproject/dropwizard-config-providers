@@ -114,7 +114,7 @@ public class ElucidationConfigProvider implements ConfigProvider {
 
         var enabledValue = enabledResolution.getValue();
 
-        this.enabled = !isNull(enabledValue) && enabledValue;
+        this.enabled = Boolean.TRUE.equals(enabledValue);
         this.enabledResolvedBy = enabledResolution.getResolvedBy();
     }
 
