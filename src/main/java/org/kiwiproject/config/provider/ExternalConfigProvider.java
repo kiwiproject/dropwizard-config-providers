@@ -154,8 +154,8 @@ public class ExternalConfigProvider implements ConfigProvider {
     }
 
     /**
-     * Will check if a given {@link ExternalConfigProvider} is null and return a new one if so. Otherwise return the one
-     * passed in.
+     * Will check if the given {@link ExternalConfigProvider} is null and return a new one if so. Otherwise, return the
+     * one passed in.
      *
      * @param provided an {@link ExternalConfigProvider} to test for null
      * @return A new {@link ExternalConfigProvider} if the given {@code provided} is null or {@code provided}
