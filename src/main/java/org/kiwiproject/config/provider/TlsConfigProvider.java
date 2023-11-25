@@ -24,7 +24,8 @@ import java.util.function.Supplier;
  * Config provider that provides a {@link TlsContextConfiguration}.
  * <p>
  * Default resolution lookup keys can be found in the constants for this class
- * @see SinglePropertyResolver for resolution order
+ *
+ * @see SinglePropertyResolver Resolution order defined in SinglePropertyResolver
  */
 public class TlsConfigProvider implements ConfigProvider {
 
@@ -39,6 +40,7 @@ public class TlsConfigProvider implements ConfigProvider {
     private static final String TRUSTSTORE_PASSWORD_FIELD = "trustStorePassword";
     private static final String TRUSTSTORE_TYPE_FIELD = "trustStoreType";
     private static final String VERIFY_HOSTNAME_FIELD = "verifyHostname";
+    private static final String DISABLE_SNI_HOST_CHECK_FIELD = "disableSniHostCheck";
     private static final String PROTOCOL_FIELD = "protocol";
     private static final String SUPPORTED_PROTOCOLS_FIELD = "supportedProtocols";
 
@@ -106,6 +108,15 @@ public class TlsConfigProvider implements ConfigProvider {
     static final String DEFAULT_VERIFY_HOSTNAME_EXTERNAL_PROPERTY_KEY = "tls.verifyHostname";
 
     @VisibleForTesting
+    static final String DEFAULT_DISABLE_SNI_HOST_CHECK_SYSTEM_PROPERTY = "kiwi.tls.disableSniHostCheck";
+
+    @VisibleForTesting
+    static final String DEFAULT_DISABLE_SNI_HOST_CHECK_ENV_VARIABLE = "KIWI_TLS_DISABLE_SNI_HOST_CHECK";
+
+    @VisibleForTesting
+    static final String DEFAULT_DISABLE_SNI_HOST_CHECK_EXTERNAL_PROPERTY_KEY = "tls.disableSniHostCheck";
+
+    @VisibleForTesting
     static final String DEFAULT_PROTOCOL_SYSTEM_PROPERTY = "kiwi.tls.protocol";
 
     @VisibleForTesting
@@ -158,6 +169,12 @@ public class TlsConfigProvider implements ConfigProvider {
             ENV_PROPERTY, DEFAULT_VERIFY_HOSTNAME_ENV_VARIABLE,
             EXTERNAL_PROPERTY, DEFAULT_VERIFY_HOSTNAME_EXTERNAL_PROPERTY_KEY);
 
+    private static final Map<String, String> DISABLE_SNI_HOST_CHECK_DEFAULTS = Map.of(
+            SYSTEM_PROPERTY, DEFAULT_DISABLE_SNI_HOST_CHECK_SYSTEM_PROPERTY,
+            ENV_PROPERTY, DEFAULT_DISABLE_SNI_HOST_CHECK_ENV_VARIABLE,
+            EXTERNAL_PROPERTY, DEFAULT_DISABLE_SNI_HOST_CHECK_EXTERNAL_PROPERTY_KEY
+    );
+
     private static final Map<String, String> PROTOCOL_DEFAULTS = Map.of(
             SYSTEM_PROPERTY, DEFAULT_PROTOCOL_SYSTEM_PROPERTY,
             ENV_PROPERTY, DEFAULT_PROTOCOL_ENV_VARIABLE, EXTERNAL_PROPERTY,
@@ -176,6 +193,7 @@ public class TlsConfigProvider implements ConfigProvider {
             TRUSTSTORE_PASSWORD_FIELD, TRUSTSTORE_PASSWORD_DEFAULTS,
             TRUSTSTORE_TYPE_FIELD, TRUSTSTORE_TYPE_DEFAULTS,
             VERIFY_HOSTNAME_FIELD, VERIFY_HOSTNAME_DEFAULTS,
+            DISABLE_SNI_HOST_CHECK_FIELD, DISABLE_SNI_HOST_CHECK_DEFAULTS,
             PROTOCOL_FIELD, PROTOCOL_DEFAULTS,
             SUPPORTED_PROTOCOLS_FIELD, SUPPORTED_PROTOCOLS_DEFAULTS
     );
@@ -205,6 +223,9 @@ public class TlsConfigProvider implements ConfigProvider {
     private ResolvedBy verifyHostnameResolvedBy;
 
     @Setter(AccessLevel.PRIVATE)
+    private ResolvedBy disableSniHostCheckResolvedBy;
+
+    @Setter(AccessLevel.PRIVATE)
     private ResolvedBy protocolResolvedBy;
 
     @Setter(AccessLevel.PRIVATE)
@@ -221,6 +242,7 @@ public class TlsConfigProvider implements ConfigProvider {
                               FieldResolverStrategy<String> trustStorePasswordResolverStrategy,
                               FieldResolverStrategy<String> trustStoreTypeResolverStrategy,
                               FieldResolverStrategy<Boolean> verifyHostnameResolverStrategy,
+                              FieldResolverStrategy<Boolean> disableSniHostCheckResolverStrategy,
                               FieldResolverStrategy<String> protocolResolverStrategy,
                               FieldResolverStrategy<List<String>> supportedProtocolsResolverStrategy,
                               Supplier<TlsContextConfiguration> tlsContextConfigurationSupplier) {
@@ -244,6 +266,8 @@ public class TlsConfigProvider implements ConfigProvider {
                         kiwiEnvironment, originalConfiguration.getTrustStoreType(), this::setTrustStoreTypeResolvedBy))
                 .verifyHostname(resolveProperty(VERIFY_HOSTNAME_FIELD, verifyHostnameResolverStrategy, externalConfigProvider,
                         kiwiEnvironment, originalConfiguration.isVerifyHostname(), this::setVerifyHostnameResolvedBy, Boolean::parseBoolean))
+                .disableSniHostCheck(resolveProperty(DISABLE_SNI_HOST_CHECK_FIELD, disableSniHostCheckResolverStrategy, externalConfigProvider,
+                        kiwiEnvironment, originalConfiguration.isDisableSniHostCheck(), this::setDisableSniHostCheckResolvedBy, Boolean::parseBoolean))
                 .supportedProtocols(resolveProperty(SUPPORTED_PROTOCOLS_FIELD, supportedProtocolsResolverStrategy, externalConfigProvider,
                         kiwiEnvironment, originalConfiguration.getSupportedProtocols(),
                         this::setSupportedProtocolsResolvedBy, str -> Arrays.asList(str.split(","))))
@@ -261,11 +285,11 @@ public class TlsConfigProvider implements ConfigProvider {
     }
 
     private String resolveProperty(String fieldName,
-                                  FieldResolverStrategy<String> resolver,
-                                  ExternalConfigProvider externalConfigProvider,
-                                  KiwiEnvironment kiwiEnvironment,
-                                  String originalValue,
-                                  Consumer<ResolvedBy> resolvedBySetter) {
+                                   FieldResolverStrategy<String> resolver,
+                                   ExternalConfigProvider externalConfigProvider,
+                                   KiwiEnvironment kiwiEnvironment,
+                                   String originalValue,
+                                   Consumer<ResolvedBy> resolvedBySetter) {
 
         return resolveProperty(fieldName, resolver, externalConfigProvider, kiwiEnvironment, originalValue,
                 resolvedBySetter, value -> value);
@@ -324,6 +348,7 @@ public class TlsConfigProvider implements ConfigProvider {
                 TRUSTSTORE_PASSWORD_FIELD, trustStorePasswordResolvedBy,
                 TRUSTSTORE_TYPE_FIELD, trustStoreTypeResolvedBy,
                 VERIFY_HOSTNAME_FIELD, verifyHostnameResolvedBy,
+                DISABLE_SNI_HOST_CHECK_FIELD, disableSniHostCheckResolvedBy,
                 PROTOCOL_FIELD, protocolResolvedBy,
                 SUPPORTED_PROTOCOLS_FIELD, supportedProtocolsResolvedBy
         );
