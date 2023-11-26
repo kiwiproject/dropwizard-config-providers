@@ -4,6 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSupplierFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,8 +52,9 @@ class MongoConfigProviderTest {
             void shouldBuildUsingProvidedSystemPropertyKey() {
                 addSystemProperty("url_var", MONGO_CONNECTION);
 
-                var resolver = FieldResolverStrategy.<String>builder().systemPropertyKey("url_var").build();
-                var provider = MongoConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = MongoConfigProvider.builder()
+                        .resolverStrategy(newSystemPropertyFieldResolverStrategy("url_var"))
+                        .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getUrl()).isEqualTo(MONGO_CONNECTION);
                 assertThat(provider.getResolvedBy()).containsExactly(entry("url", ResolvedBy.SYSTEM_PROPERTY));
@@ -75,10 +81,9 @@ class MongoConfigProviderTest {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv("url_var")).thenReturn(MONGO_CONNECTION);
 
-                var resolver = FieldResolverStrategy.<String>builder().envVariable("url_var").build();
                 var provider = MongoConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newEnvVarFieldResolverStrategy("url_var"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -114,10 +119,9 @@ class MongoConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedExternalProperty() {
-                var resolver = FieldResolverStrategy.<String>builder().externalProperty("mongo.connection.provided").build();
                 var provider = MongoConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newExternalPropertyFieldResolverStrategy("mongo.connection.provided"))
                         .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getUrl()).isEqualTo(MONGO_CONNECTION);
@@ -130,8 +134,9 @@ class MongoConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedNetwork() {
-                var resolver = FieldResolverStrategy.<String>builder().explicitValue(MONGO_CONNECTION).build();
-                var provider = MongoConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = MongoConfigProvider.builder()
+                        .resolverStrategy(newExplicitValueFieldResolverStrategy(MONGO_CONNECTION))
+                        .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getUrl()).isEqualTo(MONGO_CONNECTION);
                 assertThat(provider.getResolvedBy()).containsExactly(entry("url", ResolvedBy.EXPLICIT_VALUE));
@@ -144,12 +149,8 @@ class MongoConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSupplier() {
-                var resolver = FieldResolverStrategy.<String>builder()
-                        .valueSupplier(() -> MONGO_CONNECTION)
-                        .build();
-
                 var provider = MongoConfigProvider.builder()
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newSupplierFieldResolverStrategy(() -> MONGO_CONNECTION))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();

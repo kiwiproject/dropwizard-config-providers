@@ -4,6 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSupplierFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.kiwiproject.test.constants.KiwiTestConstants.JSON_HELPER;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -54,9 +59,9 @@ class ElkLoggerConfigProviderTest {
                 addSystemProperty("custom_field_var", JSON_HELPER.toJson(CUSTOM_FIELDS));
 
                 var provider = ElkLoggerConfigProvider.builder()
-                        .hostResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("host_var").build())
-                        .portResolverStrategy(FieldResolverStrategy.<Integer>builder().systemPropertyKey("port_var").build())
-                        .customFieldsResolverStrategy(FieldResolverStrategy.<Map<String, String>>builder().systemPropertyKey("custom_field_var").build())
+                        .hostResolverStrategy(newSystemPropertyFieldResolverStrategy("host_var"))
+                        .portResolverStrategy(newSystemPropertyFieldResolverStrategy("port_var"))
+                        .customFieldsResolverStrategy(newSystemPropertyFieldResolverStrategy("custom_field_var"))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.SYSTEM_PROPERTY);
@@ -90,9 +95,9 @@ class ElkLoggerConfigProviderTest {
 
                 var provider = ElkLoggerConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .hostResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("host_var").build())
-                        .portResolverStrategy(FieldResolverStrategy.<Integer>builder().envVariable("port_var").build())
-                        .customFieldsResolverStrategy(FieldResolverStrategy.<Map<String, String>>builder().envVariable("custom_field_var").build())
+                        .hostResolverStrategy(newEnvVarFieldResolverStrategy("host_var"))
+                        .portResolverStrategy(newEnvVarFieldResolverStrategy("port_var"))
+                        .customFieldsResolverStrategy(newEnvVarFieldResolverStrategy("custom_field_var"))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.SYSTEM_ENV);
@@ -121,9 +126,9 @@ class ElkLoggerConfigProviderTest {
             void shouldBuildUsingProvidedExternalProperty() {
                 var provider = ElkLoggerConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .hostResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("elk.host.provided").build())
-                        .portResolverStrategy(FieldResolverStrategy.<Integer>builder().externalProperty("elk.port.provided").build())
-                        .customFieldsResolverStrategy(FieldResolverStrategy.<Map<String, String>>builder().externalProperty("elk.customFields.provided").build())
+                        .hostResolverStrategy(newExternalPropertyFieldResolverStrategy("elk.host.provided"))
+                        .portResolverStrategy(newExternalPropertyFieldResolverStrategy("elk.port.provided"))
+                        .customFieldsResolverStrategy(newExternalPropertyFieldResolverStrategy("elk.customFields.provided"))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.EXTERNAL_PROPERTY);
@@ -136,9 +141,9 @@ class ElkLoggerConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedValues() {
                 var provider = ElkLoggerConfigProvider.builder()
-                        .hostResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(HOST).build())
-                        .portResolverStrategy(FieldResolverStrategy.<Integer>builder().explicitValue(PORT).build())
-                        .customFieldsResolverStrategy(FieldResolverStrategy.<Map<String, String>>builder().explicitValue(CUSTOM_FIELDS).build())
+                        .hostResolverStrategy(newExplicitValueFieldResolverStrategy(HOST))
+                        .portResolverStrategy(newExplicitValueFieldResolverStrategy(PORT))
+                        .customFieldsResolverStrategy(newExplicitValueFieldResolverStrategy(CUSTOM_FIELDS))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.EXPLICIT_VALUE);
@@ -152,9 +157,9 @@ class ElkLoggerConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedSupplier() {
                 var provider = ElkLoggerConfigProvider.builder()
-                        .hostResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> HOST).build())
-                        .portResolverStrategy(FieldResolverStrategy.<Integer>builder().valueSupplier(() -> PORT).build())
-                        .customFieldsResolverStrategy(FieldResolverStrategy.<Map<String, String>>builder().valueSupplier(() -> CUSTOM_FIELDS).build())
+                        .hostResolverStrategy(newSupplierFieldResolverStrategy(() -> HOST))
+                        .portResolverStrategy(newSupplierFieldResolverStrategy(() -> PORT))
+                        .customFieldsResolverStrategy(newSupplierFieldResolverStrategy(() -> CUSTOM_FIELDS))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.SUPPLIER);

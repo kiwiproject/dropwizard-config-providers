@@ -4,6 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSupplierFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,9 +61,9 @@ class ServiceIdentityConfigProviderTest {
                 addSystemProperty("baz", "dev-int");
 
                 var provider = ServiceIdentityConfigProvider.builder()
-                        .nameResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("foo").build())
-                        .versionResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("bar").build())
-                        .environmentResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("baz").build())
+                        .nameResolverStrategy(newSystemPropertyFieldResolverStrategy("foo"))
+                        .versionResolverStrategy(newSystemPropertyFieldResolverStrategy("bar"))
+                        .environmentResolverStrategy(newSystemPropertyFieldResolverStrategy("baz"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -108,9 +113,9 @@ class ServiceIdentityConfigProviderTest {
 
                 var provider = ServiceIdentityConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .nameResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("foo").build())
-                        .versionResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("bar").build())
-                        .environmentResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("baz").build())
+                        .nameResolverStrategy(newEnvVarFieldResolverStrategy("foo"))
+                        .versionResolverStrategy(newEnvVarFieldResolverStrategy("bar"))
+                        .environmentResolverStrategy(newEnvVarFieldResolverStrategy("baz"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -155,9 +160,9 @@ class ServiceIdentityConfigProviderTest {
             void shouldBuildUsingProvidedExternalProperty() {
                 var provider = ServiceIdentityConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .nameResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("service.name.provided").build())
-                        .versionResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("service.version.provided").build())
-                        .environmentResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("service.env.provided").build())
+                        .nameResolverStrategy(newExternalPropertyFieldResolverStrategy("service.name.provided"))
+                        .versionResolverStrategy(newExternalPropertyFieldResolverStrategy("service.version.provided"))
+                        .environmentResolverStrategy(newExternalPropertyFieldResolverStrategy("service.env.provided"))
                         .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getName()).isEqualTo("external-provided-service");
@@ -177,9 +182,9 @@ class ServiceIdentityConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedValues() {
                 var provider = ServiceIdentityConfigProvider.builder()
-                        .nameResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue("explicit-service").build())
-                        .versionResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue("0.4.0").build())
-                        .environmentResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue("training").build())
+                        .nameResolverStrategy(newExplicitValueFieldResolverStrategy("explicit-service"))
+                        .versionResolverStrategy(newExplicitValueFieldResolverStrategy("0.4.0"))
+                        .environmentResolverStrategy(newExplicitValueFieldResolverStrategy("training"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -201,9 +206,9 @@ class ServiceIdentityConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedSupplier() {
                 var provider = ServiceIdentityConfigProvider.builder()
-                        .nameResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> "supplier-service").build())
-                        .versionResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> "0.5.0").build())
-                        .environmentResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> "production").build())
+                        .nameResolverStrategy(newSupplierFieldResolverStrategy(() -> "supplier-service"))
+                        .versionResolverStrategy(newSupplierFieldResolverStrategy(() -> "0.5.0"))
+                        .environmentResolverStrategy(newSupplierFieldResolverStrategy(() -> "production"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();

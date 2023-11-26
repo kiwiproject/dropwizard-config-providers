@@ -4,6 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSupplierFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,8 +52,9 @@ class ActiveMQConfigProviderTest {
             void shouldBuildUsingProvidedSystemPropertyKey() {
                 addSystemProperty("bar", AMQ_CONNECTION);
 
-                var resolver = FieldResolverStrategy.<String>builder().systemPropertyKey("bar").build();
-                var provider = ActiveMQConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = ActiveMQConfigProvider.builder()
+                        .resolverStrategy(newSystemPropertyFieldResolverStrategy("bar"))
+                        .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
                 assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.SYSTEM_PROPERTY));
@@ -75,10 +81,9 @@ class ActiveMQConfigProviderTest {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv("baz")).thenReturn(AMQ_CONNECTION);
 
-                var resolver = FieldResolverStrategy.<String>builder().envVariable("baz").build();
                 var provider = ActiveMQConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newEnvVarFieldResolverStrategy("baz"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -114,10 +119,9 @@ class ActiveMQConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedExternalProperty() {
-                var resolver = FieldResolverStrategy.<String>builder().externalProperty("amq.connection.provided").build();
                 var provider = ActiveMQConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newExternalPropertyFieldResolverStrategy("amq.connection.provided"))
                         .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
@@ -130,8 +134,9 @@ class ActiveMQConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedNetwork() {
-                var resolver = FieldResolverStrategy.<String>builder().explicitValue(AMQ_CONNECTION).build();
-                var provider = ActiveMQConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = ActiveMQConfigProvider.builder()
+                        .resolverStrategy(newExplicitValueFieldResolverStrategy(AMQ_CONNECTION))
+                        .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getActiveMQServers()).isEqualTo(AMQ_CONNECTION);
                 assertThat(provider.getResolvedBy()).containsExactly(entry("activeMQServers", ResolvedBy.EXPLICIT_VALUE));
@@ -144,12 +149,8 @@ class ActiveMQConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSupplier() {
-                var resolver = FieldResolverStrategy.<String>builder()
-                        .valueSupplier(() -> AMQ_CONNECTION)
-                        .build();
-
                 var provider = ActiveMQConfigProvider.builder()
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newSupplierFieldResolverStrategy(() -> AMQ_CONNECTION))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();

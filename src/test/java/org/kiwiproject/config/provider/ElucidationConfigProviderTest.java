@@ -4,6 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSupplierFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,9 +56,9 @@ class ElucidationConfigProviderTest {
                 addSystemProperty("enabled_var", "true");
 
                 var provider = ElucidationConfigProvider.builder()
-                        .hostResolverStrategy(FieldResolverStrategy.<String>builder().systemPropertyKey("host_var").build())
-                        .portResolverStrategy(FieldResolverStrategy.<Integer>builder().systemPropertyKey("port_var").build())
-                        .enabledResolverStrategy(FieldResolverStrategy.<Boolean>builder().systemPropertyKey("enabled_var").build())
+                        .hostResolverStrategy(newSystemPropertyFieldResolverStrategy("host_var"))
+                        .portResolverStrategy(newSystemPropertyFieldResolverStrategy("port_var"))
+                        .enabledResolverStrategy(newSystemPropertyFieldResolverStrategy("enabled_var"))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.SYSTEM_PROPERTY);
@@ -87,9 +92,9 @@ class ElucidationConfigProviderTest {
 
                 var provider = ElucidationConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .hostResolverStrategy(FieldResolverStrategy.<String>builder().envVariable("host_var").build())
-                        .portResolverStrategy(FieldResolverStrategy.<Integer>builder().envVariable("port_var").build())
-                        .enabledResolverStrategy(FieldResolverStrategy.<Boolean>builder().envVariable("enabled_var").build())
+                        .hostResolverStrategy(newEnvVarFieldResolverStrategy("host_var"))
+                        .portResolverStrategy(newEnvVarFieldResolverStrategy("port_var"))
+                        .enabledResolverStrategy(newEnvVarFieldResolverStrategy("enabled_var"))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.SYSTEM_ENV);
@@ -118,9 +123,9 @@ class ElucidationConfigProviderTest {
             void shouldBuildUsingProvidedExternalProperty() {
                 var provider = ElucidationConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .hostResolverStrategy(FieldResolverStrategy.<String>builder().externalProperty("elucidation.host.provided").build())
-                        .portResolverStrategy(FieldResolverStrategy.<Integer>builder().externalProperty("elucidation.port.provided").build())
-                        .enabledResolverStrategy(FieldResolverStrategy.<Boolean>builder().externalProperty("elucidation.enabled.provided").build())
+                        .hostResolverStrategy(newExternalPropertyFieldResolverStrategy("elucidation.host.provided"))
+                        .portResolverStrategy(newExternalPropertyFieldResolverStrategy("elucidation.port.provided"))
+                        .enabledResolverStrategy(newExternalPropertyFieldResolverStrategy("elucidation.enabled.provided"))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.EXTERNAL_PROPERTY);
@@ -133,9 +138,9 @@ class ElucidationConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedValues() {
                 var provider = ElucidationConfigProvider.builder()
-                        .hostResolverStrategy(FieldResolverStrategy.<String>builder().explicitValue(HOST).build())
-                        .portResolverStrategy(FieldResolverStrategy.<Integer>builder().explicitValue(PORT).build())
-                        .enabledResolverStrategy(FieldResolverStrategy.<Boolean>builder().explicitValue(true).build())
+                        .hostResolverStrategy(newExplicitValueFieldResolverStrategy(HOST))
+                        .portResolverStrategy(newExplicitValueFieldResolverStrategy(PORT))
+                        .enabledResolverStrategy(newExplicitValueFieldResolverStrategy(true))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.EXPLICIT_VALUE);
@@ -149,9 +154,9 @@ class ElucidationConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedSupplier() {
                 var provider = ElucidationConfigProvider.builder()
-                        .hostResolverStrategy(FieldResolverStrategy.<String>builder().valueSupplier(() -> HOST).build())
-                        .portResolverStrategy(FieldResolverStrategy.<Integer>builder().valueSupplier(() -> PORT).build())
-                        .enabledResolverStrategy(FieldResolverStrategy.<Boolean>builder().valueSupplier(() -> true).build())
+                        .hostResolverStrategy(newSupplierFieldResolverStrategy(() -> HOST))
+                        .portResolverStrategy(newSupplierFieldResolverStrategy(() -> PORT))
+                        .enabledResolverStrategy(newSupplierFieldResolverStrategy(() -> true))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.SUPPLIER);

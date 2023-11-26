@@ -5,6 +5,11 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.collect.KiwiMaps.newHashMap;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSupplierFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.kiwiproject.test.constants.KiwiTestConstants.JSON_HELPER;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -70,14 +75,14 @@ class DropwizardDataSourceConfigProviderTest {
                 addSystemProperty("orm_properties_var", JSON_HELPER.toJson(ORM_PROPERTIES));
 
                 var provider = DropwizardDataSourceConfigProvider.builder()
-                        .driverClassResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("driver_class_var").build())
-                        .urlResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("url_var").build())
-                        .userResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("user_var").build())
-                        .passwordResolver(FieldResolverStrategy.<String>builder().systemPropertyKey("password_var").build())
-                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("max_size_var").build())
-                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("min_size_var").build())
-                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().systemPropertyKey("initial_size_var").build())
-                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().systemPropertyKey("orm_properties_var").build())
+                        .driverClassResolver(newSystemPropertyFieldResolverStrategy("driver_class_var"))
+                        .urlResolver(newSystemPropertyFieldResolverStrategy("url_var"))
+                        .userResolver(newSystemPropertyFieldResolverStrategy("user_var"))
+                        .passwordResolver(newSystemPropertyFieldResolverStrategy("password_var"))
+                        .maxSizeResolver(newSystemPropertyFieldResolverStrategy("max_size_var"))
+                        .minSizeResolver(newSystemPropertyFieldResolverStrategy("min_size_var"))
+                        .initialSizeResolver(newSystemPropertyFieldResolverStrategy("initial_size_var"))
+                        .ormPropertyResolver(newSystemPropertyFieldResolverStrategy("orm_properties_var"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -123,14 +128,14 @@ class DropwizardDataSourceConfigProviderTest {
 
                 var provider = DropwizardDataSourceConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .driverClassResolver(FieldResolverStrategy.<String>builder().envVariable("driver_class_var").build())
-                        .urlResolver(FieldResolverStrategy.<String>builder().envVariable("url_var").build())
-                        .userResolver(FieldResolverStrategy.<String>builder().envVariable("user_var").build())
-                        .passwordResolver(FieldResolverStrategy.<String>builder().envVariable("password_var").build())
-                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("max_size_var").build())
-                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("min_size_var").build())
-                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().envVariable("initial_size_var").build())
-                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().envVariable("orm_properties_var").build())
+                        .driverClassResolver(newEnvVarFieldResolverStrategy("driver_class_var"))
+                        .urlResolver(newEnvVarFieldResolverStrategy("url_var"))
+                        .userResolver(newEnvVarFieldResolverStrategy("user_var"))
+                        .passwordResolver(newEnvVarFieldResolverStrategy("password_var"))
+                        .maxSizeResolver(newEnvVarFieldResolverStrategy("max_size_var"))
+                        .minSizeResolver(newEnvVarFieldResolverStrategy("min_size_var"))
+                        .initialSizeResolver(newEnvVarFieldResolverStrategy("initial_size_var"))
+                        .ormPropertyResolver(newEnvVarFieldResolverStrategy("orm_properties_var"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -161,14 +166,14 @@ class DropwizardDataSourceConfigProviderTest {
             void shouldBuildUsingProvidedExternalProperty() {
                 var provider = DropwizardDataSourceConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .driverClassResolver(FieldResolverStrategy.<String>builder().externalProperty("driver_class_var").build())
-                        .urlResolver(FieldResolverStrategy.<String>builder().externalProperty("url_var").build())
-                        .userResolver(FieldResolverStrategy.<String>builder().externalProperty("user_var").build())
-                        .passwordResolver(FieldResolverStrategy.<String>builder().externalProperty("password_var").build())
-                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("max_size_var").build())
-                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("min_size_var").build())
-                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().externalProperty("initial_size_var").build())
-                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().externalProperty("orm_properties_var").build())
+                        .driverClassResolver(newExternalPropertyFieldResolverStrategy("driver_class_var"))
+                        .urlResolver(newExternalPropertyFieldResolverStrategy("url_var"))
+                        .userResolver(newExternalPropertyFieldResolverStrategy("user_var"))
+                        .passwordResolver(newExternalPropertyFieldResolverStrategy("password_var"))
+                        .maxSizeResolver(newExternalPropertyFieldResolverStrategy("max_size_var"))
+                        .minSizeResolver(newExternalPropertyFieldResolverStrategy("min_size_var"))
+                        .initialSizeResolver(newExternalPropertyFieldResolverStrategy("initial_size_var"))
+                        .ormPropertyResolver(newExternalPropertyFieldResolverStrategy("orm_properties_var"))
                         .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertFactoryIsCorrect(provider.getDataSourceFactory(), provider, ResolvedBy.EXTERNAL_PROPERTY);
@@ -181,14 +186,14 @@ class DropwizardDataSourceConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedValues() {
                 var provider = DropwizardDataSourceConfigProvider.builder()
-                        .driverClassResolver(FieldResolverStrategy.<String>builder().explicitValue(DRIVER_CLASS).build())
-                        .urlResolver(FieldResolverStrategy.<String>builder().explicitValue(URL).build())
-                        .userResolver(FieldResolverStrategy.<String>builder().explicitValue(USER).build())
-                        .passwordResolver(FieldResolverStrategy.<String>builder().explicitValue(PASSWORD).build())
-                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().explicitValue(1).build())
-                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().explicitValue(0).build())
-                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().explicitValue(0).build())
-                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().explicitValue(newHashMap("prop", "value")).build())
+                        .driverClassResolver(newExplicitValueFieldResolverStrategy(DRIVER_CLASS))
+                        .urlResolver(newExplicitValueFieldResolverStrategy(URL))
+                        .userResolver(newExplicitValueFieldResolverStrategy(USER))
+                        .passwordResolver(newExplicitValueFieldResolverStrategy(PASSWORD))
+                        .maxSizeResolver(newExplicitValueFieldResolverStrategy(1))
+                        .minSizeResolver(newExplicitValueFieldResolverStrategy(0))
+                        .initialSizeResolver(newExplicitValueFieldResolverStrategy(0))
+                        .ormPropertyResolver(newExplicitValueFieldResolverStrategy(newHashMap("prop", "value")))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -203,14 +208,14 @@ class DropwizardDataSourceConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedSupplier() {
                 var provider = DropwizardDataSourceConfigProvider.builder()
-                        .driverClassResolver(FieldResolverStrategy.<String>builder().valueSupplier(() -> DRIVER_CLASS).build())
-                        .urlResolver(FieldResolverStrategy.<String>builder().valueSupplier(() -> URL).build())
-                        .userResolver(FieldResolverStrategy.<String>builder().valueSupplier(() -> USER).build())
-                        .passwordResolver(FieldResolverStrategy.<String>builder().valueSupplier(() -> PASSWORD).build())
-                        .maxSizeResolver(FieldResolverStrategy.<Integer>builder().valueSupplier(() -> 1).build())
-                        .minSizeResolver(FieldResolverStrategy.<Integer>builder().valueSupplier(() -> 0).build())
-                        .initialSizeResolver(FieldResolverStrategy.<Integer>builder().valueSupplier(() -> 0).build())
-                        .ormPropertyResolver(FieldResolverStrategy.<Map<String, String>>builder().valueSupplier(() -> newHashMap("prop", "value")).build())
+                        .driverClassResolver(newSupplierFieldResolverStrategy(() -> DRIVER_CLASS))
+                        .urlResolver(newSupplierFieldResolverStrategy(() -> URL))
+                        .userResolver(newSupplierFieldResolverStrategy(() -> USER))
+                        .passwordResolver(newSupplierFieldResolverStrategy(() -> PASSWORD))
+                        .maxSizeResolver(newSupplierFieldResolverStrategy(() -> 1))
+                        .minSizeResolver(newSupplierFieldResolverStrategy(() -> 0))
+                        .initialSizeResolver(newSupplierFieldResolverStrategy(() -> 0))
+                        .ormPropertyResolver(newSupplierFieldResolverStrategy(() -> newHashMap("prop", "value")))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();

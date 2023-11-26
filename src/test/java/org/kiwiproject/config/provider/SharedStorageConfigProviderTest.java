@@ -4,6 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSupplierFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -47,8 +52,9 @@ class SharedStorageConfigProviderTest {
             void shouldBuildUsingProvidedSystemPropertyKey() {
                 addSystemProperty("path_var", SHARED_STORAGE_PATH);
 
-                var resolver = FieldResolverStrategy.<String>builder().systemPropertyKey("path_var").build();
-                var provider = SharedStorageConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = SharedStorageConfigProvider.builder()
+                        .resolverStrategy(newSystemPropertyFieldResolverStrategy("path_var"))
+                        .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getSharedStoragePath()).isEqualTo(SHARED_STORAGE_PATH);
                 assertThat(provider.getResolvedBy()).containsExactly(entry("sharedStoragePath", ResolvedBy.SYSTEM_PROPERTY));
@@ -75,10 +81,9 @@ class SharedStorageConfigProviderTest {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv("path_var")).thenReturn(SHARED_STORAGE_PATH);
 
-                var resolver = FieldResolverStrategy.<String>builder().envVariable("path_var").build();
                 var provider = SharedStorageConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newEnvVarFieldResolverStrategy("path_var"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -114,10 +119,9 @@ class SharedStorageConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedExternalProperty() {
-                var resolver = FieldResolverStrategy.<String>builder().externalProperty("shared.storage.path.provided").build();
                 var provider = SharedStorageConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newExternalPropertyFieldResolverStrategy("shared.storage.path.provided"))
                         .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getSharedStoragePath()).isEqualTo(SHARED_STORAGE_PATH);
@@ -130,8 +134,9 @@ class SharedStorageConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedNetwork() {
-                var resolver = FieldResolverStrategy.<String>builder().explicitValue(SHARED_STORAGE_PATH).build();
-                var provider = SharedStorageConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = SharedStorageConfigProvider.builder()
+                        .resolverStrategy(newExplicitValueFieldResolverStrategy(SHARED_STORAGE_PATH))
+                        .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getSharedStoragePath()).isEqualTo(SHARED_STORAGE_PATH);
                 assertThat(provider.getResolvedBy()).containsExactly(entry("sharedStoragePath", ResolvedBy.EXPLICIT_VALUE));
@@ -144,12 +149,8 @@ class SharedStorageConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSupplier() {
-                var resolver = FieldResolverStrategy.<String>builder()
-                        .valueSupplier(() -> SHARED_STORAGE_PATH)
-                        .build();
-
                 var provider = SharedStorageConfigProvider.builder()
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newSupplierFieldResolverStrategy(() -> SHARED_STORAGE_PATH))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
