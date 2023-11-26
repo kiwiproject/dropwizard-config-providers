@@ -4,6 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSupplierFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,8 +50,9 @@ class NetworkIdentityConfigProviderTest {
             void shouldBuildUsingProvidedSystemPropertyKey() {
                 addSystemProperty("bar", "VPC-SystemProp-Provided");
 
-                var resolver = FieldResolverStrategy.<String>builder().systemPropertyKey("bar").build();
-                var provider = NetworkIdentityConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = NetworkIdentityConfigProvider.builder()
+                        .resolverStrategy(newSystemPropertyFieldResolverStrategy("bar"))
+                        .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-SystemProp-Provided");
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.SYSTEM_PROPERTY));
@@ -73,10 +79,9 @@ class NetworkIdentityConfigProviderTest {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv("baz")).thenReturn("VPC-Env-Provided");
 
-                var resolver = FieldResolverStrategy.<String>builder().envVariable("baz").build();
                 var provider = NetworkIdentityConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newEnvVarFieldResolverStrategy("baz"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -112,10 +117,9 @@ class NetworkIdentityConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedExternalProperty() {
-                var resolver = FieldResolverStrategy.<String>builder().externalProperty("network.provided").build();
                 var provider = NetworkIdentityConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newExternalPropertyFieldResolverStrategy("network.provided"))
                         .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-External-Provided");
@@ -128,8 +132,9 @@ class NetworkIdentityConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedNetwork() {
-                var resolver = FieldResolverStrategy.<String>builder().explicitValue("VPC-Explicit").build();
-                var provider = NetworkIdentityConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = NetworkIdentityConfigProvider.builder()
+                        .resolverStrategy(newExplicitValueFieldResolverStrategy("VPC-Explicit"))
+                        .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getNetwork()).isEqualTo("VPC-Explicit");
                 assertThat(provider.getResolvedBy()).containsExactly(entry("network", ResolvedBy.EXPLICIT_VALUE));
@@ -142,12 +147,8 @@ class NetworkIdentityConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedSupplier() {
-                var resolver = FieldResolverStrategy.<String>builder()
-                        .valueSupplier(() -> "VPC-Supplier")
-                        .build();
-
                 var provider = NetworkIdentityConfigProvider.builder()
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newSupplierFieldResolverStrategy(() -> "VPC-Supplier"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();

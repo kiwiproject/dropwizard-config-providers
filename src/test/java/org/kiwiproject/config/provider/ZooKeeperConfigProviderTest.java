@@ -4,6 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,8 +53,9 @@ class ZooKeeperConfigProviderTest {
             void shouldBuildUsingProvidedSystemPropertyKey() {
                 addSystemProperty("bar", ZOOKEEPER_CONNECT_STRING);
 
-                var resolver = FieldResolverStrategy.<String>builder().systemPropertyKey("bar").build();
-                var provider = ZooKeeperConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = ZooKeeperConfigProvider.builder()
+                        .resolverStrategy(newSystemPropertyFieldResolverStrategy("bar"))
+                        .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
                 assertThat(provider.getResolvedBy()).containsExactly(entry("connectString",
@@ -79,10 +84,9 @@ class ZooKeeperConfigProviderTest {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv("baz")).thenReturn(ZOOKEEPER_CONNECT_STRING);
 
-                var resolver = FieldResolverStrategy.<String>builder().envVariable("baz").build();
                 var provider = ZooKeeperConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newEnvVarFieldResolverStrategy("baz"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -119,13 +123,9 @@ class ZooKeeperConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedExternalProperty() {
-                var resolver = FieldResolverStrategy.<String>builder()
-                        .externalProperty("zookeeper.connection.provided")
-                        .build();
-
                 var provider = ZooKeeperConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .resolverStrategy(resolver)
+                        .resolverStrategy(newExternalPropertyFieldResolverStrategy("zookeeper.connection.provided"))
                         .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
@@ -139,8 +139,9 @@ class ZooKeeperConfigProviderTest {
 
             @Test
             void shouldBuildUsingProvidedNetwork() {
-                var resolver = FieldResolverStrategy.<String>builder().explicitValue(ZOOKEEPER_CONNECT_STRING).build();
-                var provider = ZooKeeperConfigProvider.builder().resolverStrategy(resolver).build();
+                var provider = ZooKeeperConfigProvider.builder()
+                        .resolverStrategy(newExplicitValueFieldResolverStrategy(ZOOKEEPER_CONNECT_STRING))
+                        .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getConnectString()).isEqualTo(ZOOKEEPER_CONNECT_STRING);
                 assertThat(provider.getResolvedBy()).containsExactly(entry("connectString", ResolvedBy.EXPLICIT_VALUE));

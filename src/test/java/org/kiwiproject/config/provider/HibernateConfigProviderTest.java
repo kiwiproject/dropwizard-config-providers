@@ -4,6 +4,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
+import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSupplierFieldResolverStrategy;
+import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.kiwiproject.test.constants.KiwiTestConstants.JSON_HELPER;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -49,7 +54,7 @@ class HibernateConfigProviderTest {
                 addSystemProperty("properties_var", JSON_HELPER.toJson(PROPERTIES));
 
                 var provider = HibernateConfigProvider.builder()
-                        .resolverStrategy(FieldResolverStrategy.<Map<String, Object>>builder().systemPropertyKey("properties_var").build())
+                        .resolverStrategy(newSystemPropertyFieldResolverStrategy("properties_var"))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.SYSTEM_PROPERTY);
@@ -79,7 +84,7 @@ class HibernateConfigProviderTest {
 
                 var provider = HibernateConfigProvider.builder()
                         .kiwiEnvironment(env)
-                        .resolverStrategy(FieldResolverStrategy.<Map<String, Object>>builder().envVariable("properties_var").build())
+                        .resolverStrategy(newEnvVarFieldResolverStrategy("properties_var"))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.SYSTEM_ENV);
@@ -108,7 +113,7 @@ class HibernateConfigProviderTest {
             void shouldBuildUsingProvidedExternalProperty() {
                 var provider = HibernateConfigProvider.builder()
                         .externalConfigProvider(externalConfigProvider)
-                        .resolverStrategy(FieldResolverStrategy.<Map<String, Object>>builder().externalProperty("hibernate.properties.provided").build())
+                        .resolverStrategy(newExternalPropertyFieldResolverStrategy("hibernate.properties.provided"))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.EXTERNAL_PROPERTY);
@@ -121,7 +126,7 @@ class HibernateConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedValues() {
                 var provider = HibernateConfigProvider.builder()
-                        .resolverStrategy(FieldResolverStrategy.<Map<String, Object>>builder().explicitValue(PROPERTIES).build())
+                        .resolverStrategy(newExplicitValueFieldResolverStrategy(PROPERTIES))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.EXPLICIT_VALUE);
@@ -135,7 +140,7 @@ class HibernateConfigProviderTest {
             @Test
             void shouldBuildUsingProvidedSupplier() {
                 var provider = HibernateConfigProvider.builder()
-                        .resolverStrategy(FieldResolverStrategy.<Map<String, Object>>builder().valueSupplier(() -> PROPERTIES).build())
+                        .resolverStrategy(newSupplierFieldResolverStrategy(() -> PROPERTIES))
                         .build();
 
                 assertProviderCanProvide(provider, ResolvedBy.SUPPLIER);
