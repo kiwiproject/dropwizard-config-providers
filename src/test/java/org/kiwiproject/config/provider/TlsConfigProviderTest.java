@@ -34,6 +34,11 @@ class TlsConfigProviderTest {
     private static final String PROTOCOL = "TLSv1.2";
     private static final String SUPPORTED_PROTOCOLS = "TLSv1.2,TLSv1.3";
     private static final String[] SUPPORTED_PROTOCOLS_ARRAY = new String[] { "TLSv1.2", "TLSv1.3" };
+    private static final String SUPPORTED_CIPHERS = "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256";
+    private static final String[] SUPPORTED_CIPHERS_ARRAY = {
+            "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256"
+    };
 
     @Nested
     class Construct {
@@ -58,6 +63,7 @@ class TlsConfigProviderTest {
                 addSystemProperty(TlsConfigProvider.DEFAULT_DISABLE_SNI_HOST_CHECK_SYSTEM_PROPERTY, "true");
                 addSystemProperty(TlsConfigProvider.DEFAULT_PROTOCOL_SYSTEM_PROPERTY, PROTOCOL);
                 addSystemProperty(TlsConfigProvider.DEFAULT_SUPPORTED_PROTOCOLS_SYSTEM_PROPERTY, SUPPORTED_PROTOCOLS);
+                addSystemProperty(TlsConfigProvider.DEFAULT_SUPPORTED_CIPHERS_SYSTEM_PROPERTY, SUPPORTED_CIPHERS);
 
                 var provider = TlsConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
@@ -76,6 +82,7 @@ class TlsConfigProviderTest {
                 addSystemProperty("h", "true");
                 addSystemProperty("i", PROTOCOL);
                 addSystemProperty("j", SUPPORTED_PROTOCOLS);
+                addSystemProperty("k", SUPPORTED_CIPHERS);
 
                 var provider = TlsConfigProvider.builder()
                         .keyStorePathResolverStrategy(newSystemPropertyFieldResolverStrategy("a"))
@@ -88,6 +95,7 @@ class TlsConfigProviderTest {
                         .disableSniHostCheckResolverStrategy(newSystemPropertyFieldResolverStrategy("h"))
                         .protocolResolverStrategy(newSystemPropertyFieldResolverStrategy("i"))
                         .supportedProtocolsResolverStrategy(newSystemPropertyFieldResolverStrategy("j"))
+                        .supportedCiphersResolverStrategy(newSystemPropertyFieldResolverStrategy("k"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -112,6 +120,7 @@ class TlsConfigProviderTest {
                 mockEnvToReturn(env, TlsConfigProvider.DEFAULT_DISABLE_SNI_HOST_CHECK_ENV_VARIABLE, "true");
                 mockEnvToReturn(env, TlsConfigProvider.DEFAULT_PROTOCOL_ENV_VARIABLE, PROTOCOL);
                 mockEnvToReturn(env, TlsConfigProvider.DEFAULT_SUPPORTED_PROTOCOLS_ENV_VARIABLE, SUPPORTED_PROTOCOLS);
+                mockEnvToReturn(env, TlsConfigProvider.DEFAULT_SUPPORTED_CIPHERS_ENV_VARIABLE, SUPPORTED_CIPHERS);
 
                 var provider = TlsConfigProvider.builder()
                         .kiwiEnvironment(env)
@@ -134,6 +143,7 @@ class TlsConfigProviderTest {
                 mockEnvToReturn(env, "h", "true");
                 mockEnvToReturn(env, "i", PROTOCOL);
                 mockEnvToReturn(env, "j", SUPPORTED_PROTOCOLS);
+                mockEnvToReturn(env, "k", SUPPORTED_CIPHERS);
 
                 var provider = TlsConfigProvider.builder()
                         .kiwiEnvironment(env)
@@ -147,6 +157,7 @@ class TlsConfigProviderTest {
                         .disableSniHostCheckResolverStrategy(newEnvVarFieldResolverStrategy("h"))
                         .protocolResolverStrategy(newEnvVarFieldResolverStrategy("i"))
                         .supportedProtocolsResolverStrategy(newEnvVarFieldResolverStrategy("j"))
+                        .supportedCiphersResolverStrategy(newEnvVarFieldResolverStrategy("k"))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -187,6 +198,7 @@ class TlsConfigProviderTest {
                         .disableSniHostCheckResolverStrategy(newExternalPropertyFieldResolverStrategy("h"))
                         .protocolResolverStrategy(newExternalPropertyFieldResolverStrategy("i"))
                         .supportedProtocolsResolverStrategy(newExternalPropertyFieldResolverStrategy("j"))
+                        .supportedCiphersResolverStrategy(newExternalPropertyFieldResolverStrategy("k"))
                         .build();
                 assertThat(provider.canProvide()).isTrue();
                 assertContextIsCorrect(provider.getTlsContextConfiguration(), provider, ResolvedBy.EXTERNAL_PROPERTY);
@@ -209,6 +221,7 @@ class TlsConfigProviderTest {
                         .disableSniHostCheckResolverStrategy(newExplicitValueFieldResolverStrategy(true))
                         .protocolResolverStrategy(newExplicitValueFieldResolverStrategy(PROTOCOL))
                         .supportedProtocolsResolverStrategy(newExplicitValueFieldResolverStrategy(List.of(SUPPORTED_PROTOCOLS_ARRAY)))
+                        .supportedCiphersResolverStrategy(newExplicitValueFieldResolverStrategy(List.of(SUPPORTED_CIPHERS_ARRAY)))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -233,6 +246,7 @@ class TlsConfigProviderTest {
                         .disableSniHostCheckResolverStrategy(newSupplierFieldResolverStrategy(() -> true))
                         .protocolResolverStrategy(newSupplierFieldResolverStrategy(() -> PROTOCOL))
                         .supportedProtocolsResolverStrategy(newSupplierFieldResolverStrategy(() -> List.of(SUPPORTED_PROTOCOLS_ARRAY)))
+                        .supportedCiphersResolverStrategy(newSupplierFieldResolverStrategy(() -> List.of(SUPPORTED_CIPHERS_ARRAY)))
                         .build();
 
                 assertThat(provider.canProvide()).isTrue();
@@ -309,6 +323,7 @@ class TlsConfigProviderTest {
                 () -> assertThat(config.getTrustStoreType()).isEqualTo(STORE_TYPE),
                 () -> assertThat(config.getProtocol()).isEqualTo(PROTOCOL),
                 () -> assertThat(config.getSupportedProtocols()).contains(SUPPORTED_PROTOCOLS_ARRAY),
+                () -> assertThat(config.getSupportedCiphers()).contains(SUPPORTED_CIPHERS_ARRAY),
                 () -> assertThat(config.isVerifyHostname()).isFalse(),
                 () -> assertThat(config.isDisableSniHostCheck()).isTrue(),
                 () -> assertThat(provider.getResolvedBy()).contains(

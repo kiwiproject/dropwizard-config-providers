@@ -2,6 +2,7 @@ package org.kiwiproject.config.provider;
 
 import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.kiwiproject.collect.KiwiMaps.newUnmodifiableHashMap;
 
 import com.google.common.annotations.VisibleForTesting;
 import lombok.AccessLevel;
@@ -9,11 +10,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.kiwiproject.base.KiwiEnvironment;
+import org.kiwiproject.base.KiwiStrings;
 import org.kiwiproject.config.TlsContextConfiguration;
 import org.kiwiproject.config.provider.util.PropertyResolutionSettings;
 import org.kiwiproject.config.provider.util.SinglePropertyResolver;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -43,6 +44,7 @@ public class TlsConfigProvider implements ConfigProvider {
     private static final String DISABLE_SNI_HOST_CHECK_FIELD = "disableSniHostCheck";
     private static final String PROTOCOL_FIELD = "protocol";
     private static final String SUPPORTED_PROTOCOLS_FIELD = "supportedProtocols";
+    private static final String SUPPORTED_CIPHERS_FIELD = "supportedCiphers";
 
     @VisibleForTesting
     static final String DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY = "kiwi.tls.keyStorePath";
@@ -134,6 +136,15 @@ public class TlsConfigProvider implements ConfigProvider {
     @VisibleForTesting
     static final String DEFAULT_SUPPORTED_PROTOCOLS_EXTERNAL_PROPERTY_KEY = "tls.supportedProtocols";
 
+    @VisibleForTesting
+    static final String DEFAULT_SUPPORTED_CIPHERS_SYSTEM_PROPERTY = "kiwi.tls.supportedCiphers";
+
+    @VisibleForTesting
+    static final String DEFAULT_SUPPORTED_CIPHERS_ENV_VARIABLE = "KIWI_TLS_SUPPORTED_CIPHERS";
+
+    @VisibleForTesting
+    static final String DEFAULT_SUPPORTED_CIPHERS_EXTERNAL_PROPERTY_KEY = "tls.supportedCiphers";
+
     private static final Map<String, String> KEYSTORE_PATH_DEFAULTS = Map.of(
             SYSTEM_PROPERTY, DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY,
             ENV_PROPERTY, DEFAULT_KEYSTORE_PATH_ENV_VARIABLE,
@@ -185,7 +196,12 @@ public class TlsConfigProvider implements ConfigProvider {
             ENV_PROPERTY, DEFAULT_SUPPORTED_PROTOCOLS_ENV_VARIABLE,
             EXTERNAL_PROPERTY, DEFAULT_SUPPORTED_PROTOCOLS_EXTERNAL_PROPERTY_KEY);
 
-    private static final Map<String, Map<String, String>> DEFAULTS_FOR_PROPERTIES = Map.of(
+    private static final Map<String, String> SUPPORTED_CIPHERS_DEFAULTS = Map.of(
+            SYSTEM_PROPERTY, DEFAULT_SUPPORTED_CIPHERS_SYSTEM_PROPERTY,
+            ENV_PROPERTY, DEFAULT_SUPPORTED_CIPHERS_ENV_VARIABLE,
+            EXTERNAL_PROPERTY, DEFAULT_SUPPORTED_CIPHERS_EXTERNAL_PROPERTY_KEY);
+
+    private static final Map<String, Map<String, String>> DEFAULTS_FOR_PROPERTIES = newUnmodifiableHashMap(
             KEYSTORE_PATH_FIELD, KEYSTORE_PATH_DEFAULTS,
             KEYSTORE_PASSWORD_FIELD, KEYSTORE_PASSWORD_DEFAULTS,
             KEYSTORE_TYPE_FIELD, KEYSTORE_TYPE_DEFAULTS,
@@ -195,7 +211,8 @@ public class TlsConfigProvider implements ConfigProvider {
             VERIFY_HOSTNAME_FIELD, VERIFY_HOSTNAME_DEFAULTS,
             DISABLE_SNI_HOST_CHECK_FIELD, DISABLE_SNI_HOST_CHECK_DEFAULTS,
             PROTOCOL_FIELD, PROTOCOL_DEFAULTS,
-            SUPPORTED_PROTOCOLS_FIELD, SUPPORTED_PROTOCOLS_DEFAULTS
+            SUPPORTED_PROTOCOLS_FIELD, SUPPORTED_PROTOCOLS_DEFAULTS,
+            SUPPORTED_CIPHERS_FIELD, SUPPORTED_CIPHERS_DEFAULTS
     );
 
     @Getter
@@ -231,6 +248,9 @@ public class TlsConfigProvider implements ConfigProvider {
     @Setter(AccessLevel.PRIVATE)
     private ResolvedBy supportedProtocolsResolvedBy;
 
+    @Setter(AccessLevel.PRIVATE)
+    private ResolvedBy supportedCiphersResolvedBy;
+
     @SuppressWarnings("java:S107")
     @Builder
     private TlsConfigProvider(ExternalConfigProvider externalConfigProvider,
@@ -245,6 +265,7 @@ public class TlsConfigProvider implements ConfigProvider {
                               FieldResolverStrategy<Boolean> disableSniHostCheckResolverStrategy,
                               FieldResolverStrategy<String> protocolResolverStrategy,
                               FieldResolverStrategy<List<String>> supportedProtocolsResolverStrategy,
+                              FieldResolverStrategy<List<String>> supportedCiphersResolverStrategy,
                               Supplier<TlsContextConfiguration> tlsContextConfigurationSupplier) {
 
         var originalConfiguration = getSuppliedConfigurationOrDefault(tlsContextConfigurationSupplier);
@@ -270,7 +291,10 @@ public class TlsConfigProvider implements ConfigProvider {
                         kiwiEnvironment, originalConfiguration.isDisableSniHostCheck(), this::setDisableSniHostCheckResolvedBy, Boolean::parseBoolean))
                 .supportedProtocols(resolveProperty(SUPPORTED_PROTOCOLS_FIELD, supportedProtocolsResolverStrategy, externalConfigProvider,
                         kiwiEnvironment, originalConfiguration.getSupportedProtocols(),
-                        this::setSupportedProtocolsResolvedBy, str -> Arrays.asList(str.split(","))))
+                        this::setSupportedProtocolsResolvedBy, KiwiStrings::splitOnCommas))
+                .supportedCiphers(resolveProperty(SUPPORTED_CIPHERS_FIELD, supportedCiphersResolverStrategy, externalConfigProvider,
+                        kiwiEnvironment, originalConfiguration.getSupportedCiphers(),
+                        this::setSupportedCiphersResolvedBy, KiwiStrings::splitOnCommas))
                 .build();
     }
 
@@ -330,6 +354,7 @@ public class TlsConfigProvider implements ConfigProvider {
         verifyHostnameResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
         protocolResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
         supportedProtocolsResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
+        supportedCiphersResolvedBy = ResolvedBy.PROVIDER_DEFAULT;
     }
 
     @Override
@@ -340,7 +365,7 @@ public class TlsConfigProvider implements ConfigProvider {
 
     @Override
     public Map<String, ResolvedBy> getResolvedBy() {
-        return Map.of(
+        return newUnmodifiableHashMap(
                 KEYSTORE_PATH_FIELD, keyStorePathResolvedBy,
                 KEYSTORE_PASSWORD_FIELD, keyStorePasswordResolvedBy,
                 KEYSTORE_TYPE_FIELD, keyStoreTypeResolvedBy,
@@ -350,7 +375,8 @@ public class TlsConfigProvider implements ConfigProvider {
                 VERIFY_HOSTNAME_FIELD, verifyHostnameResolvedBy,
                 DISABLE_SNI_HOST_CHECK_FIELD, disableSniHostCheckResolvedBy,
                 PROTOCOL_FIELD, protocolResolvedBy,
-                SUPPORTED_PROTOCOLS_FIELD, supportedProtocolsResolvedBy
+                SUPPORTED_PROTOCOLS_FIELD, supportedProtocolsResolvedBy,
+                SUPPORTED_CIPHERS_FIELD, supportedCiphersResolvedBy
         );
     }
 }
