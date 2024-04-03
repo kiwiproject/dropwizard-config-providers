@@ -2,12 +2,12 @@ package org.kiwiproject.config.provider;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.kiwiproject.config.provider.FieldResolverStrategies.newEnvVarFieldResolverStrategy;
+import static org.kiwiproject.config.provider.FieldResolverStrategies.newExplicitValueFieldResolverStrategy;
+import static org.kiwiproject.config.provider.FieldResolverStrategies.newExternalPropertyFieldResolverStrategy;
+import static org.kiwiproject.config.provider.FieldResolverStrategies.newSystemPropertyFieldResolverStrategy;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.addSystemProperty;
 import static org.kiwiproject.config.provider.util.SystemPropertyHelper.clearAllSystemProperties;
-import static org.kiwiproject.config.provider.util.TestHelpers.newEnvVarFieldResolverStrategy;
-import static org.kiwiproject.config.provider.util.TestHelpers.newExplicitValueFieldResolverStrategy;
-import static org.kiwiproject.config.provider.util.TestHelpers.newExternalPropertyFieldResolverStrategy;
-import static org.kiwiproject.config.provider.util.TestHelpers.newSystemPropertyFieldResolverStrategy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
