@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>dropwizard-config-providers</artifactId>
-    <version>2.3.1-SNAPSHOT</version>
+    <version>2.3.1</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -25,7 +25,7 @@
         <connection>scm:git:https://github.com/kiwiproject/dropwizard-config-providers.git</connection>
         <developerConnection>scm:git:git@github.com:kiwiproject/dropwizard-config-providers.git</developerConnection>
         <url>https://github.com/kiwiproject/dropwizard-config-providers</url>
-        <tag>HEAD</tag>
+        <tag>v2.3.1</tag>
     </scm>
 
     <properties>
