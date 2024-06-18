@@ -44,7 +44,7 @@ class ExternalConfigProviderTest {
             void shouldBuildUsingDefaultSystemPropertyKey() {
                 addSystemProperty(ExternalConfigProvider.DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY, propertyPath.toString());
 
-                var provider = ExternalConfigProvider.builder().build();
+                provider = ExternalConfigProvider.builder().build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
             }
@@ -53,7 +53,7 @@ class ExternalConfigProviderTest {
             void shouldBuildUsingProvidedSystemPropertyKey() {
                 addSystemProperty("bar", propertyPath.toString());
 
-                var provider = ExternalConfigProvider.builder().systemPropertyKey("bar").build();
+                provider = ExternalConfigProvider.builder().systemPropertyKey("bar").build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
             }
@@ -68,7 +68,7 @@ class ExternalConfigProviderTest {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv(ExternalConfigProvider.DEFAULT_CONFIG_PATH_ENV_VARIABLE)).thenReturn(propertyPath.toString());
 
-                var provider = ExternalConfigProvider.builder().environment(env).build();
+                provider = ExternalConfigProvider.builder().environment(env).build();
                 assertThat(provider.canProvide()).isTrue();
                 assertThat(provider.getPropertiesPath()).isEqualTo(propertyPath);
             }
@@ -78,7 +78,7 @@ class ExternalConfigProviderTest {
                 var env = mock(KiwiEnvironment.class);
                 when(env.getenv("baz")).thenReturn(propertyPath.toString());
 
-                var provider = ExternalConfigProvider.builder()
+                provider = ExternalConfigProvider.builder()
                         .environment(env)
                         .envVariable("baz")
                         .build();
@@ -105,7 +105,7 @@ class ExternalConfigProviderTest {
 
             @Test
             void shouldBuildUsingDefaultPath() {
-                var provider = ExternalConfigProvider.builder().build();
+                provider = ExternalConfigProvider.builder().build();
 
                 assertThat(provider.canProvide()).isFalse();
                 assertThat(provider.getPropertiesPath()).isEqualTo(ExternalConfigProvider.DEFAULT_CONFIG_PATH);
