@@ -31,7 +31,7 @@
     <properties>
         <!-- Versions for required dependencies -->
         <kiwi.version>4.4.0</kiwi.version>
-        <kiwi-bom.version>2.0.14</kiwi-bom.version>
+        <kiwi-bom.version>2.0.15</kiwi-bom.version>
 
         <!-- Versions for test dependencies -->
         <kiwi-test.version>3.6.1</kiwi-test.version>
@@ -71,6 +71,21 @@
         <!-- required dependencies -->
 
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.kiwiproject</groupId>
             <artifactId>kiwi</artifactId>
         </dependency>
@@ -101,7 +116,7 @@
             <artifactId>kiwi-test</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
