@@ -293,7 +293,7 @@ class TlsConfigProviderTest {
                         () -> assertThat(config.getTrustStorePath()).isEqualTo("my-secret-trust"),
                         () -> assertThat(config.getTrustStorePassword()).isEqualTo("pass"),
                         () -> assertThat(config.getTrustStoreType()).isEqualTo("JKS"),
-                        () -> assertThat(config.getProtocol()).isEqualTo("TLSv1.2"),
+                        () -> assertThat(config.getProtocol()).isEqualTo("TLSv1.3"),
                         () -> assertThat(config.getSupportedProtocols()).isNull(),
                         () -> assertThat(config.isVerifyHostname()).isTrue(),
                         () -> assertThat(provider.getResolvedBy()).contains(
