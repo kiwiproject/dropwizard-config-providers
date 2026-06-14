@@ -2,7 +2,6 @@ package org.kiwiproject.config.provider;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import org.kiwiproject.base.KiwiEnvironment;
@@ -24,14 +23,11 @@ import java.util.Map;
  */
 public class ZooKeeperConfigProvider implements ConfigProvider {
 
-    @VisibleForTesting
-    static final String DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY = "kiwi.zookeeper.connection";
+    public static final String DEFAULT_CONNECT_STRING_SYSTEM_PROPERTY = "kiwi.zookeeper.connection";
 
-    @VisibleForTesting
-    static final String DEFAULT_CONNECT_STRING_ENV_VARIABLE = "KIWI_ZOOKEEPER_CONNECTION";
+    public static final String DEFAULT_CONNECT_STRING_ENV_VARIABLE = "KIWI_ZOOKEEPER_CONNECTION";
 
-    @VisibleForTesting
-    static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "zookeeper.connection";
+    public static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "zookeeper.connection";
 
     @Getter
     private final String connectString;

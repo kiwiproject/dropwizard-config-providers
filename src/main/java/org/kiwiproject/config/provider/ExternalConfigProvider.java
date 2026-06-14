@@ -6,7 +6,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.kiwiproject.collect.KiwiMaps.isNotNullOrEmpty;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,14 +40,11 @@ import java.util.function.Supplier;
 @Slf4j
 public class ExternalConfigProvider implements ConfigProvider {
 
-    @VisibleForTesting
-    static final Path DEFAULT_CONFIG_PATH = Paths.get(System.getProperty("user.home"), ".kiwi.external.config.properties");
+    public static final Path DEFAULT_CONFIG_PATH = Paths.get(System.getProperty("user.home"), ".kiwi.external.config.properties");
 
-    @VisibleForTesting
-    static final String DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY = "kiwi.external.config.path";
+    public static final String DEFAULT_CONFIG_PATH_SYSTEM_PROPERTY = "kiwi.external.config.path";
 
-    @VisibleForTesting
-    static final String DEFAULT_CONFIG_PATH_ENV_VARIABLE = "KIWI_EXTERNAL_CONFIG_PATH";
+    public static final String DEFAULT_CONFIG_PATH_ENV_VARIABLE = "KIWI_EXTERNAL_CONFIG_PATH";
 
     @Getter(AccessLevel.PACKAGE)
     private Path propertiesPath;

@@ -2,7 +2,6 @@ package org.kiwiproject.config.provider;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import org.kiwiproject.base.KiwiEnvironment;
@@ -24,14 +23,11 @@ import java.util.Map;
  */
 public class MongoConfigProvider implements ConfigProvider {
 
-    @VisibleForTesting
-    static final String DEFAULT_MONGO_SYSTEM_PROPERTY = "kiwi.mongo.connection";
+    public static final String DEFAULT_MONGO_SYSTEM_PROPERTY = "kiwi.mongo.connection";
 
-    @VisibleForTesting
-    static final String DEFAULT_MONGO_ENV_VARIABLE = "KIWI_MONGO_CONNECTION";
+    public static final String DEFAULT_MONGO_ENV_VARIABLE = "KIWI_MONGO_CONNECTION";
 
-    @VisibleForTesting
-    static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "mongo.connection";
+    public static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "mongo.connection";
 
     @Getter
     private final String url;

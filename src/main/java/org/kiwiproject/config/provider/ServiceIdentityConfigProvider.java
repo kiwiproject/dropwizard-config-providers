@@ -2,7 +2,6 @@ package org.kiwiproject.config.provider;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import org.kiwiproject.base.KiwiEnvironment;
@@ -25,32 +24,23 @@ import java.util.Map;
  */
 public class ServiceIdentityConfigProvider implements ConfigProvider {
 
-    @VisibleForTesting
-    static final String DEFAULT_NAME_SYSTEM_PROPERTY = "kiwi.service.name";
+    public static final String DEFAULT_NAME_SYSTEM_PROPERTY = "kiwi.service.name";
 
-    @VisibleForTesting
-    static final String DEFAULT_NAME_ENV_VARIABLE = "KIWI_SERVICE_NAME";
+    public static final String DEFAULT_NAME_ENV_VARIABLE = "KIWI_SERVICE_NAME";
 
-    @VisibleForTesting
-    static final String DEFAULT_NAME_EXTERNAL_PROPERTY_KEY = "service.name";
+    public static final String DEFAULT_NAME_EXTERNAL_PROPERTY_KEY = "service.name";
 
-    @VisibleForTesting
-    static final String DEFAULT_VERSION_SYSTEM_PROPERTY = "kiwi.service.version";
+    public static final String DEFAULT_VERSION_SYSTEM_PROPERTY = "kiwi.service.version";
 
-    @VisibleForTesting
-    static final String DEFAULT_VERSION_ENV_VARIABLE = "KIWI_SERVICE_VERSION";
+    public static final String DEFAULT_VERSION_ENV_VARIABLE = "KIWI_SERVICE_VERSION";
 
-    @VisibleForTesting
-    static final String DEFAULT_VERSION_EXTERNAL_PROPERTY_KEY = "service.version";
+    public static final String DEFAULT_VERSION_EXTERNAL_PROPERTY_KEY = "service.version";
 
-    @VisibleForTesting
-    static final String DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY = "kiwi.service.env";
+    public static final String DEFAULT_ENVIRONMENT_SYSTEM_PROPERTY = "kiwi.service.env";
 
-    @VisibleForTesting
-    static final String DEFAULT_ENVIRONMENT_ENV_VARIABLE = "KIWI_SERVICE_ENV";
+    public static final String DEFAULT_ENVIRONMENT_ENV_VARIABLE = "KIWI_SERVICE_ENV";
 
-    @VisibleForTesting
-    static final String DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY = "service.env";
+    public static final String DEFAULT_ENVIRONMENT_EXTERNAL_PROPERTY_KEY = "service.env";
 
     @Getter
     private final String name;

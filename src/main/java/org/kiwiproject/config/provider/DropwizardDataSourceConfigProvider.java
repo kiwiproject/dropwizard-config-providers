@@ -4,7 +4,6 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.ObjectUtils.isNotEmpty;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.annotations.VisibleForTesting;
 import io.dropwizard.db.DataSourceFactory;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -43,77 +42,53 @@ public class DropwizardDataSourceConfigProvider implements ConfigProvider {
     private static final String INITIAL_SIZE_FIELD = "initialSize";
     private static final String ORM_PROPERTIES_FIELD = "ormProperties";
 
-    @VisibleForTesting
-    static final String DEFAULT_DRIVER_CLASS_SYSTEM_PROPERTY = "kiwi.datasource.driverClass";
+    public static final String DEFAULT_DRIVER_CLASS_SYSTEM_PROPERTY = "kiwi.datasource.driverClass";
 
-    @VisibleForTesting
-    static final String DEFAULT_DRIVER_CLASS_ENV_VARIABLE = "KIWI_DATASOURCE_DRIVER_CLASS";
+    public static final String DEFAULT_DRIVER_CLASS_ENV_VARIABLE = "KIWI_DATASOURCE_DRIVER_CLASS";
 
-    @VisibleForTesting
-    static final String DEFAULT_DRIVER_CLASS_EXTERNAL_PROPERTY_KEY = "datasource.driverClass";
+    public static final String DEFAULT_DRIVER_CLASS_EXTERNAL_PROPERTY_KEY = "datasource.driverClass";
 
-    @VisibleForTesting
-    static final String DEFAULT_URL_SYSTEM_PROPERTY = "kiwi.datasource.url";
+    public static final String DEFAULT_URL_SYSTEM_PROPERTY = "kiwi.datasource.url";
 
-    @VisibleForTesting
-    static final String DEFAULT_URL_ENV_VARIABLE = "KIWI_DATASOURCE_URL";
+    public static final String DEFAULT_URL_ENV_VARIABLE = "KIWI_DATASOURCE_URL";
 
-    @VisibleForTesting
-    static final String DEFAULT_URL_EXTERNAL_PROPERTY_KEY = "datasource.url";
+    public static final String DEFAULT_URL_EXTERNAL_PROPERTY_KEY = "datasource.url";
 
-    @VisibleForTesting
-    static final String DEFAULT_USER_SYSTEM_PROPERTY = "kiwi.datasource.user";
+    public static final String DEFAULT_USER_SYSTEM_PROPERTY = "kiwi.datasource.user";
 
-    @VisibleForTesting
-    static final String DEFAULT_USER_ENV_VARIABLE = "KIWI_DATASOURCE_USER";
+    public static final String DEFAULT_USER_ENV_VARIABLE = "KIWI_DATASOURCE_USER";
 
-    @VisibleForTesting
-    static final String DEFAULT_USER_EXTERNAL_PROPERTY_KEY = "datasource.user";
+    public static final String DEFAULT_USER_EXTERNAL_PROPERTY_KEY = "datasource.user";
 
-    @VisibleForTesting
-    static final String DEFAULT_PASSWORD_SYSTEM_PROPERTY = "kiwi.datasource.password";
+    public static final String DEFAULT_PASSWORD_SYSTEM_PROPERTY = "kiwi.datasource.password";
 
-    @VisibleForTesting
-    static final String DEFAULT_PASSWORD_ENV_VARIABLE = "KIWI_DATASOURCE_PASSWORD";
+    public static final String DEFAULT_PASSWORD_ENV_VARIABLE = "KIWI_DATASOURCE_PASSWORD";
 
-    @VisibleForTesting
-    static final String DEFAULT_PASSWORD_EXTERNAL_PROPERTY_KEY = "datasource.password";
+    public static final String DEFAULT_PASSWORD_EXTERNAL_PROPERTY_KEY = "datasource.password";
 
-    @VisibleForTesting
-    static final String DEFAULT_MAX_SIZE_SYSTEM_PROPERTY = "kiwi.datasource.maxSize";
+    public static final String DEFAULT_MAX_SIZE_SYSTEM_PROPERTY = "kiwi.datasource.maxSize";
 
-    @VisibleForTesting
-    static final String DEFAULT_MAX_SIZE_ENV_VARIABLE = "KIWI_DATASOURCE_MAX_SIZE";
+    public static final String DEFAULT_MAX_SIZE_ENV_VARIABLE = "KIWI_DATASOURCE_MAX_SIZE";
 
-    @VisibleForTesting
-    static final String DEFAULT_MAX_SIZE_EXTERNAL_PROPERTY_KEY = "datasource.maxSize";
+    public static final String DEFAULT_MAX_SIZE_EXTERNAL_PROPERTY_KEY = "datasource.maxSize";
 
-    @VisibleForTesting
-    static final String DEFAULT_MIN_SIZE_SYSTEM_PROPERTY = "kiwi.datasource.minSize";
+    public static final String DEFAULT_MIN_SIZE_SYSTEM_PROPERTY = "kiwi.datasource.minSize";
 
-    @VisibleForTesting
-    static final String DEFAULT_MIN_SIZE_ENV_VARIABLE = "KIWI_DATASOURCE_MIN_SIZE";
+    public static final String DEFAULT_MIN_SIZE_ENV_VARIABLE = "KIWI_DATASOURCE_MIN_SIZE";
 
-    @VisibleForTesting
-    static final String DEFAULT_MIN_SIZE_EXTERNAL_PROPERTY_KEY = "datasource.minSize";
+    public static final String DEFAULT_MIN_SIZE_EXTERNAL_PROPERTY_KEY = "datasource.minSize";
 
-    @VisibleForTesting
-    static final String DEFAULT_INITIAL_SIZE_SYSTEM_PROPERTY = "kiwi.datasource.initialSize";
+    public static final String DEFAULT_INITIAL_SIZE_SYSTEM_PROPERTY = "kiwi.datasource.initialSize";
 
-    @VisibleForTesting
-    static final String DEFAULT_INITIAL_SIZE_ENV_VARIABLE = "KIWI_DATASOURCE_INITIAL_SIZE";
+    public static final String DEFAULT_INITIAL_SIZE_ENV_VARIABLE = "KIWI_DATASOURCE_INITIAL_SIZE";
 
-    @VisibleForTesting
-    static final String DEFAULT_INITIAL_SIZE_EXTERNAL_PROPERTY_KEY = "datasource.initialSize";
+    public static final String DEFAULT_INITIAL_SIZE_EXTERNAL_PROPERTY_KEY = "datasource.initialSize";
 
-    @VisibleForTesting
-    static final String DEFAULT_ORM_PROPERTIES_SYSTEM_PROPERTY = "kiwi.datasource.ormProperties";
+    public static final String DEFAULT_ORM_PROPERTIES_SYSTEM_PROPERTY = "kiwi.datasource.ormProperties";
 
-    @VisibleForTesting
-    static final String DEFAULT_ORM_PROPERTIES_ENV_VARIABLE = "KIWI_DATASOURCE_ORM_PROPERTIES";
+    public static final String DEFAULT_ORM_PROPERTIES_ENV_VARIABLE = "KIWI_DATASOURCE_ORM_PROPERTIES";
 
-    @VisibleForTesting
-    static final String DEFAULT_ORM_PROPERTIES_EXTERNAL_PROPERTY_KEY = "datasource.ormProperties";
+    public static final String DEFAULT_ORM_PROPERTIES_EXTERNAL_PROPERTY_KEY = "datasource.ormProperties";
 
     private static final Map<String, String> DRIVER_CLASS_DEFAULTS = Map.of(
             SYSTEM_PROPERTY, DEFAULT_DRIVER_CLASS_SYSTEM_PROPERTY,
