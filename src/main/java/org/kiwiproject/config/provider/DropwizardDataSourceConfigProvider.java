@@ -24,7 +24,18 @@ import java.util.function.Supplier;
 /**
  * Config provider that determines the configuration for a Dropwizard data source object.
  * <p>
- * Default resolution lookup keys can be found in the constants for this class
+ * Default resolution lookup keys are as follows:
+ * <ul>
+ *     <li>System Property: kiwi.datasource.driverClass, kiwi.datasource.url, kiwi.datasource.user,
+ *     kiwi.datasource.password, kiwi.datasource.maxSize, kiwi.datasource.minSize,
+ *     kiwi.datasource.initialSize, kiwi.datasource.ormProperties</li>
+ *     <li>Environment Variable: KIWI_DATASOURCE_DRIVER_CLASS, KIWI_DATASOURCE_URL, KIWI_DATASOURCE_USER,
+ *     KIWI_DATASOURCE_PASSWORD, KIWI_DATASOURCE_MAX_SIZE, KIWI_DATASOURCE_MIN_SIZE,
+ *     KIWI_DATASOURCE_INITIAL_SIZE, KIWI_DATASOURCE_ORM_PROPERTIES</li>
+ *     <li>External Config File: datasource.driverClass, datasource.url, datasource.user,
+ *     datasource.password, datasource.maxSize, datasource.minSize,
+ *     datasource.initialSize, datasource.ormProperties</li>
+ * </ul>
  * @see SinglePropertyResolver for resolution order
  */
 public class DropwizardDataSourceConfigProvider implements ConfigProvider {

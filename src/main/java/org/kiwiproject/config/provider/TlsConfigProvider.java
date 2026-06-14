@@ -23,8 +23,21 @@ import java.util.function.Supplier;
 /**
  * Config provider that provides a {@link TlsContextConfiguration}.
  * <p>
- * Default resolution lookup keys can be found in the constants for this class
- *
+ * Default resolution lookup keys are as follows:
+ * <ul>
+ *     <li>System Property: kiwi.tls.keyStorePath, kiwi.tls.keyStorePassword, kiwi.tls.keyStoreType,
+ *     kiwi.tls.trustStorePath, kiwi.tls.trustStorePassword, kiwi.tls.trustStoreType,
+ *     kiwi.tls.verifyHostname, kiwi.tls.disableSniHostCheck, kiwi.tls.protocol,
+ *     kiwi.tls.supportedProtocols, kiwi.tls.supportedCiphers</li>
+ *     <li>Environment Variable: KIWI_TLS_KEYSTORE_PATH, KIWI_TLS_KEYSTORE_PASSWORD, KIWI_TLS_KEYSTORE_TYPE,
+ *     KIWI_TLS_TRUSTSTORE_PATH, KIWI_TLS_TRUSTSTORE_PASSWORD, KIWI_TLS_TRUSTSTORE_TYPE,
+ *     KIWI_TLS_VERIFY_HOSTNAME, KIWI_TLS_DISABLE_SNI_HOST_CHECK, KIWI_TLS_PROTOCOL,
+ *     KIWI_TLS_SUPPORTED_PROTOCOLS, KIWI_TLS_SUPPORTED_CIPHERS</li>
+ *     <li>External Config File: tls.keyStorePath, tls.keyStorePassword, tls.keyStoreType,
+ *     tls.trustStorePath, tls.trustStorePassword, tls.trustStoreType,
+ *     tls.verifyHostname, tls.disableSniHostCheck, tls.protocol,
+ *     tls.supportedProtocols, tls.supportedCiphers</li>
+ * </ul>
  * @see SinglePropertyResolver Resolution order defined in SinglePropertyResolver
  */
 public class TlsConfigProvider implements ConfigProvider {
