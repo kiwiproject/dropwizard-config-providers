@@ -3,7 +3,6 @@ package org.kiwiproject.config.provider;
 import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import org.kiwiproject.base.KiwiEnvironment;
@@ -26,32 +25,23 @@ import java.util.Map;
  */
 public class ElucidationConfigProvider implements ConfigProvider {
 
-    @VisibleForTesting
-    static final String DEFAULT_HOST_SYSTEM_PROPERTY = "kiwi.elucidation.host";
+    public static final String DEFAULT_HOST_SYSTEM_PROPERTY = "kiwi.elucidation.host";
 
-    @VisibleForTesting
-    static final String DEFAULT_HOST_ENV_VARIABLE = "KIWI_ELUCIDATION_HOST";
+    public static final String DEFAULT_HOST_ENV_VARIABLE = "KIWI_ELUCIDATION_HOST";
 
-    @VisibleForTesting
-    static final String DEFAULT_HOST_EXTERNAL_PROPERTY_KEY = "elucidation.host";
+    public static final String DEFAULT_HOST_EXTERNAL_PROPERTY_KEY = "elucidation.host";
 
-    @VisibleForTesting
-    static final String DEFAULT_PORT_SYSTEM_PROPERTY = "kiwi.elucidation.port";
+    public static final String DEFAULT_PORT_SYSTEM_PROPERTY = "kiwi.elucidation.port";
 
-    @VisibleForTesting
-    static final String DEFAULT_PORT_ENV_VARIABLE = "KIWI_ELUCIDATION_PORT";
+    public static final String DEFAULT_PORT_ENV_VARIABLE = "KIWI_ELUCIDATION_PORT";
 
-    @VisibleForTesting
-    static final String DEFAULT_PORT_EXTERNAL_PROPERTY_KEY = "elucidation.port";
+    public static final String DEFAULT_PORT_EXTERNAL_PROPERTY_KEY = "elucidation.port";
 
-    @VisibleForTesting
-    static final String DEFAULT_ENABLED_SYSTEM_PROPERTY = "kiwi.elucidation.enabled";
+    public static final String DEFAULT_ENABLED_SYSTEM_PROPERTY = "kiwi.elucidation.enabled";
 
-    @VisibleForTesting
-    static final String DEFAULT_ENABLED_ENV_VARIABLE = "KIWI_ELUCIDATION_ENABLED";
+    public static final String DEFAULT_ENABLED_ENV_VARIABLE = "KIWI_ELUCIDATION_ENABLED";
 
-    @VisibleForTesting
-    static final String DEFAULT_ENABLED_EXTERNAL_PROPERTY_KEY = "elucidation.enabled";
+    public static final String DEFAULT_ENABLED_EXTERNAL_PROPERTY_KEY = "elucidation.enabled";
 
     @Getter
     private final String host;

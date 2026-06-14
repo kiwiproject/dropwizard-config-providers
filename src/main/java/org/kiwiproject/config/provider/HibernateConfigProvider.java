@@ -3,7 +3,6 @@ package org.kiwiproject.config.provider;
 import static org.kiwiproject.collect.KiwiMaps.isNotNullOrEmpty;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import org.kiwiproject.base.KiwiEnvironment;
@@ -29,17 +28,13 @@ public class HibernateConfigProvider implements ConfigProvider {
 
     private static final JsonHelper JSON_HELPER = JsonHelper.newDropwizardJsonHelper();
 
-    @VisibleForTesting
-    static final String DEFAULT_HIBERNATE_SYSTEM_PROPERTY = "kiwi.hibernate.properties";
+    public static final String DEFAULT_HIBERNATE_SYSTEM_PROPERTY = "kiwi.hibernate.properties";
 
-    @VisibleForTesting
-    static final String DEFAULT_HIBERNATE_ENV_VARIABLE = "KIWI_HIBERNATE_PROPERTIES";
+    public static final String DEFAULT_HIBERNATE_ENV_VARIABLE = "KIWI_HIBERNATE_PROPERTIES";
 
-    @VisibleForTesting
-    static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "hibernate.properties";
+    public static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "hibernate.properties";
 
-    @VisibleForTesting
-    static final Map<String, Object> DEFAULT_HIBERNATE_PROPERTIES = Map.of(
+    public static final Map<String, Object> DEFAULT_HIBERNATE_PROPERTIES = Map.of(
             "hibernate.show_sql", false,
             "hibernate.format_sql", true,
             "hibernate.use_sql_comments", true

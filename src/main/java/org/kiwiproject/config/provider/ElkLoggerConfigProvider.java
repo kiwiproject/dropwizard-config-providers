@@ -4,7 +4,6 @@ import static java.util.Objects.isNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import org.kiwiproject.base.KiwiEnvironment;
@@ -28,32 +27,23 @@ import java.util.Map;
  */
 public class ElkLoggerConfigProvider implements ConfigProvider {
 
-    @VisibleForTesting
-    static final String DEFAULT_HOST_SYSTEM_PROPERTY = "kiwi.elk.host";
+    public static final String DEFAULT_HOST_SYSTEM_PROPERTY = "kiwi.elk.host";
 
-    @VisibleForTesting
-    static final String DEFAULT_HOST_ENV_VARIABLE = "KIWI_ELK_HOST";
+    public static final String DEFAULT_HOST_ENV_VARIABLE = "KIWI_ELK_HOST";
 
-    @VisibleForTesting
-    static final String DEFAULT_HOST_EXTERNAL_PROPERTY_KEY = "elk.host";
+    public static final String DEFAULT_HOST_EXTERNAL_PROPERTY_KEY = "elk.host";
 
-    @VisibleForTesting
-    static final String DEFAULT_PORT_SYSTEM_PROPERTY = "kiwi.elk.port";
+    public static final String DEFAULT_PORT_SYSTEM_PROPERTY = "kiwi.elk.port";
 
-    @VisibleForTesting
-    static final String DEFAULT_PORT_ENV_VARIABLE = "KIWI_ELK_PORT";
+    public static final String DEFAULT_PORT_ENV_VARIABLE = "KIWI_ELK_PORT";
 
-    @VisibleForTesting
-    static final String DEFAULT_PORT_EXTERNAL_PROPERTY_KEY = "elk.port";
+    public static final String DEFAULT_PORT_EXTERNAL_PROPERTY_KEY = "elk.port";
 
-    @VisibleForTesting
-    static final String DEFAULT_CUSTOM_FIELDS_SYSTEM_PROPERTY = "kiwi.elk.customFields";
+    public static final String DEFAULT_CUSTOM_FIELDS_SYSTEM_PROPERTY = "kiwi.elk.customFields";
 
-    @VisibleForTesting
-    static final String DEFAULT_CUSTOM_FIELDS_ENV_VARIABLE = "KIWI_ELK_CUSTOM_FIELDS";
+    public static final String DEFAULT_CUSTOM_FIELDS_ENV_VARIABLE = "KIWI_ELK_CUSTOM_FIELDS";
 
-    @VisibleForTesting
-    static final String DEFAULT_CUSTOM_FIELDS_EXTERNAL_PROPERTY_KEY = "elk.customFields";
+    public static final String DEFAULT_CUSTOM_FIELDS_EXTERNAL_PROPERTY_KEY = "elk.customFields";
 
     @Getter
     private final String host;

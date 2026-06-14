@@ -2,7 +2,6 @@ package org.kiwiproject.config.provider;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.Builder;
 import lombok.Getter;
 import org.kiwiproject.base.KiwiEnvironment;
@@ -26,14 +25,11 @@ import java.util.Map;
  */
 public class NetworkIdentityConfigProvider implements ConfigProvider {
 
-    @VisibleForTesting
-    static final String DEFAULT_NETWORK_SYSTEM_PROPERTY = "kiwi.network";
+    public static final String DEFAULT_NETWORK_SYSTEM_PROPERTY = "kiwi.network";
 
-    @VisibleForTesting
-    static final String DEFAULT_NETWORK_ENV_VARIABLE = "KIWI_NETWORK";
+    public static final String DEFAULT_NETWORK_ENV_VARIABLE = "KIWI_NETWORK";
 
-    @VisibleForTesting
-    static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "network";
+    public static final String DEFAULT_EXTERNAL_PROPERTY_KEY = "network";
 
     @Getter
     private final String network;

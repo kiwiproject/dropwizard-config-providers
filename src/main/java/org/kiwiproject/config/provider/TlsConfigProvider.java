@@ -4,7 +4,6 @@ import static java.util.Objects.nonNull;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.kiwiproject.collect.KiwiMaps.newUnmodifiableHashMap;
 
-import com.google.common.annotations.VisibleForTesting;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -46,104 +45,71 @@ public class TlsConfigProvider implements ConfigProvider {
     private static final String SUPPORTED_PROTOCOLS_FIELD = "supportedProtocols";
     private static final String SUPPORTED_CIPHERS_FIELD = "supportedCiphers";
 
-    @VisibleForTesting
-    static final String DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY = "kiwi.tls.keyStorePath";
+    public static final String DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY = "kiwi.tls.keyStorePath";
 
-    @VisibleForTesting
-    static final String DEFAULT_KEYSTORE_PATH_ENV_VARIABLE = "KIWI_TLS_KEYSTORE_PATH";
+    public static final String DEFAULT_KEYSTORE_PATH_ENV_VARIABLE = "KIWI_TLS_KEYSTORE_PATH";
 
-    @VisibleForTesting
-    static final String DEFAULT_KEYSTORE_PATH_EXTERNAL_PROPERTY_KEY = "tls.keyStorePath";
+    public static final String DEFAULT_KEYSTORE_PATH_EXTERNAL_PROPERTY_KEY = "tls.keyStorePath";
 
-    @VisibleForTesting
-    static final String DEFAULT_KEYSTORE_PASSWORD_SYSTEM_PROPERTY = "kiwi.tls.keyStorePassword";
+    public static final String DEFAULT_KEYSTORE_PASSWORD_SYSTEM_PROPERTY = "kiwi.tls.keyStorePassword";
 
-    @VisibleForTesting
-    static final String DEFAULT_KEYSTORE_PASSWORD_ENV_VARIABLE = "KIWI_TLS_KEYSTORE_PASSWORD";
+    public static final String DEFAULT_KEYSTORE_PASSWORD_ENV_VARIABLE = "KIWI_TLS_KEYSTORE_PASSWORD";
 
-    @VisibleForTesting
-    static final String DEFAULT_KEYSTORE_PASSWORD_EXTERNAL_PROPERTY_KEY = "tls.keyStorePassword";
+    public static final String DEFAULT_KEYSTORE_PASSWORD_EXTERNAL_PROPERTY_KEY = "tls.keyStorePassword";
 
-    @VisibleForTesting
-    static final String DEFAULT_KEYSTORE_TYPE_SYSTEM_PROPERTY = "kiwi.tls.keyStoreType";
+    public static final String DEFAULT_KEYSTORE_TYPE_SYSTEM_PROPERTY = "kiwi.tls.keyStoreType";
 
-    @VisibleForTesting
-    static final String DEFAULT_KEYSTORE_TYPE_ENV_VARIABLE = "KIWI_TLS_KEYSTORE_TYPE";
+    public static final String DEFAULT_KEYSTORE_TYPE_ENV_VARIABLE = "KIWI_TLS_KEYSTORE_TYPE";
 
-    @VisibleForTesting
-    static final String DEFAULT_KEYSTORE_TYPE_EXTERNAL_PROPERTY_KEY = "tls.keyStoreType";
+    public static final String DEFAULT_KEYSTORE_TYPE_EXTERNAL_PROPERTY_KEY = "tls.keyStoreType";
 
-    @VisibleForTesting
-    static final String DEFAULT_TRUSTSTORE_PATH_SYSTEM_PROPERTY = "kiwi.tls.trustStorePath";
+    public static final String DEFAULT_TRUSTSTORE_PATH_SYSTEM_PROPERTY = "kiwi.tls.trustStorePath";
 
-    @VisibleForTesting
-    static final String DEFAULT_TRUSTSTORE_PATH_ENV_VARIABLE = "KIWI_TLS_TRUSTSTORE_PATH";
+    public static final String DEFAULT_TRUSTSTORE_PATH_ENV_VARIABLE = "KIWI_TLS_TRUSTSTORE_PATH";
 
-    @VisibleForTesting
-    static final String DEFAULT_TRUSTSTORE_PATH_EXTERNAL_PROPERTY_KEY = "tls.trustStorePath";
+    public static final String DEFAULT_TRUSTSTORE_PATH_EXTERNAL_PROPERTY_KEY = "tls.trustStorePath";
 
-    @VisibleForTesting
-    static final String DEFAULT_TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY = "kiwi.tls.trustStorePassword";
+    public static final String DEFAULT_TRUSTSTORE_PASSWORD_SYSTEM_PROPERTY = "kiwi.tls.trustStorePassword";
 
-    @VisibleForTesting
-    static final String DEFAULT_TRUSTSTORE_PASSWORD_ENV_VARIABLE = "KIWI_TLS_TRUSTSTORE_PASSWORD";
+    public static final String DEFAULT_TRUSTSTORE_PASSWORD_ENV_VARIABLE = "KIWI_TLS_TRUSTSTORE_PASSWORD";
 
-    @VisibleForTesting
-    static final String DEFAULT_TRUSTSTORE_PASSWORD_EXTERNAL_PROPERTY_KEY = "tls.trustStorePassword";
+    public static final String DEFAULT_TRUSTSTORE_PASSWORD_EXTERNAL_PROPERTY_KEY = "tls.trustStorePassword";
 
-    @VisibleForTesting
-    static final String DEFAULT_TRUSTSTORE_TYPE_SYSTEM_PROPERTY = "kiwi.tls.trustStoreType";
+    public static final String DEFAULT_TRUSTSTORE_TYPE_SYSTEM_PROPERTY = "kiwi.tls.trustStoreType";
 
-    @VisibleForTesting
-    static final String DEFAULT_TRUSTSTORE_TYPE_ENV_VARIABLE = "KIWI_TLS_TRUSTSTORE_TYPE";
+    public static final String DEFAULT_TRUSTSTORE_TYPE_ENV_VARIABLE = "KIWI_TLS_TRUSTSTORE_TYPE";
 
-    @VisibleForTesting
-    static final String DEFAULT_TRUSTSTORE_TYPE_EXTERNAL_PROPERTY_KEY = "tls.trustStoreType";
+    public static final String DEFAULT_TRUSTSTORE_TYPE_EXTERNAL_PROPERTY_KEY = "tls.trustStoreType";
 
-    @VisibleForTesting
-    static final String DEFAULT_VERIFY_HOSTNAME_SYSTEM_PROPERTY = "kiwi.tls.verifyHostname";
+    public static final String DEFAULT_VERIFY_HOSTNAME_SYSTEM_PROPERTY = "kiwi.tls.verifyHostname";
 
-    @VisibleForTesting
-    static final String DEFAULT_VERIFY_HOSTNAME_ENV_VARIABLE = "KIWI_TLS_VERIFY_HOSTNAME";
+    public static final String DEFAULT_VERIFY_HOSTNAME_ENV_VARIABLE = "KIWI_TLS_VERIFY_HOSTNAME";
 
-    @VisibleForTesting
-    static final String DEFAULT_VERIFY_HOSTNAME_EXTERNAL_PROPERTY_KEY = "tls.verifyHostname";
+    public static final String DEFAULT_VERIFY_HOSTNAME_EXTERNAL_PROPERTY_KEY = "tls.verifyHostname";
 
-    @VisibleForTesting
-    static final String DEFAULT_DISABLE_SNI_HOST_CHECK_SYSTEM_PROPERTY = "kiwi.tls.disableSniHostCheck";
+    public static final String DEFAULT_DISABLE_SNI_HOST_CHECK_SYSTEM_PROPERTY = "kiwi.tls.disableSniHostCheck";
 
-    @VisibleForTesting
-    static final String DEFAULT_DISABLE_SNI_HOST_CHECK_ENV_VARIABLE = "KIWI_TLS_DISABLE_SNI_HOST_CHECK";
+    public static final String DEFAULT_DISABLE_SNI_HOST_CHECK_ENV_VARIABLE = "KIWI_TLS_DISABLE_SNI_HOST_CHECK";
 
-    @VisibleForTesting
-    static final String DEFAULT_DISABLE_SNI_HOST_CHECK_EXTERNAL_PROPERTY_KEY = "tls.disableSniHostCheck";
+    public static final String DEFAULT_DISABLE_SNI_HOST_CHECK_EXTERNAL_PROPERTY_KEY = "tls.disableSniHostCheck";
 
-    @VisibleForTesting
-    static final String DEFAULT_PROTOCOL_SYSTEM_PROPERTY = "kiwi.tls.protocol";
+    public static final String DEFAULT_PROTOCOL_SYSTEM_PROPERTY = "kiwi.tls.protocol";
 
-    @VisibleForTesting
-    static final String DEFAULT_PROTOCOL_ENV_VARIABLE = "KIWI_TLS_PROTOCOL";
+    public static final String DEFAULT_PROTOCOL_ENV_VARIABLE = "KIWI_TLS_PROTOCOL";
 
-    @VisibleForTesting
-    static final String DEFAULT_PROTOCOL_EXTERNAL_PROPERTY_KEY = "tls.protocol";
+    public static final String DEFAULT_PROTOCOL_EXTERNAL_PROPERTY_KEY = "tls.protocol";
 
-    @VisibleForTesting
-    static final String DEFAULT_SUPPORTED_PROTOCOLS_SYSTEM_PROPERTY = "kiwi.tls.supportedProtocols";
+    public static final String DEFAULT_SUPPORTED_PROTOCOLS_SYSTEM_PROPERTY = "kiwi.tls.supportedProtocols";
 
-    @VisibleForTesting
-    static final String DEFAULT_SUPPORTED_PROTOCOLS_ENV_VARIABLE = "KIWI_TLS_SUPPORTED_PROTOCOLS";
+    public static final String DEFAULT_SUPPORTED_PROTOCOLS_ENV_VARIABLE = "KIWI_TLS_SUPPORTED_PROTOCOLS";
 
-    @VisibleForTesting
-    static final String DEFAULT_SUPPORTED_PROTOCOLS_EXTERNAL_PROPERTY_KEY = "tls.supportedProtocols";
+    public static final String DEFAULT_SUPPORTED_PROTOCOLS_EXTERNAL_PROPERTY_KEY = "tls.supportedProtocols";
 
-    @VisibleForTesting
-    static final String DEFAULT_SUPPORTED_CIPHERS_SYSTEM_PROPERTY = "kiwi.tls.supportedCiphers";
+    public static final String DEFAULT_SUPPORTED_CIPHERS_SYSTEM_PROPERTY = "kiwi.tls.supportedCiphers";
 
-    @VisibleForTesting
-    static final String DEFAULT_SUPPORTED_CIPHERS_ENV_VARIABLE = "KIWI_TLS_SUPPORTED_CIPHERS";
+    public static final String DEFAULT_SUPPORTED_CIPHERS_ENV_VARIABLE = "KIWI_TLS_SUPPORTED_CIPHERS";
 
-    @VisibleForTesting
-    static final String DEFAULT_SUPPORTED_CIPHERS_EXTERNAL_PROPERTY_KEY = "tls.supportedCiphers";
+    public static final String DEFAULT_SUPPORTED_CIPHERS_EXTERNAL_PROPERTY_KEY = "tls.supportedCiphers";
 
     private static final Map<String, String> KEYSTORE_PATH_DEFAULTS = Map.of(
             SYSTEM_PROPERTY, DEFAULT_KEYSTORE_PATH_SYSTEM_PROPERTY,
